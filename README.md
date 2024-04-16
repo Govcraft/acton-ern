@@ -63,3 +63,5 @@ To include `quasar-qrn` in your Rust project, add the following to your `Cargo.t
 ```toml
 [dependencies]
 quasar-qrn = "0.1.0"
+```
+For more information, visit [Govcraft](https://govcraft.ai), developers of cloud-native solutions for government agencies.
