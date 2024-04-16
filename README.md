@@ -56,12 +56,4 @@ Use QRNs for logging, access control, and management tools to monitor interactio
 
 The `quasar-qrn` crate is an essential component of the Quasar framework, providing a robust method for uniquely identifying and managing actors within a complex, hierarchical structure, supporting enhanced security, operational management, and clarity throughout the system.
 
-### Installation
-
-To include `quasar-qrn` in your Rust project, add the following to your `Cargo.toml` file:
-
-```toml
-[dependencies]
-quasar-qrn = "0.1.0"
-```
 For more information, visit [Govcraft](https://govcraft.ai), developers of cloud-native solutions for government agencies.
