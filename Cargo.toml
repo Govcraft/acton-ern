@@ -2,7 +2,15 @@
 name = "quasar-qrn"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["Govcraft <contact@govcraft.ai>"]
+description = "A Rust library for handling Quasar Resource Names (QRNs), providing tools for generating, parsing, and managing QRNs within government cloud-native solutions."
+repository = "https://github.com/govcraft/quasar-qrn"
+documentation = "https://docs.rs/quasar-qrn"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+keywords = ["qrn", "resource-management", "cloud", "government"]
+categories = ["api-bindings", "cryptography", "data-structures", "network-programming", "authentication"]
+homepage = "https://govcraft.com/quasar-qrn"
 
 [dependencies]
+
