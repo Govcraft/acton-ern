@@ -1,6 +1,5 @@
 extern crate core;
 
-use std::marker::PhantomData;
 mod parser;
 mod traits;
 mod builder;
