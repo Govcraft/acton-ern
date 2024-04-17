@@ -14,6 +14,12 @@ fn test() {
 }
 
 #[test]
+fn test_default() {
+    let qrn : Qrn= Default::default();
+    assert_eq!(qrn.value, "qrn:quasar:system:framework:root");
+}
+
+#[test]
 fn test_parser() {
     let parser = QrnParser::new("qrn:quasar-internal:hr:company123:root/departmentA/team1");
     let result = parser.parse();

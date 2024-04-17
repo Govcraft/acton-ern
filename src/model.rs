@@ -8,7 +8,7 @@ pub struct Qrn {
 
 impl Default for Qrn {
     fn default() -> Self {
-        Qrn{ value: "urn:quasar:system:framework:root".to_string() }
+        Qrn{ value: "qrn:quasar:system:framework:root".to_string() }
     }
 }
 
