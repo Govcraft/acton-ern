@@ -37,7 +37,7 @@ pub mod prelude {
     //!
     //! This module re-exports essential traits and structures for easy use by downstream consumers.
 
-    pub use super::model::{Domain, Category, Company, Part, Parts};
+    pub use super::model::{Domain, Category, Company, Part, Parts, Qrn};
     pub use super::traits::QrnComponent;
     pub use super::builder::QrnBuilder;
     pub use super::parser::QrnParser;
