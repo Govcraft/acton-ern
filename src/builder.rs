@@ -58,21 +58,26 @@ impl PrivateQrnBuilder {
     }
 
     /// Adds a new part to the builder's operations, using a closure to encapsulate the addition logic.
+    /// Adds a new part to the builder's operations, using a closure to encapsulate the addition logic.
+    /// Uses ':' or '/' based on the position in the QRN string.
     fn add_part(mut self, part: &str) -> Self {
         assert!(!part.is_empty(), "Part cannot be empty");
         assert!(part.len() <= 256, "Part is too long");
-
-        let part = part.to_owned();
         assert!(!part.contains('\n'), "Part cannot contain newline characters");
 
+        let part = part.to_owned();
         let operation: Box<dyn Fn(String) -> String> = Box::new(move |qrn: String| -> String {
             if !qrn.is_empty() {
-                let result = format!("{}:{}", qrn, part);
+                // Determine the correct separator based on the existing content of the QRN
+                let separator = if qrn.contains('/') || qrn.ends_with("root") {
+                    "/"
+                } else {
+                    ":"
+                };
+                let result = format!("{}{}{}", qrn, separator, part);
                 assert!(!result.ends_with(':'), "Result should not end with a colon");
-                assert!(result.starts_with("qrn:"), "Result should start with 'qrn:' if not empty");
                 result
             } else {
-                assert_eq!(part, part.clone(), "Cloned part should be equal to the original part");
                 part.clone()
             }
         });

@@ -6,6 +6,21 @@ pub struct Qrn {
     pub value: String
 }
 
+impl Qrn {
+    pub fn append_part(&mut self, part: &str) {
+        // Ensure the new part does not start with an erroneous separator
+        assert!(!part.starts_with(':') && !part.contains('/'), "New part must not start with ':' or contain '/'");
+
+        // Check if there's already a path component to decide on the right separator
+        if self.value.contains('/') {
+            self.value.push_str("/");
+        } else {
+            self.value.push_str(":");
+        }
+        self.value.push_str(part);
+    }
+}
+
 impl Default for Qrn {
     fn default() -> Self {
         Qrn{ value: "qrn:quasar:system:framework:root".to_string() }
