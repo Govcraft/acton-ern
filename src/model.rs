@@ -1,7 +1,7 @@
 use std::fmt;
 
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Qrn {
     pub value: String
 }

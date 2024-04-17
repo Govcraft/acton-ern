@@ -87,7 +87,4 @@ impl PrivateQrnBuilder {
         let qrn_string = self.operations.into_iter().fold(String::new(), |qrn, func| func(qrn));
         Qrn { value: qrn_string }
     }
-    // fn build(self) -> String {
-    //     self.operations.into_iter().fold(String::new(), |qrn, func| func(qrn))
-    // }
 }
