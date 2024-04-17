@@ -10,7 +10,7 @@ fn test() {
         .add::<Part>("departmentA")
         .add::<Part>("team1")
         .build();
-    assert_eq!(qrn, "qrn:quasar-internal:hr:company123:root:departmentA:team1");
+    assert_eq!(qrn.value, "qrn:quasar-internal:hr:company123:root:departmentA:team1");
 }
 
 #[test]

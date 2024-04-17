@@ -1,5 +1,19 @@
 use std::fmt;
 
+
+#[derive(Debug, PartialEq)]
+pub struct Qrn {
+    pub value: String
+}
+
+
+impl fmt::Display for Qrn {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.value)
+    }
+}
+
+
 /// Represents a domain in the QRN system, which is a segment of the identifier.
 #[derive(Debug, PartialEq)]
 pub struct Domain(pub(crate) String);

@@ -1,5 +1,5 @@
 use crate::model::Domain;
-use crate::{Part, Parts};
+use crate::{Part, Parts, Qrn};
 use crate::traits::QrnComponent;
 
 /// A builder for constructing QRN strings using a state-driven approach with type safety.
@@ -22,7 +22,7 @@ impl QrnBuilder<()> {
 /// Implementation of `QrnBuilder` for `Part` states, allowing for building the final QRN string.
 impl QrnBuilder<Part> {
     /// Finalizes the building process and constructs the full QRN string.
-    pub fn build(self) -> String {
+    pub fn build(self) -> Qrn {
         self.builder.build()
     }
 }
@@ -30,7 +30,7 @@ impl QrnBuilder<Part> {
 /// Implementation of `QrnBuilder` for handling `Parts` states, specifically when QRN involves multiple parts.
 impl QrnBuilder<Parts> {
     /// Finalizes the building process and constructs the full QRN string when in the `Parts` state.
-    pub fn build(self) -> String {
+    pub fn build(self) -> Qrn {
         self.builder.build()
     }
 }
@@ -83,7 +83,11 @@ impl PrivateQrnBuilder {
     }
 
     /// Finalizes and builds the QRN string by applying all operations sequentially.
-    fn build(self) -> String {
-        self.operations.into_iter().fold(String::new(), |qrn, func| func(qrn))
+    fn build(self) -> Qrn {
+        let qrn_string = self.operations.into_iter().fold(String::new(), |qrn, func| func(qrn));
+        Qrn { value: qrn_string }
     }
+    // fn build(self) -> String {
+    //     self.operations.into_iter().fold(String::new(), |qrn, func| func(qrn))
+    // }
 }
