@@ -11,15 +11,21 @@ impl Qrn {
         // Ensure the new part does not start with an erroneous separator
         assert!(!part.starts_with(':') && !part.contains('/'), "New part must not start with ':' or contain '/'");
 
-        // Check if there's already a path component to decide on the right separator
-        if self.value.contains('/') {
-            self.value.push_str("/");
+        // Determine the correct separator based on the last segment in the QRN string
+        // If the last segment is 'root' or if any part after the root has been added (contains '/'),
+        // we should use '/', otherwise use ':'.
+        let separator = if self.value.ends_with("root") || self.value.contains('/') {
+            "/"
         } else {
-            self.value.push_str(":");
-        }
+            ":"
+        };
+
+        // Append the new part with the correct separator
+        self.value.push_str(separator);
         self.value.push_str(part);
     }
 }
+
 
 impl Default for Qrn {
     fn default() -> Self {

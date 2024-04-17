@@ -57,4 +57,20 @@ mod tests {
         // Check the final state of the QRN to ensure it matches expected output
         assert_eq!(qrn.to_string(), "qrn:quasar-internal:hr:company123:root/departmentA/team1", "QRN should match the expected value after appending a new part");
     }
+    #[test]
+    fn test_append_part_from_root() {
+        // Initialize the QRN object with a base QRN string
+        let mut qrn = QrnBuilder::new()
+            .add::<Domain>("quasar-internal")
+            .add::<Category>("hr")
+            .add::<Company>("company123")
+            .add::<Part>("root")
+            .build();
+
+        // Append a new part to the QRN
+        qrn.append_part("team1");
+
+        // Check the final state of the QRN to ensure it matches expected output
+        assert_eq!(qrn.to_string(), "qrn:quasar-internal:hr:company123:root/team1", "QRN should match the expected value after appending a new part");
+    }
 }
