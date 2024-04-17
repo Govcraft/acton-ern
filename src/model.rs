@@ -6,6 +6,12 @@ pub struct Qrn {
     pub value: String
 }
 
+impl Default for Qrn {
+    fn default() -> Self {
+        Qrn{ value: "urn:quasar:system:framework:root".to_string() }
+    }
+}
+
 
 impl fmt::Display for Qrn {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
