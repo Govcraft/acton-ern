@@ -2,7 +2,7 @@ use crate::{Category, Company, Domain, Part, Parts};
 
 /// Trait for parsing strings into domain, category, or company components.
 pub trait FromStr {
-    /// Parses a string into a component of a QRN.
+    /// Parses a string into a component of a Arn.
     fn from_str(s: &str) -> Result<Self, &'static str> where Self: Sized;
 }
 
@@ -36,9 +36,9 @@ impl FromStr for Company {
     }
 }
 
-/// Implementation of `QrnComponent` for `Parts`.
+/// Implementation of `ArnComponent` for `Parts`.
 impl FromStr for Parts {
-    /// Parses a string into a collection of `Part` instances, representing multiple QRN parts.
+    /// Parses a string into a collection of `Part` instances, representing multiple Arn parts.
     fn from_str(s: &str) -> Result<Self, &'static str> {
         let parts = s.split('/')
             .map(|part| Part::new(part)) // Create a `Part` from each split string

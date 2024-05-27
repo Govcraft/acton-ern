@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "quasar-qrn"
+name = "akton-arn"
 version = "0.1.0"

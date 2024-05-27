@@ -1,40 +1,52 @@
-use quasar_qrn::*;
+use akton_arn::*;
+
+/// Tests for the Akton ARN implementation
 
 #[test]
 fn test() {
-    let qrn = QrnBuilder::new()
-        .add::<Domain>("quasar-internal")
+    // Create an Arn using the ArnBuilder with specified components
+    let arn = ArnBuilder::new()
+        .add::<Domain>("akton-internal")
         .add::<Category>("hr")
         .add::<Company>("company123")
         .add::<Part>("root")
         .add::<Part>("departmentA")
         .add::<Part>("team1")
         .build();
-    assert_eq!(qrn.value, "qrn:quasar-internal:hr:company123:root/departmentA/team1");
+
+    // Verify the constructed Arn matches the expected value
+    assert_eq!(arn.value, "arn:akton-internal:hr:company123:root/departmentA/team1");
 }
 
 #[test]
 fn test_default() {
-    let qrn : Qrn= Default::default();
-    assert_eq!(qrn.value, "qrn:quasar:system:framework:root");
+    // Create a default Arn using the Default trait implementation
+    let arn: Arn = Default::default();
+
+    // Verify the default Arn matches the expected value
+    assert_eq!(arn.value, "arn:akton:system:framework:root");
 }
 
 #[test]
 fn test_parser() {
-    let parser = QrnParser::new("qrn:quasar-internal:hr:company123:root/departmentA/team1");
+    // Create an ArnParser with a specific Arn string
+    let parser = ArnParser::new("arn:akton-internal:hr:company123:root/departmentA/team1");
+
+    // Parse the Arn string into its components
     let result = parser.parse();
 
+    // Verify the parser returns a successful result
     assert!(result.is_ok(), "Parser should return Ok, but returned Err with message: {:?}", result.err());
 
+    // Extract the components from the result
     let (domain, category, company, parts) = result.unwrap();
 
-    // Ensure we can compare these directly if Domain, Category, Company, and Parts implement Display
-    assert_eq!(domain.to_string(), "quasar-internal", "Domain should be 'quasar-internal'");
+    // Verify each component matches the expected value
+    assert_eq!(domain.to_string(), "akton-internal", "Domain should be 'akton-internal'");
     assert_eq!(category.to_string(), "hr", "Category should be 'hr'");
     assert_eq!(company.to_string(), "company123", "Company should be 'company123'");
     assert_eq!(parts.to_string(), "root/departmentA/team1", "Parts should match expected values");
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -42,52 +54,53 @@ mod tests {
 
     #[test]
     fn test_append_part() {
-        // Initialize the QRN object with a base QRN string
-        let mut qrn = QrnBuilder::new()
-            .add::<Domain>("quasar-internal")
+        // Initialize the Arn object with a base Arn string
+        let mut arn = ArnBuilder::new()
+            .add::<Domain>("akton-internal")
             .add::<Category>("hr")
             .add::<Company>("company123")
             .add::<Part>("root")
             .add::<Part>("departmentA")
             .build();
 
-        // Append a new part to the QRN
-        qrn.append_part("team1");
+        // Append a new part to the Arn
+        arn.append_part("team1");
 
-        // Check the final state of the QRN to ensure it matches expected output
-        assert_eq!(qrn.to_string(), "qrn:quasar-internal:hr:company123:root/departmentA/team1", "QRN should match the expected value after appending a new part");
+        // Verify the final state of the Arn matches the expected output
+        assert_eq!(arn.to_string(), "arn:akton-internal:hr:company123:root/departmentA/team1", "Arn should match the expected value after appending a new part");
     }
+
     #[test]
     fn test_append_part_from_root() {
-        // Initialize the QRN object with a base QRN string
-        let mut qrn = QrnBuilder::new()
-            .add::<Domain>("quasar-internal")
+        // Initialize the Arn object with a base Arn string
+        let mut arn = ArnBuilder::new()
+            .add::<Domain>("akton-internal")
             .add::<Category>("hr")
             .add::<Company>("company123")
             .add::<Part>("root")
             .build();
 
-        // Append a new part to the QRN
-        qrn.append_part("team1");
+        // Append a new part to the Arn
+        arn.append_part("team1");
 
-        // Check the final state of the QRN to ensure it matches expected output
-        assert_eq!(qrn.to_string(), "qrn:quasar-internal:hr:company123:root/team1", "QRN should match the expected value after appending a new part");
+        // Verify the final state of the Arn matches the expected output
+        assert_eq!(arn.to_string(), "arn:akton-internal:hr:company123:root/team1", "Arn should match the expected value after appending a new part");
     }
 }
 
 #[test]
 fn test_clone() {
-    // Initialize the QRN object with a base QRN string
-    let qrn = QrnBuilder::new()
-        .add::<Domain>("quasar-internal")
+    // Initialize the Arn object with a base Arn string
+    let arn = ArnBuilder::new()
+        .add::<Domain>("akton-internal")
         .add::<Category>("hr")
         .add::<Company>("company123")
         .add::<Part>("root")
         .build();
 
-    // Append a new part to the QRN
-    let cloned = qrn.clone();
+    // Clone the Arn
+    let cloned = arn.clone();
 
-    // Check the final state of the QRN to ensure it matches expected output
-    assert_eq!(qrn, cloned, "QRN should match the expected value after clone");
+    // Verify the cloned Arn matches the original
+    assert_eq!(arn, cloned, "Arn should match the expected value after clone");
 }
