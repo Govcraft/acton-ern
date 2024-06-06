@@ -1,7 +1,7 @@
 use std::fmt;
 
 /// Represents an Akton Resource Name (Arn), which uniquely identifies resources within the Akton framework.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Hash, Eq)]
 pub struct Arn {
     /// The full Arn string value.
     pub value: String,
