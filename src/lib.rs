@@ -17,77 +17,80 @@
 //! - `model`: Contains the models representing different parts of an Arn.
 //! - `traits`: Traits used across the crate for common functionality.
 //!
-//! To get started, include the necessary components from the `prelude` module:
-//!
-//! ```
-//! use akton_arn::prelude::*;
-//! ```
-//!
-//! ### Example: Building an Arn
-//!
-//! ```
-//! use akton_arn::prelude::*;
-//!
-//! let arn = ArnBuilder::new()
-//!     .add::<Domain>("akton-internal")
-//!     .add::<Category>("hr")
-//!     .add::<Company>("company123")
-//!     .add::<Part>("root")
-//!     .add::<Part>("departmentA")
-//!     .add::<Part>("team1")
-//!     .build();
-//! assert_eq!(arn.value, "arn:akton-internal:hr:company123:root/departmentA/team1");
-//! ```
-//!
-//! ### Example: Parsing an Arn
-//!
-//! ```
-//! use akton_arn::prelude::*;
-//!
-//! let parser = ArnParser::new("arn:akton-internal:hr:company123:root/departmentA/team1");
-//! let result = parser.parse();
-//!
-//! assert!(result.is_ok());
-//!
-//! let (domain, category, company, parts) = result.unwrap();
-//! assert_eq!(domain.to_string(), "akton-internal");
-//! assert_eq!(category.to_string(), "hr");
-//! assert_eq!(company.to_string(), "company123");
-//! assert_eq!(parts.to_string(), "root/departmentA/team1");
-//! ```
-//!
-//! ### Example: Using the Default Implementation
-//!
-//! ```
-//! use akton_arn::prelude::*;
-//!
-//! // Create a default Arn
-//! let default_arn: Arn = Default::default();
-//! assert_eq!(default_arn.value, "arn:akton:system:framework:root");
-//! ```
 
-#![warn(missing_docs)]
+#![allow(missing_docs)]
 
 extern crate core;
 
-mod model;
-mod traits;
-mod parser;
 mod builder;
+mod errors;
+mod model;
+mod parser;
+mod traits;
 
 pub mod prelude {
     //! The prelude module for `akton-arn`.
     //!
     //! This module re-exports essential traits and structures for easy use by downstream consumers.
 
-    pub use super::model::{Domain, Category, Company, Part, Parts, Arn};
-    pub use super::traits::ArnComponent;
     pub use super::builder::ArnBuilder;
+    pub use super::model::{Account, Arn, Category, Domain, Part, Parts};
     pub use super::parser::ArnParser;
+    pub use super::traits::ArnComponent;
 }
 
 // Re-exporting the public API under the root of the crate for direct access
-pub use model::*;
-pub use traits::*;
-pub use parser::*;
 pub use builder::*;
+pub use model::*;
+pub use parser::*;
+pub use traits::*;
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Once;
+    use tracing::Level;
+    use tracing_subscriber::fmt::format::FmtSpan;
+    use tracing_subscriber::{EnvFilter, FmtSubscriber};
+
+    static INIT: Once = Once::new();
+
+    pub fn init_tracing() {
+        INIT.call_once(|| {
+            // Define an environment filter to suppress logs from the specific function
+
+            // let filter = EnvFilter::new("")
+            //     // .add_directive("akton_core::common::context::emit_pool=trace".parse().unwrap())
+            //     // .add_directive("akton_core::common::context::my_func=trace".parse().unwrap())
+            //     .add_directive("akton_core::common::context[my_func]=trace".parse().unwrap())
+            //     .add_directive(Level::INFO.into()); // Set global log level to INFO
+
+            let filter = EnvFilter::new("")
+                .add_directive("akton-arn::parser::tests=trace".parse().unwrap())
+                .add_directive("broker_tests=trace".parse().unwrap())
+                .add_directive("launchpad_tests=trace".parse().unwrap())
+                .add_directive("lifecycle_tests=info".parse().unwrap())
+                .add_directive("actor_tests=info".parse().unwrap())
+                .add_directive("load_balancer_tests=info".parse().unwrap())
+                .add_directive(
+                    "akton::tests::setup::actors::pool_item=info"
+                        .parse()
+                        .unwrap(),
+                )
+                .add_directive("messaging_tests=info".parse().unwrap());
+            // .add_directive(tracing_subscriber::filter::LevelFilter::INFO.into()); // Set global log level to TRACE
+
+            let subscriber = FmtSubscriber::builder()
+                // .with_span_events(FmtSpan::ENTER | FmtSpan::EXIT)
+                .with_span_events(FmtSpan::NONE)
+                .with_max_level(Level::TRACE)
+                .compact()
+                .with_line_number(true)
+                .without_time()
+                .with_env_filter(filter)
+                .finish();
+
+            tracing::subscriber::set_global_default(subscriber)
+                .expect("setting default subscriber failed");
+        });
+    }
+}

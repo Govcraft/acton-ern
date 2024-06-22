@@ -1,58 +1,43 @@
-use crate::{Category, Company, Domain, Part, Parts};
+use crate::{Account, Category, Domain, Part, Parts, Root};
+use std::borrow::Cow;
 
-/// Represents a component of a Arn (akton Resource Name) that ensures type safety and ordering.
-///
-/// Each implementor of `ArnComponent` defines a prefix specific to its part of the Arn
-/// and specifies the next expected component type, enabling compile-time checks of Arn construction.
-pub trait ArnComponent {
+/// Represents a component of a Arn (Akton Resource Name) that ensures type safety and ordering.
+pub trait ArnComponent<'a> {
     /// Returns the prefix string that should appear before this component in a Arn.
     fn prefix() -> &'static str;
-
     /// The type of the next Arn component in the sequence.
     type NextState;
+    /// Returns the string representation of this component.
+    fn as_cow(&self) -> Cow<'a, str>;
 }
 
-/// Implementation for the `Domain` component of a Arn.
-impl ArnComponent for Domain {
-    /// The prefix for a domain component, typically the start of the Arn.
-    fn prefix() -> &'static str { "arn:" }
-
-    /// The next component type following `Domain` is `Category`.
-    type NextState = Category;
+macro_rules! impl_arn_component {
+    ($type:ty, $prefix:expr, $next:ty) => {
+        impl<'a> ArnComponent<'a> for $type {
+            fn prefix() -> &'static str {
+                $prefix
+            }
+            type NextState = $next;
+            fn as_cow(&self) -> Cow<'a, str> {
+                self.0.clone()
+            }
+        }
+    };
 }
 
-/// Implementation for the `Category` component of a Arn.
-impl ArnComponent for Category {
-    /// Categories do not have a prefix.
-    fn prefix() -> &'static str { "" }
-
-    /// The next component type following `Category` is `Company`.
-    type NextState = Company;
-}
-
-/// Implementation for the `Company` component of a Arn.
-impl ArnComponent for Company {
-    /// Companies do not have a prefix.
-    fn prefix() -> &'static str { "" }
-
-    /// The next component type following `Company` is `Part`.
-    type NextState = Part;  // Now correctly references the Part struct
-}
-
-/// Implementation for the `Part` component of a Arn.
-impl ArnComponent for Part {
-    /// Parts do not have a prefix.
-    fn prefix() -> &'static str { "" }
-
-    /// The next component type following `Part` is `Parts`.
-    type NextState = Parts;  // Change to Parts if one Part leads to many Parts
-}
+impl_arn_component!(Domain<'a>, "arn:", Category<'a>);
+impl_arn_component!(Category<'a>, "", Account<'a>);
+impl_arn_component!(Account<'a>, "", Root<'a>);
+impl_arn_component!(Root<'a>, "", Part<'a>);
+impl_arn_component!(Part<'a>, "", Parts<'a>);
 
 /// Implementation for the `Parts` component of a Arn.
-impl ArnComponent for Parts {
-    /// Parts use a colon as a separator when multiple parts are chained.
-    fn prefix() -> &'static str { ":" }
-
-    /// `Parts` can be followed by additional `Parts`, allowing for a chain of multiple parts.
-    type NextState = Parts;  // Allow continuous addition of parts within Parts
+impl<'a> ArnComponent<'a> for Parts<'a> {
+    fn prefix() -> &'static str {
+        ":"
+    }
+    type NextState = Parts<'a>;
+    fn as_cow(&self) -> Cow<'a, str> {
+        Cow::Owned(self.to_string())
+    }
 }

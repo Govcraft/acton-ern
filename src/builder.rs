@@ -1,21 +1,19 @@
-use crate::model::Domain;
-use crate::{Part, Parts, Arn};
+use crate::errors::ArnError;
+use crate::model::{Account, Arn, Category, Domain, Part, Parts};
 use crate::traits::ArnComponent;
+use crate::Root;
+use std::borrow::Cow;
 
-/// A builder for constructing Arn strings using a state-driven approach with type safety.
-pub struct ArnBuilder<State> {
-    builder: PrivateArnBuilder,
+/// A builder for constructing Arn instances using a state-driven approach with type safety.
+pub struct ArnBuilder<'a, State> {
+    builder: PrivateArnBuilder<'a>,
     _marker: std::marker::PhantomData<State>,
 }
 
 /// Implementation of `ArnBuilder` for the initial state, starting with `Domain`.
-impl ArnBuilder<()> {
+impl<'a> ArnBuilder<'a, ()> {
     /// Creates a new Arn builder initialized to start building from the `Domain` component.
-    ///
-    /// # Returns
-    ///
-    /// Returns an `ArnBuilder` instance set to start building from the `Domain` state.
-    pub fn new() -> ArnBuilder<Domain> {
+    pub fn new() -> ArnBuilder<'a, Domain<'a>> {
         ArnBuilder {
             builder: PrivateArnBuilder::new(),
             _marker: std::marker::PhantomData,
@@ -23,112 +21,168 @@ impl ArnBuilder<()> {
     }
 }
 
-/// Implementation of `ArnBuilder` for `Part` states, allowing for building the final Arn string.
-impl ArnBuilder<Part> {
-    /// Finalizes the building process and constructs the full Arn string.
-    ///
-    /// # Returns
-    ///
-    /// Returns an `Arn` instance representing the complete Arn string.
-    pub fn build(self) -> Arn {
+/// Implementation of `ArnBuilder` for `Part` states, allowing for building the final Arn.
+impl<'a> ArnBuilder<'a, Part<'a>> {
+    /// Finalizes the building process and constructs the Arn.
+    pub fn build(self) -> Result<Arn<'a>, ArnError> {
         self.builder.build()
     }
 }
 
-/// Implementation of `ArnBuilder` for handling `Parts` states, specifically when Arn involves multiple parts.
-impl ArnBuilder<Parts> {
-    /// Finalizes the building process and constructs the full Arn string when in the `Parts` state.
-    ///
-    /// # Returns
-    ///
-    /// Returns an `Arn` instance representing the complete Arn string.
-    pub fn build(self) -> Arn {
+/// Implementation of `ArnBuilder` for handling `Parts` states.
+impl<'a> ArnBuilder<'a, Parts<'a>> {
+    /// Finalizes the building process and constructs the Arn when in the `Parts` state.
+    pub fn build(self) -> Result<Arn<'a>, ArnError> {
         self.builder.build()
     }
 }
 
 /// Generic implementation of `ArnBuilder` for all states that can transition to another state.
-impl<T: ArnComponent> ArnBuilder<T> {
+impl<'a, T: ArnComponent<'a>> ArnBuilder<'a, T> {
     /// Adds a new part to the Arn, transitioning to the next appropriate state.
-    ///
-    /// # Arguments
-    ///
-    /// * `part` - A string slice representing the part to be added to the Arn.
-    ///
-    /// # Returns
-    ///
-    /// Returns a new `ArnBuilder` instance transitioning to the next state.
-    pub fn add<N: ArnComponent>(self, part: &str) -> ArnBuilder<N::NextState> where N: ArnComponent<NextState=T::NextState> {
-        ArnBuilder {
-            builder: self.builder.add_part(&format!("{}{}", N::prefix(), part)),
+    pub fn with<N>(
+        self,
+        part: impl Into<Cow<'a, str>>,
+    ) -> Result<ArnBuilder<'a, N::NextState>, ArnError>
+    where
+        N: ArnComponent<'a, NextState = T::NextState>,
+    {
+        Ok(ArnBuilder {
+            builder: self.builder.add_part(N::prefix(), part.into())?,
             _marker: std::marker::PhantomData,
+        })
+    }
+}
+
+/// Represents a private, internal structure for building the Arn.
+struct PrivateArnBuilder<'a> {
+    domain: Option<Domain<'a>>,
+    category: Option<Category<'a>>,
+    account: Option<Account<'a>>,
+    root: Option<Root<'a>>,
+    parts: Parts<'a>,
+}
+
+impl<'a> PrivateArnBuilder<'a> {
+    /// Constructs a new private Arn builder.
+    fn new() -> Self {
+        Self {
+            domain: None,
+            category: None,
+            account: None,
+            root: None,
+            parts: Parts::new(Vec::new()),
         }
     }
-}
 
-/// Represents a private, internal structure for building the Arn string, using functional combinators.
-struct PrivateArnBuilder {
-    operations: Vec<Box<dyn Fn(String) -> String>>,
-}
-
-impl PrivateArnBuilder {
-    /// Constructs a new private Arn builder with an empty set of operations.
-    ///
-    /// # Returns
-    ///
-    /// Returns a new `PrivateArnBuilder` instance.
-    fn new() -> Self {
-        Self { operations: Vec::new() }
-    }
-
-    /// Adds a new part to the builder's operations, using a closure to encapsulate the addition logic.
-    /// Uses ':' or '/' based on the position in the Arn string.
-    ///
-    /// # Arguments
-    ///
-    /// * `part` - A string slice representing the part to be added.
-    ///
-    /// # Returns
-    ///
-    /// Returns an updated `PrivateArnBuilder` instance with the new part added.
-    ///
-    /// # Panics
-    ///
-    /// This function will panic if `part` is empty, longer than 256 characters, or contains newline characters.
-    fn add_part(mut self, part: &str) -> Self {
-        assert!(!part.is_empty(), "Part cannot be empty");
-        assert!(part.len() <= 256, "Part is too long");
-        assert!(!part.contains('\n'), "Part cannot contain newline characters");
-
-        let part = part.to_owned();
-        let operation: Box<dyn Fn(String) -> String> = Box::new(move |arn: String| -> String {
-            if !arn.is_empty() {
-                // Determine the correct separator based on the existing content of the Arn
-                let separator = if arn.contains('/') || arn.ends_with("root") {
-                    "/"
-                } else {
-                    ":"
-                };
-                let result = format!("{}{}{}", arn, separator, part);
-                assert!(!result.ends_with(':'), "Result should not end with a colon");
-                result
-            } else {
-                part.clone()
+    fn add_part(mut self, prefix: &'static str, part: Cow<'a, str>) -> Result<Self, ArnError> {
+        match prefix {
+            p if p == Domain::prefix() => {
+                self.domain = Some(Domain::new(part));
             }
-        });
-
-        self.operations.push(operation);
-        assert!(!self.operations.is_empty(), "Operations should not be empty after adding a part");
-        self
+            "" => {
+                if self.domain.is_some() && self.category.is_none() {
+                    self.category = Some(Category::new(part));
+                } else if self.category.is_some() && self.account.is_none() {
+                    self.account = Some(Account::new(part));
+                } else if self.account.is_some() && self.root.is_none() {
+                    self.root = Some(Root::new(part)?);
+                } else {
+                    // add the first part
+                    self.parts = self.parts.add_part(Part::new(part)?);
+                }
+            }
+            ":" => {
+                self.parts = self.parts.add_part(Part::new(part)?);
+            }
+            _ => return Err(ArnError::InvalidPrefix(prefix.to_string())),
+        }
+        Ok(self)
     }
 
-    /// Finalizes and builds the Arn string by applying all operations sequentially.
-    ///
-    /// # Returns
-    ///
-    /// Returns an `Arn` instance representing the complete Arn string.
-    fn build(self) -> Arn {
-        let arn_string = self.operations.into_iter().fold(String::new(), |arn, func| func(arn));
-        Arn { value: arn_string }
+    /// Finalizes and builds the Arn.
+    fn build(self) -> Result<Arn<'a>, ArnError> {
+        let domain = self
+            .domain
+            .ok_or(ArnError::MissingPart("domain".to_string()))?;
+        let category = self
+            .category
+            .ok_or(ArnError::MissingPart("category".to_string()))?;
+        let account = self
+            .account
+            .ok_or(ArnError::MissingPart("account".to_string()))?;
+        let root = self.root.ok_or(ArnError::MissingPart("root".to_string()))?;
+
+        Ok(Arn::new(domain, category, account, root, self.parts))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::errors::ArnError;
+    use crate::tests::init_tracing;
+    use crate::{ArnBuilder, ArnParser};
+
+    #[test]
+    fn test() -> anyhow::Result<()> {
+        // Create an Arn using the ArnBuilder with specified components
+        let arn = ArnBuilder::new()
+            .with::<Domain>("akton-internal")?
+            .with::<Category>("hr")?
+            .with::<Account>("company123")?
+            .with::<Root>("root")?
+            .with::<Part>("departmentA")?
+            .with::<Part>("team1")?
+            .build();
+
+        // Verify the constructed Arn matches the expected value
+        assert!(
+            arn.is_ok(),
+            "arn:akton-internal:hr:company123:root/departmentA/team1"
+        );
+        Ok(())
+    }
+    #[test]
+    fn test_arn_builder() -> anyhow::Result<()> {
+        let arn = ArnBuilder::new()
+            .with::<Domain>("custom")?
+            .with::<Category>("service")?
+            .with::<Account>("account123")?
+            .with::<Root>("resource")?
+            .with::<Part>("subresource")?
+            .build()?;
+
+        assert_eq!(
+            arn.to_string(),
+            "arn:custom:service:account123:resource:subresource"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_arn_builder_with_default_parts() -> anyhow::Result<(), ArnError> {
+        init_tracing();
+        let arn = Arn::default();
+        tracing::debug!("{}", arn);
+        let parser = ArnParser::new(arn.to_string());
+        let parsed = parser.parse()?;
+        assert_eq!(parsed.domain.as_str(), "akton");
+        // assert_eq!(arn.to_string(), "arn:akton:system:default:root");
+        Ok(())
+    }
+
+    #[test]
+    fn test_arn_builder_with_owned_strings() -> anyhow::Result<(), ArnError> {
+        let arn = ArnBuilder::new()
+            .with::<Domain>(String::from("custom"))?
+            .with::<Category>(String::from("service"))?
+            .with::<Account>(String::from("account123"))?
+            .with::<Root>(String::from("resource"))?
+            .build()?;
+
+        assert_eq!(arn.to_string(), "arn:custom:service:account123:resource");
+        Ok(())
     }
 }

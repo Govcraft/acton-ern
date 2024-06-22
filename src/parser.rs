@@ -1,26 +1,27 @@
-use crate::model::{Category, Company, Domain, Parts};
-use crate::FromStr;
+use crate::errors::{ArnError};
+use crate::model::{Account, Arn, Category, Domain, Part, Parts};
+use crate::Root;
+use std::borrow::Cow;
+use std::str::FromStr;
 
 /// A parser for decoding Arn strings into their constituent components.
-pub struct ArnParser {
+pub struct ArnParser<'a> {
     /// The Arn string to be parsed.
-    arn: String,
+    arn: Cow<'a, str>,
 }
 
-impl ArnParser {
+impl<'a> ArnParser<'a> {
     /// Constructs a new `ArnParser` for a given Arn string.
     ///
     /// # Arguments
     ///
-    /// * `arn` - A string slice representing the Arn to be parsed.
+    /// * `arn` - A string slice or owned String representing the Arn to be parsed.
     ///
     /// # Returns
     ///
     /// Returns an `ArnParser` instance initialized with the given Arn string.
-    pub fn new(arn: &str) -> Self {
-        Self {
-            arn: arn.to_string(),
-        }
+    pub fn new(arn: impl Into<Cow<'a, str>>) -> Self {
+        Self { arn: arn.into() }
     }
 
     /// Parses the Arn into its component parts and returns them as a structured result.
@@ -28,37 +29,85 @@ impl ArnParser {
     ///
     /// # Returns
     ///
-    /// Returns a tuple containing the `Domain`, `Category`, `Company`, and `Parts` components of the Arn.
-    /// If parsing fails, returns an error message as a `&'static str`.
-    ///
-    /// # Panics
-    ///
-    /// This function will panic if the Arn does not start with "arn:", if there are not exactly four parts after "arn:",
-    /// or if any part is empty or contains colons.
-    pub fn parse(&self) -> Result<(Domain, Category, Company, Parts), &'static str> {
-        // Ensure the Arn starts with the correct prefix
-        assert!(self.arn.starts_with("arn:"), "Arn should start with 'arn:'");
+    /// Returns an `Arn` instance containing the parsed components.
+    /// If parsing fails, returns an error message as a `String`.
+    pub fn parse(&self) -> Result<Arn<'a>, ArnError> {
+        let parts: Vec<&str> = self.arn.splitn(5, ':').collect();
 
-        // Remove the "arn:" prefix for further processing
-        let without_prefix = &self.arn[4..]; // Skip the "arn:" part
-        // Split the remaining string into parts using ':' as the delimiter
-        let parts: Vec<&str> = without_prefix.split(':').collect();
+        if parts.len() != 5 || parts[0] != "arn" {
+            return Err(ArnError::InvalidFormat);
+        }
 
-        // Ensure there are exactly four parts after the "arn:" prefix
-        assert_eq!(parts.len(), 4, "There must be exactly four parts after 'arn:'");
-        // Validate each part to ensure it is not empty and does not contain colons
-        parts.iter().enumerate().for_each(|(index, part)| {
-            assert!(!part.is_empty(), "Part {} must not be empty", index);
-            assert!(!part.contains(':'), "Part {} must not contain colons", index);
-        });
+        let domain = Domain::from_str(parts[1])?;
+        let category = Category::from_str(parts[2])?;
+        let account = Account::from_str(parts[3])?;
 
-        // Parse each part into its respective component type, returning an error if any parsing fails
-        let domain = Domain::from_str(parts[0]).map_err(|_| "Failed to parse Domain")?;
-        let category = Category::from_str(parts[1]).map_err(|_| "Failed to parse Category")?;
-        let company = Company::from_str(parts[2]).map_err(|_| "Failed to parse Company")?;
-        let part_sections = Parts::from_str(parts[3]).map_err(|_| "Failed to parse Parts")?;
+        // Split the root and the path part
+        let root_path: Vec<&str> = parts[4].splitn(2, '/').collect();
+        let root_str = root_path[0];
+        let root = Root::from_str(root_str)?;
 
-        // Return the parsed components as a tuple
-        Ok((domain, category, company, part_sections))
+        // Continue with the path parts
+        let mut arn_parts = Vec::new();
+        if root_path.len() > 1 {
+            let path_parts: Vec<&str> = root_path[1].split('/').collect();
+            for part in path_parts.iter() {
+                arn_parts.push(Part::from_str(part)?);
+            }
+        }
+
+        // // Process the remaining parts after root
+        // let remaining_parts: Vec<&str> = parts[4].split("/").collect();
+        // for part in remaining_parts.iter() {
+        //     arn_parts.push(Part::from_str(part).map_err(|_| ParseError::InvalidPartFormat)?);
+        // }
+
+        let parts = Parts::new(arn_parts);
+        Ok(Arn::new(domain, category, account, root, parts))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_valid_arn_parsing() {
+        let arn_str = "arn:custom:service:account123:root/resource/subresource";
+        let parser = ArnParser::new(arn_str);
+        let result = parser.parse();
+
+        assert!(result.is_ok());
+        let arn = result.unwrap();
+        assert_eq!(arn.domain.as_str(), "custom");
+    }
+
+    #[test]
+    fn test_invalid_arn_format() {
+        let arn_str = "invalid:arn:format";
+        let parser = ArnParser::new(arn_str);
+        let result = parser.parse();
+        assert!(result.is_err());
+        assert_eq!(result.err().unwrap(), ArnError::InvalidFormat);
+        // assert_eq!(result.unwrap_err().to_string(), "Invalid ARN format");
+    }
+
+    #[test]
+    fn test_arn_with_invalid_part() -> anyhow::Result<()> {
+        let arn_str = "arn:domain:category:account:root/invalid:part";
+        let parser = ArnParser::new(arn_str);
+        let result = parser.parse();
+        assert!(result.is_err());
+        // assert!(result.unwrap_err().to_string().starts_with("Failed to parse Part"));
+        Ok(())
+    }
+
+    #[test]
+    fn test_arn_parsing_with_owned_string() {
+        let arn_str = String::from("arn:custom:service:account123:root/resource");
+        let parser = ArnParser::new(arn_str);
+        let result = parser.parse();
+        assert!(result.is_ok());
     }
 }
