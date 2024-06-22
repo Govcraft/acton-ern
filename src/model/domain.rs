@@ -36,7 +36,10 @@ impl<'a> std::str::FromStr for Domain<'a> {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.is_empty() {
-            Err(ArnError::ParseFailure("Domain", "cannot be empty".to_string()))
+            Err(ArnError::ParseFailure(
+                "Domain",
+                "cannot be empty".to_string(),
+            ))
         } else {
             Ok(Domain(Cow::Owned(s.to_owned())))
         }

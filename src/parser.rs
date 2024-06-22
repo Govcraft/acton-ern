@@ -1,4 +1,4 @@
-use crate::errors::{ArnError};
+use crate::errors::ArnError;
 use crate::model::{Account, Arn, Category, Domain, Part, Parts};
 use crate::Root;
 use std::borrow::Cow;

@@ -1,6 +1,5 @@
 use std::convert::Infallible;
 
-
 // Merged ArnBuilderError and ArnParseError into ArnError
 #[derive(Debug, thiserror::Error, PartialEq)]
 pub enum ArnError {
@@ -17,6 +16,9 @@ pub enum ArnError {
     #[error("Builder Error - Part has invalid format")]
     InvalidPartFormat,
 
+    #[error("Root Error - Generating an Id failed: {0}")]
+    IdGenerationFailure(String),
+
     #[error("Builder Error - Missing required part: {0}")]
     MissingPart(String),
 
@@ -31,5 +33,10 @@ pub enum ArnError {
 impl From<Infallible> for ArnError {
     fn from(_: Infallible) -> Self {
         ArnError::InfallibleError
+    }
+}
+impl From<type_safe_id::Error> for ArnError {
+    fn from(e: type_safe_id::Error) -> Self {
+        ArnError::IdGenerationFailure(e.to_string())
     }
 }

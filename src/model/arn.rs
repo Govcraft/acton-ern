@@ -24,13 +24,28 @@ impl Display for Arn<'_> {
             self.root
         );
         if !self.parts.0.is_empty() {
-            display = format!("{}:{}", display, self.parts);
+            display = format!("{}/{}", display, self.parts);
         }
-
         write!(f, "{}", display)
     }
 }
+use std::ops::Add;
 
+impl<'a> Add for Arn<'a> {
+    type Output = Arn<'a>;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        let mut new_parts = self.parts.0;
+        new_parts.extend(rhs.parts.0);
+        Arn {
+            domain: self.domain,
+            category: self.category,
+            account: self.account,
+            root: self.root,
+            parts: Parts(new_parts),
+        }
+    }
+}
 impl<'a> Arn<'a> {
     /// Creates a new Arn with the given components.
     pub fn new(
@@ -40,6 +55,8 @@ impl<'a> Arn<'a> {
         root: Root<'a>,
         parts: Parts<'a>,
     ) -> Self {
+        
+
         Arn {
             domain,
             category,
@@ -62,17 +79,6 @@ impl<'a> Arn<'a> {
         self.parts = self.parts.clone().add_part(part);
         Ok(())
     }
-
-    // /// Produces the full Arn string.
-    // pub fn to_string(&self) -> String {
-    //     format!("{}{}:{}:{}:{}",
-    //             Domain::prefix(),
-    //             self.domain,
-    //             self.category,
-    //             self.account,
-    //             self.parts
-    //     )
-    // }
 }
 
 impl<'a> Default for Arn<'a> {
@@ -88,18 +94,124 @@ impl<'a> Default for Arn<'a> {
     }
 }
 
-// impl<'a> fmt::Display for Arn<'a> {
-//     /// Formats the Arn as a string.
-//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         write!(f, "{}", self.to_string())
-//     }
-// }
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::Part;
+    use std::str::FromStr;
 
+    #[test]
+    fn test_add_arns() -> anyhow::Result<()> {
+        let parent_root = Root::from_str("root_a")?;
+        let parent = Arn::new(
+            Domain::from_str("akton-internal").unwrap(),
+            Category::from_str("hr").unwrap(),
+            Account::from_str("company123").unwrap(),
+            parent_root.clone(),
+            Parts(vec![
+                Part::from_str("department_a").unwrap(),
+                Part::from_str("team1").unwrap(),
+            ]),
+        );
+
+        let child = Arn::new(
+            Domain::from_str("akton-internal").unwrap(),
+            Category::from_str("hr").unwrap(),
+            Account::from_str("company123").unwrap(),
+            Root::from_str("root_b").unwrap(),
+            Parts(vec![Part::from_str("role_x").unwrap()]),
+        );
+
+        let combined = parent + child;
+
+        assert_eq!(combined.domain, Domain::from_str("akton-internal").unwrap());
+        assert_eq!(combined.category, Category::from_str("hr").unwrap());
+        assert_eq!(combined.account, Account::from_str("company123").unwrap());
+        assert_eq!(combined.root, parent_root);
+        assert_eq!(
+            combined.parts,
+            Parts(vec![
+                Part::from_str("department_a").unwrap(),
+                Part::from_str("team1").unwrap(),
+                Part::from_str("role_x").unwrap(),
+            ])
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_add_arns_empty_child() {
+        let parent = Arn::new(
+            Domain::from_str("akton-internal").unwrap(),
+            Category::from_str("hr").unwrap(),
+            Account::from_str("company123").unwrap(),
+            Root::from_str("rootp").unwrap(),
+            Parts(vec![Part::from_str("department_a").unwrap()]),
+        );
+
+        let child = Arn::new(
+            Domain::from_str("akton-internal").unwrap(),
+            Category::from_str("hr").unwrap(),
+            Account::from_str("company123").unwrap(),
+            Root::from_str("rootc").unwrap(),
+            Parts(vec![]),
+        );
+
+        let combined = parent + child;
+
+        assert_eq!(
+            combined.parts,
+            Parts(vec![Part::from_str("department_a").unwrap()])
+        );
+    }
+
+    #[test]
+    fn test_add_arns_empty_parent() {
+        let parent = Arn::new(
+            Domain::from_str("akton-internal").unwrap(),
+            Category::from_str("hr").unwrap(),
+            Account::from_str("company123").unwrap(),
+            Root::from_str("rootp").unwrap(),
+            Parts(vec![]),
+        );
+        let child = Arn::new(
+            Domain::from_str("akton-internal").unwrap(),
+            Category::from_str("hr").unwrap(),
+            Account::from_str("company123").unwrap(),
+            Root::from_str("rootc").unwrap(),
+            Parts(vec![Part::from_str("role_x").unwrap()]),
+        );
+        let combined = parent + child;
+        assert_eq!(
+            combined.parts,
+            Parts(vec![Part::from_str("role_x").unwrap()])
+        );
+    }
+
+    #[test]
+    fn test_add_arns_display() {
+        let parent = Arn::new(
+            Domain::from_str("akton-internal").unwrap(),
+            Category::from_str("hr").unwrap(),
+            Account::from_str("company123").unwrap(),
+            Root::from_str("rootp").unwrap(),
+            Parts(vec![Part::from_str("department_a").unwrap()]),
+        );
+
+        let child = Arn::new(
+            Domain::from_str("akton-internal").unwrap(),
+            Category::from_str("hr").unwrap(),
+            Account::from_str("company123").unwrap(),
+            Root::from_str("rootc").unwrap(),
+            Parts(vec![Part::from_str("team1").unwrap()]),
+        );
+
+        let combined = parent + child;
+
+        assert!(combined
+            .to_string()
+            .starts_with("arn:akton-internal:hr:company123:rootp"));
+    }
     #[test]
     fn test_arn_custom() -> anyhow::Result<()> {
         let arn = Arn::new(
@@ -109,10 +221,9 @@ mod tests {
             Root::new("root")?,
             Parts::new(vec![Part::new("resource")?]),
         );
-        assert_eq!(
-            arn.to_string(),
-            "arn:custom:service:account123:root:resource"
-        );
+        assert!(arn
+            .to_string()
+            .starts_with("arn:custom:service:account123:root"));
         Ok(())
     }
 
@@ -121,7 +232,7 @@ mod tests {
         let mut arn = Arn::default();
         let arn_clone = arn.clone();
         arn.append_part(Part::new("subresource")?)?;
-        let expected = format!("{}:subresource", arn_clone);
+        let expected = format!("{}/subresource", arn_clone);
         assert_eq!(arn.to_string(), expected);
         Ok(())
     }

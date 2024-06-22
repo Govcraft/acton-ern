@@ -14,7 +14,7 @@
   
   An Arn is composed of several parts, each representing a specific aspect of the resource:
   
-  `arn:partition:service:account-id:hierarchy/path`
+  `arn:domain:category:account:root_id/path`
   
   #### Components
   

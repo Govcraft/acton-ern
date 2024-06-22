@@ -57,8 +57,6 @@ mod tests {
         Ok(())
     }
 
-
-
     #[test]
     fn test_part_display() -> anyhow::Result<()> {
         let part = Part::new("example")?;
@@ -89,5 +87,4 @@ mod tests {
         assert_eq!(string, "segment");
         Ok(())
     }
-
 }
