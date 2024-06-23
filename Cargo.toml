@@ -1,6 +1,6 @@
 [package]
 name = "akton-arn"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 authors = ["Govcraft <contact@govcraft.ai>"]
 description = "A Rust library for handling Akton Resource Names (ARNs), providing tools for generating, parsing, and managing ARNs within Akton-based cloud-native solutions."

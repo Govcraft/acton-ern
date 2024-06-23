@@ -45,7 +45,7 @@ impl<'a> ArnParser<'a> {
         // Split the root and the path part
         let root_path: Vec<&str> = parts[4].splitn(2, '/').collect();
         let root_str = root_path[0];
-        let root = Root::from_str(root_str)?;
+        let root = Root{ 0: root_str.to_string().into() };
 
         // Continue with the path parts
         let mut arn_parts = Vec::new();

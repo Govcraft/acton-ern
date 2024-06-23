@@ -19,7 +19,8 @@ impl<'a> Root<'a> {
     pub fn new(value: impl Into<Cow<'a, str>>) -> Result<Self, ArnError> {
         let value = value.into();
         let value = if value.is_empty() {
-            TypeSafeId::from_type_and_uuid(DynamicType::new(AKTON)?, uuid::Uuid::now_v7())
+            let val = AKTON;
+            TypeSafeId::from_type_and_uuid(DynamicType::new(val)?, uuid::Uuid::now_v7())
                 .to_string()
         } else {
             TypeSafeId::from_type_and_uuid(DynamicType::new(&value)?, uuid::Uuid::now_v7())
@@ -31,7 +32,8 @@ impl<'a> Root<'a> {
 
 impl<'a> Default for Root<'a> {
     fn default() -> Self {
-        Root(Cow::Borrowed(AKTON))
+        Root::new("").expect("Couldn't create default Akton ARN")
+        // Root(Cow::Borrowed(AKTON))
     }
 }
 
