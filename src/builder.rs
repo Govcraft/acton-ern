@@ -78,7 +78,7 @@ impl<'a> PrivateArnBuilder<'a> {
     fn add_part(mut self, prefix: &'static str, part: Cow<'a, str>) -> Result<Self, ArnError> {
         match prefix {
             p if p == Domain::prefix() => {
-                self.domain = Some(Domain::new(part));
+                self.domain = Some(Domain::new(part)?);
             }
             "" => {
                 if self.domain.is_some() && self.category.is_none() {

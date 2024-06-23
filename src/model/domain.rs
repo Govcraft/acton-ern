@@ -14,8 +14,13 @@ impl<'a> Domain<'a> {
     pub fn into_owned(self) -> Domain<'static> {
         Domain(Cow::Owned(self.0.into_owned()))
     }
-    pub fn new(value: impl Into<Cow<'a, str>>) -> Self {
-        Domain(value.into())
+    pub fn new(value: impl Into<Cow<'a, str>>) -> Result<Self, ArnError> {
+        let val = value.into();
+        if val.is_empty() {
+            Err(ArnError::ParseFailure("Domain", "cannot be empty".to_string()))
+        } else {
+            Ok(Domain(val))
+        }
     }
 }
 
@@ -35,14 +40,7 @@ impl<'a> std::str::FromStr for Domain<'a> {
     type Err = ArnError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.is_empty() {
-            Err(ArnError::ParseFailure(
-                "Domain",
-                "cannot be empty".to_string(),
-            ))
-        } else {
-            Ok(Domain(Cow::Owned(s.to_owned())))
-        }
+        Domain::new(s.to_string())
     }
 }
 impl<'a> From<Domain<'a>> for String {
@@ -56,7 +54,7 @@ mod tests {
 
     #[test]
     fn test_domain_creation() {
-        let domain = Domain::new("test");
+        let domain = Domain::new("test").unwrap();
         assert_eq!(domain.as_str(), "test");
     }
 
@@ -69,7 +67,7 @@ mod tests {
     #[test]
     fn test_domain_display() {
         let domain = Domain::new("example");
-        assert_eq!(format!("{}", domain), "example");
+        assert_eq!(format!("{}", domain.unwrap()), "example");
     }
 
     #[test]
@@ -79,17 +77,18 @@ mod tests {
     }
 
     #[test]
-    fn test_domain_equality() {
-        let domain1 = Domain::new("test");
-        let domain2 = Domain::new("test");
-        let domain3 = Domain::new("other");
+    fn test_domain_equality() -> anyhow::Result<()> {
+        let domain1 = Domain::new("test")?;
+        let domain2 = Domain::new("test")?;
+        let domain3 = Domain::new("other")?;
         assert_eq!(domain1, domain2);
         assert_ne!(domain1, domain3);
+        Ok(())
     }
 
     #[test]
     fn test_domain_into_string() {
-        let domain = Domain::new("test");
+        let domain = Domain::new("test").unwrap();
         let string: String = domain.into();
         assert_eq!(string, "test");
     }

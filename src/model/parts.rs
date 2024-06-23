@@ -2,7 +2,7 @@ use crate::Part;
 use std::fmt;
 
 /// Represents a collection of parts in the Arn, handling multiple segments.
-#[derive(Debug, PartialEq, Clone, Eq)]
+#[derive(Debug, PartialEq, Clone, Eq, Default)]
 pub struct Parts<'a>(pub(crate) Vec<Part<'a>>);
 
 impl<'a> Parts<'a> {
@@ -33,6 +33,7 @@ impl<'a> Parts<'a> {
         Parts(self.0.into_iter().map(|part| part.into_owned()).collect())
     }
 }
+
 
 impl<'a> FromIterator<Part<'a>> for Parts<'a> {
     fn from_iter<T: IntoIterator<Item = Part<'a>>>(iter: T) -> Self {
