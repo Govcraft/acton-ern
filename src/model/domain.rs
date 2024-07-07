@@ -4,17 +4,17 @@ use std::borrow::Cow;
 use std::fmt;
 
 #[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone)]
-pub struct Domain<'a>(pub(crate) Cow<'a, str>);
+pub struct Domain(pub(crate) Cow<'static, str>);
 
-impl<'a> Domain<'a> {
+impl Domain {
     pub fn as_str(&self) -> &str {
         &self.0
     }
 
-    pub fn into_owned(self) -> Domain<'static> {
+    pub fn into_owned(self) -> Domain {
         Domain(Cow::Owned(self.0.into_owned()))
     }
-    pub fn new(value: impl Into<Cow<'a, str>>) -> Result<Self, ArnError> {
+    pub fn new(value: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
         let val = value.into();
         if val.is_empty() {
             Err(ArnError::ParseFailure("Domain", "cannot be empty".to_string()))
@@ -24,27 +24,27 @@ impl<'a> Domain<'a> {
     }
 }
 
-impl<'a> Default for Domain<'a> {
+impl Default for Domain {
     fn default() -> Self {
         Domain(Cow::Borrowed("akton"))
     }
 }
 
-impl<'a> fmt::Display for Domain<'a> {
+impl fmt::Display for Domain {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
     }
 }
 
-impl<'a> std::str::FromStr for Domain<'a> {
+impl std::str::FromStr for Domain {
     type Err = ArnError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Domain::new(s.to_string())
     }
 }
-impl<'a> From<Domain<'a>> for String {
-    fn from(domain: Domain<'a>) -> Self {
+impl From<Domain> for String {
+    fn from(domain: Domain) -> Self {
         domain.0.into_owned()
     }
 }
