@@ -5,15 +5,15 @@ use crate::Root;
 use std::borrow::Cow;
 
 /// A builder for constructing Arn instances using a state-driven approach with type safety.
-pub struct ArnBuilder<'a, State> {
-    builder: PrivateArnBuilder<'a>,
+pub struct ArnBuilder<State> {
+    builder: PrivateArnBuilder,
     _marker: std::marker::PhantomData<State>,
 }
 
 /// Implementation of `ArnBuilder` for the initial state, starting with `Domain`.
-impl<'a> ArnBuilder<'a, ()> {
+impl ArnBuilder<()> {
     /// Creates a new Arn builder initialized to start building from the `Domain` component.
-    pub fn new() -> ArnBuilder<'a, Domain<'a>> {
+    pub fn new() -> ArnBuilder<Domain> {
         ArnBuilder {
             builder: PrivateArnBuilder::new(),
             _marker: std::marker::PhantomData,
@@ -22,30 +22,30 @@ impl<'a> ArnBuilder<'a, ()> {
 }
 
 /// Implementation of `ArnBuilder` for `Part` states, allowing for building the final Arn.
-impl<'a> ArnBuilder<'a, Part<'a>> {
+impl ArnBuilder<Part> {
     /// Finalizes the building process and constructs the Arn.
-    pub fn build(self) -> Result<Arn<'a>, ArnError> {
+    pub fn build(self) -> Result<Arn, ArnError> {
         self.builder.build()
     }
 }
 
 /// Implementation of `ArnBuilder` for handling `Parts` states.
-impl<'a> ArnBuilder<'a, Parts<'a>> {
+impl ArnBuilder<Parts> {
     /// Finalizes the building process and constructs the Arn when in the `Parts` state.
-    pub fn build(self) -> Result<Arn<'a>, ArnError> {
+    pub fn build(self) -> Result<Arn, ArnError> {
         self.builder.build()
     }
 }
 
 /// Generic implementation of `ArnBuilder` for all states that can transition to another state.
-impl<'a, T: ArnComponent<'a>> ArnBuilder<'a, T> {
+impl<T: ArnComponent> ArnBuilder<T> {
     /// Adds a new part to the Arn, transitioning to the next appropriate state.
     pub fn with<N>(
         self,
-        part: impl Into<Cow<'a, str>>,
-    ) -> Result<ArnBuilder<'a, N::NextState>, ArnError>
+        part: impl Into<Cow<'static, str>>,
+    ) -> Result<ArnBuilder<N::NextState>, ArnError>
     where
-        N: ArnComponent<'a, NextState = T::NextState>,
+        N: ArnComponent<NextState = T::NextState>,
     {
         Ok(ArnBuilder {
             builder: self.builder.add_part(N::prefix(), part.into())?,
@@ -55,15 +55,15 @@ impl<'a, T: ArnComponent<'a>> ArnBuilder<'a, T> {
 }
 
 /// Represents a private, internal structure for building the Arn.
-struct PrivateArnBuilder<'a> {
-    domain: Option<Domain<'a>>,
-    category: Option<Category<'a>>,
-    account: Option<Account<'a>>,
-    root: Option<Root<'a>>,
-    parts: Parts<'a>,
+struct PrivateArnBuilder {
+    domain: Option<Domain>,
+    category: Option<Category>,
+    account: Option<Account>,
+    root: Option<Root>,
+    parts: Parts,
 }
 
-impl<'a> PrivateArnBuilder<'a> {
+impl PrivateArnBuilder {
     /// Constructs a new private Arn builder.
     fn new() -> Self {
         Self {
@@ -75,7 +75,7 @@ impl<'a> PrivateArnBuilder<'a> {
         }
     }
 
-    fn add_part(mut self, prefix: &'static str, part: Cow<'a, str>) -> Result<Self, ArnError> {
+    fn add_part(mut self, prefix: &'static str, part: Cow<'static, str>) -> Result<Self, ArnError> {
         match prefix {
             p if p == Domain::prefix() => {
                 self.domain = Some(Domain::new(part)?);
@@ -101,7 +101,7 @@ impl<'a> PrivateArnBuilder<'a> {
     }
 
     /// Finalizes and builds the Arn.
-    fn build(self) -> Result<Arn<'a>, ArnError> {
+    fn build(self) -> Result<Arn, ArnError> {
         let domain = self
             .domain
             .ok_or(ArnError::MissingPart("domain".to_string()))?;
