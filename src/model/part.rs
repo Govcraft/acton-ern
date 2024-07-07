@@ -4,17 +4,17 @@ use std::borrow::Cow;
 use std::fmt;
 
 #[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone)]
-pub struct Part<'a>(pub(crate) Cow<'a, str>);
-impl<'a> Part<'a> {
+pub struct Part(pub(crate) Cow<'static, str>);
+impl Part {
     pub fn as_str(&self) -> &str {
         &self.0
     }
 
-    pub fn into_owned(self) -> Part<'static> {
+    pub fn into_owned(self) -> Part {
         Part(Cow::Owned(self.0.into_owned()))
     }
 
-    pub fn new(value: impl Into<Cow<'a, str>>) -> Result<Part<'a>, ArnError> {
+    pub fn new(value: impl Into<Cow<'static, str>>) -> Result<Part, ArnError> {
         let value = value.into();
         if value.contains(':') || value.contains('/') {
             return Err(ArnError::InvalidPartFormat);
@@ -29,19 +29,19 @@ impl<'a> Part<'a> {
     }
 }
 
-impl<'a> fmt::Display for Part<'a> {
+impl fmt::Display for Part {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
     }
 }
-impl<'a> std::str::FromStr for Part<'a> {
+impl std::str::FromStr for Part {
     type Err = ArnError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Part::new(Cow::Owned(s.to_owned()))
     }
 }
-impl<'a> From<Part<'a>> for String {
-    fn from(part: Part<'a>) -> Self {
+impl From<Part> for String {
+    fn from(part: Part) -> Self {
         part.0.into_owned()
     }
 }
