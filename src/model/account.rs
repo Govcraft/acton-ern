@@ -4,41 +4,41 @@ use std::fmt;
 /// Represents an account identifier in the Arn system.
 
 #[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash)]
-pub struct Account<'a>(pub(crate) Cow<'a, str>);
+pub struct Account(pub(crate) Cow<'static, str>);
 
-impl<'a> Account<'a> {
+impl Account {
     pub fn as_str(&self) -> &str {
         &self.0
     }
-    pub fn new(value: impl Into<Cow<'a, str>>) -> Self {
+    pub fn new(value: impl Into<Cow<'static, str>>) -> Self {
         Account(value.into())
     }
-    pub fn into_owned(self) -> Account<'static> {
+    pub fn into_owned(self) -> Account {
         Account(Cow::Owned(self.0.into_owned()))
     }
 }
 
-impl<'a> Default for Account<'a> {
+impl Default for Account {
     fn default() -> Self {
         Account(Cow::Borrowed("account"))
     }
 }
 
-impl<'a> fmt::Display for Account<'a> {
+impl fmt::Display for Account {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
     }
 }
 
-impl<'a> std::str::FromStr for Account<'a> {
+impl std::str::FromStr for Account {
     type Err = std::convert::Infallible;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Account(Cow::Owned(s.to_owned())))
     }
 }
-impl<'a> From<Account<'a>> for String {
-    fn from(domain: Account<'a>) -> Self {
+impl From<Account> for String {
+    fn from(domain: Account) -> Self {
         domain.0.into_owned()
     }
 }
