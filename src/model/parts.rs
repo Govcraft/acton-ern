@@ -1,20 +1,12 @@
 use crate::Part;
 use std::fmt;
-
+use std::hash::{Hash, Hasher};
+use derive_new::new;
 /// Represents a collection of parts in the Arn, handling multiple segments.
-#[derive(Debug, PartialEq, Clone, Eq, Default)]
+#[derive(new, Debug, PartialEq, Clone, Eq, Default)]
 pub struct Parts(pub(crate) Vec<Part>);
 
 impl Parts {
-    /// Constructs a new collection of `Parts`.
-    ///
-    /// # Arguments
-    ///
-    /// * `parts` - A vector of `Part` representing the parts of the Arn.
-    pub fn new(parts: Vec<Part>) -> Self {
-        Parts(parts)
-    }
-
     /// Adds a part to the collection.
     ///
     /// # Arguments
@@ -32,9 +24,25 @@ impl Parts {
     pub fn into_owned(self) -> Parts {
         Parts(self.0.into_iter().map(|part| part.into_owned()).collect())
     }
+
+    /// Returns the number of parts in the collection.
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    /// Returns true if the collection is empty.
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
 }
-
-
+impl Hash for Parts {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.0.len().hash(state);
+        for part in &self.0 {
+            part.hash(state);
+        }
+    }
+}
 impl FromIterator<Part> for Parts {
     fn from_iter<T: IntoIterator<Item = Part>>(iter: T) -> Self {
         Parts(iter.into_iter().collect())
@@ -44,13 +52,25 @@ impl FromIterator<Part> for Parts {
 impl fmt::Display for Parts {
     /// Formats the collection of parts as a string, joining them with '/'.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let parts_str = self
-            .0
-            .iter()
-            .map(|p| p.as_str())
-            .collect::<Vec<_>>()
-            .join("/");
-        write!(f, "{}", parts_str)
+        write!(f, "{}", self.0.iter().map(|p| p.as_str()).collect::<Vec<_>>().join("/"))
+    }
+}
+
+impl IntoIterator for Parts {
+    type Item = Part;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a Parts {
+    type Item = &'a Part;
+    type IntoIter = std::slice::Iter<'a, Part>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.iter()
     }
 }
 
@@ -94,6 +114,35 @@ mod tests {
         let parts = Parts::new(vec![Part::new("segment1")?, Part::new("segment2")?]);
         let owned_parts: Parts = parts.into_owned();
         assert_eq!(owned_parts.to_string(), "segment1/segment2");
+        Ok(())
+    }
+
+    #[test]
+    fn test_parts_iterator() -> anyhow::Result<()> {
+        let parts = Parts::new(vec![Part::new("segment1")?, Part::new("segment2")?]);
+        let collected: Vec<_> = parts.into_iter().collect();
+        assert_eq!(collected.len(), 2);
+        assert_eq!(collected[0].as_str(), "segment1");
+        assert_eq!(collected[1].as_str(), "segment2");
+        Ok(())
+    }
+
+    #[test]
+    fn test_parts_ref_iterator() -> anyhow::Result<()> {
+        let parts = Parts::new(vec![Part::new("segment1")?, Part::new("segment2")?]);
+        let collected: Vec<_> = (&parts).into_iter().map(|p| p.as_str()).collect();
+        assert_eq!(collected, vec!["segment1", "segment2"]);
+        Ok(())
+    }
+
+    #[test]
+    fn test_parts_for_loop() -> anyhow::Result<()> {
+        let parts = Parts::new(vec![Part::new("segment1")?, Part::new("segment2")?]);
+        let mut collected = Vec::new();
+        for part in parts {
+            collected.push(part.as_str().to_string());
+        }
+        assert_eq!(collected, vec!["segment1".to_string(), "segment2".to_string()]);
         Ok(())
     }
 }
