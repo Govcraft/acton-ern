@@ -6,16 +6,16 @@ use std::fmt::{Display, Formatter};
 
 /// Represents an Akton Resource Name (Arn), which uniquely identifies resources within the Akton framework.
 #[derive(Debug, PartialEq, Clone, Eq)]
-pub struct Arn<'a> {
-    pub domain: Domain<'a>,
-    pub category: Category<'a>,
-    pub account: Account<'a>,
-    pub root: Root<'a>,
-    pub parts: Parts<'a>,
+pub struct Arn {
+    pub domain: Domain,
+    pub category: Category,
+    pub account: Account,
+    pub root: Root,
+    pub parts: Parts,
 }
 
-impl Display for Arn<'_> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+impl Display for Arn {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let mut display = format!(
             "{}{}:{}:{}:{}",
             Domain::prefix(),
@@ -32,8 +32,8 @@ impl Display for Arn<'_> {
 }
 use std::ops::Add;
 
-impl<'a> Add for Arn<'a> {
-    type Output = Arn<'a>;
+impl Add for Arn {
+    type Output = Arn;
 
     fn add(self, rhs: Self) -> Self::Output {
         let mut new_parts = self.parts.0;
@@ -47,14 +47,14 @@ impl<'a> Add for Arn<'a> {
         }
     }
 }
-impl<'a> Arn<'a> {
+impl Arn {
     /// Creates a new Arn with the given components.
     pub fn new(
-        domain: Domain<'a>,
-        category: Category<'a>,
-        account: Account<'a>,
-        root: Root<'a>,
-        parts: Parts<'a>,
+        domain: Domain,
+        category: Category,
+        account: Account,
+        root: Root,
+        parts: Parts,
     ) -> Self {
         Arn {
             domain,
@@ -66,7 +66,7 @@ impl<'a> Arn<'a> {
     }
 
     /// Creates a new Arn with the given root and default values for other fields
-    pub fn with_root(root: impl Into<Cow<'a, str>>) -> Result<Self, ArnError> {
+    pub fn with_root(root: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
         let root = Root::new(root)?;
         Ok(Arn {
             root,
@@ -75,7 +75,7 @@ impl<'a> Arn<'a> {
     }
 
     /// Creates a new Arn based on an existing Arn but with a new root
-    pub fn with_new_root(&self, new_root: impl Into<Cow<'a, str>>) -> Result<Self, ArnError> {
+    pub fn with_new_root(&self, new_root: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
         let new_root = Root::new(new_root)?;
         Ok(Arn {
             domain: self.domain.clone(),
@@ -86,7 +86,7 @@ impl<'a> Arn<'a> {
         })
     }
 
-    pub fn with_domain(domain: impl Into<Cow<'a, str>>) -> Result<Self, ArnError> {
+    pub fn with_domain(domain: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
         let domain = Domain::new(domain)?;
         Ok(Arn {
             domain,
@@ -97,7 +97,7 @@ impl<'a> Arn<'a> {
         })
     }
 
-    pub fn with_category(category: impl Into<Cow<'a, str>>) -> Result<Self, ArnError> {
+    pub fn with_category(category: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
         let category = Category::new(category);
         Ok(Arn {
             domain: Domain::default(),
@@ -108,7 +108,7 @@ impl<'a> Arn<'a> {
         })
     }
 
-    pub fn with_account(account: impl Into<Cow<'a, str>>) -> Result<Self, ArnError> {
+    pub fn with_account(account: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
         let account = Account::new(account);
         Ok(Arn {
             domain: Domain::default(),
@@ -119,7 +119,7 @@ impl<'a> Arn<'a> {
         })
     }
 
-    pub fn add_part(&self, part: impl Into<Cow<'a, str>>) -> Result<Self, ArnError> {
+    pub fn add_part(&self, part: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
         let mut new_parts = self.parts.clone();
         new_parts.0.push(Part::new(part)?);
         Ok(Arn {
@@ -133,9 +133,9 @@ impl<'a> Arn<'a> {
 
     pub fn with_parts(
         &self,
-        parts: impl IntoIterator<Item = impl Into<Cow<'a, str>>>,
+        parts: impl IntoIterator<Item = impl Into<Cow<'static, str>>>,
     ) -> Result<Self, ArnError> {
-        let new_parts: Result<Vec<Part<'a>>, _> = parts.into_iter().map(Part::new).collect();
+        let new_parts: Result<Vec<Part>, _> = parts.into_iter().map(Part::new).collect();
         Ok(Arn {
             domain: self.domain.clone(),
             category: self.category.clone(),
@@ -169,7 +169,7 @@ impl<'a> Arn<'a> {
     }
 }
 
-impl<'a> Default for Arn<'a> {
+impl Default for Arn {
     /// Provides a default value for Arn using the defaults of all its components.
     fn default() -> Self {
         Arn {
