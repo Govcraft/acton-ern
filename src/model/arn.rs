@@ -17,10 +17,11 @@ pub struct Arn {
 }
 
 impl Deref for Arn {
-    type Target = ();
+    type Target = str;
 
     fn deref(&self) -> &Self::Target {
-        todo!()
+        let arn = self.to_string().clone();
+        arn.as_str()
     }
 }
 
