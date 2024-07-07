@@ -4,41 +4,41 @@ use std::fmt;
 /// Represents a category in the Arn system, typically indicating the service.
 
 #[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash)]
-pub struct Category<'a>(pub(crate) Cow<'a, str>);
+pub struct Category(pub(crate) Cow<'static, str>);
 
-impl<'a> Category<'a> {
+impl Category {
     pub fn as_str(&self) -> &str {
         &self.0
     }
-    pub fn new(value: impl Into<Cow<'a, str>>) -> Self {
+    pub fn new(value: impl Into<Cow<'static, str>>) -> Self {
         Category(value.into())
     }
-    pub fn into_owned(self) -> Category<'static> {
+    pub fn into_owned(self) -> Category {
         Category(Cow::Owned(self.0.into_owned()))
     }
 }
 
-impl<'a> Default for Category<'a> {
+impl Default for Category {
     fn default() -> Self {
         Category(Cow::Borrowed("system"))
     }
 }
 
-impl<'a> fmt::Display for Category<'a> {
+impl fmt::Display for Category {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
     }
 }
 
-impl<'a> std::str::FromStr for Category<'a> {
+impl std::str::FromStr for Category {
     type Err = std::convert::Infallible;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Category(Cow::Owned(s.to_owned())))
     }
 }
-impl<'a> From<Category<'a>> for String {
-    fn from(category: Category<'a>) -> Self {
+impl From<Category> for String {
+    fn from(category: Category) -> Self {
         category.0.into_owned()
     }
 }
