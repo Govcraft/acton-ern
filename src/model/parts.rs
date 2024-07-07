@@ -3,15 +3,15 @@ use std::fmt;
 
 /// Represents a collection of parts in the Arn, handling multiple segments.
 #[derive(Debug, PartialEq, Clone, Eq, Default)]
-pub struct Parts<'a>(pub(crate) Vec<Part<'a>>);
+pub struct Parts(pub(crate) Vec<Part>);
 
-impl<'a> Parts<'a> {
+impl Parts {
     /// Constructs a new collection of `Parts`.
     ///
     /// # Arguments
     ///
     /// * `parts` - A vector of `Part` representing the parts of the Arn.
-    pub fn new(parts: Vec<Part<'a>>) -> Self {
+    pub fn new(parts: Vec<Part>) -> Self {
         Parts(parts)
     }
 
@@ -22,26 +22,26 @@ impl<'a> Parts<'a> {
     /// * `part` - The `Part` to be added to the collection.
     pub fn add_part<T>(mut self, part: T) -> Self
     where
-        T: Into<Part<'a>>,
+        T: Into<Part>,
     {
         self.0.push(part.into());
         self
     }
 
     /// Converts the Parts into an owned version with 'static lifetime
-    pub fn into_owned(self) -> Parts<'static> {
+    pub fn into_owned(self) -> Parts {
         Parts(self.0.into_iter().map(|part| part.into_owned()).collect())
     }
 }
 
 
-impl<'a> FromIterator<Part<'a>> for Parts<'a> {
-    fn from_iter<T: IntoIterator<Item = Part<'a>>>(iter: T) -> Self {
+impl FromIterator<Part> for Parts {
+    fn from_iter<T: IntoIterator<Item = Part>>(iter: T) -> Self {
         Parts(iter.into_iter().collect())
     }
 }
 
-impl<'a> fmt::Display for Parts<'a> {
+impl fmt::Display for Parts {
     /// Formats the collection of parts as a string, joining them with '/'.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let parts_str = self
@@ -92,7 +92,7 @@ mod tests {
     #[test]
     fn test_parts_into_owned() -> anyhow::Result<()> {
         let parts = Parts::new(vec![Part::new("segment1")?, Part::new("segment2")?]);
-        let owned_parts: Parts<'static> = parts.into_owned();
+        let owned_parts: Parts = parts.into_owned();
         assert_eq!(owned_parts.to_string(), "segment1/segment2");
         Ok(())
     }
