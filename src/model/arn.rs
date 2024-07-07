@@ -1,8 +1,10 @@
-use crate::errors::ArnError;
-use crate::{Account, ArnComponent, Category, Domain, Part, Parts, Root};
 use std::borrow::Cow;
 use std::fmt;
 use std::fmt::{Display, Formatter};
+use std::ops::{Add, Deref};
+
+use crate::{Account, ArnComponent, Category, Domain, Part, Parts, Root};
+use crate::errors::ArnError;
 
 /// Represents an Akton Resource Name (Arn), which uniquely identifies resources within the Akton framework.
 #[derive(Debug, PartialEq, Clone, Eq, Hash)]
@@ -12,6 +14,14 @@ pub struct Arn {
     pub account: Account,
     pub root: Root,
     pub parts: Parts,
+}
+
+impl Deref for Arn {
+    type Target = ();
+
+    fn deref(&self) -> &Self::Target {
+        todo!()
+    }
 }
 
 impl Display for Arn {
@@ -30,7 +40,6 @@ impl Display for Arn {
         write!(f, "{}", display)
     }
 }
-use std::ops::Add;
 
 impl Add for Arn {
     type Output = Arn;
@@ -184,9 +193,11 @@ impl Default for Arn {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::Part;
     use std::str::FromStr;
+
+    use crate::Part;
+
+    use super::*;
 
     #[test]
     fn test_arn_with_root() {
