@@ -5,12 +5,12 @@ use std::borrow::Cow;
 use std::str::FromStr;
 
 /// A parser for decoding Arn strings into their constituent components.
-pub struct ArnParser<'a> {
+pub struct ArnParser {
     /// The Arn string to be parsed.
-    arn: Cow<'a, str>,
+    arn: Cow<'static, str>,
 }
 
-impl<'a> ArnParser<'a> {
+impl ArnParser {
     /// Constructs a new `ArnParser` for a given Arn string.
     ///
     /// # Arguments
@@ -20,7 +20,7 @@ impl<'a> ArnParser<'a> {
     /// # Returns
     ///
     /// Returns an `ArnParser` instance initialized with the given Arn string.
-    pub fn new(arn: impl Into<Cow<'a, str>>) -> Self {
+    pub fn new(arn: impl Into<Cow<'static, str>>) -> Self {
         Self { arn: arn.into() }
     }
 
@@ -31,7 +31,7 @@ impl<'a> ArnParser<'a> {
     ///
     /// Returns an `Arn` instance containing the parsed components.
     /// If parsing fails, returns an error message as a `String`.
-    pub fn parse(&self) -> Result<Arn<'a>, ArnError> {
+    pub fn parse(&self) -> Result<Arn, ArnError> {
         let parts: Vec<&str> = self.arn.splitn(5, ':').collect();
 
         if parts.len() != 5 || parts[0] != "arn" {
