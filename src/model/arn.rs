@@ -5,7 +5,7 @@ use std::fmt;
 use std::fmt::{Display, Formatter};
 
 /// Represents an Akton Resource Name (Arn), which uniquely identifies resources within the Akton framework.
-#[derive(Debug, PartialEq, Clone, Eq)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash)]
 pub struct Arn {
     pub domain: Domain,
     pub category: Category,
