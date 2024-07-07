@@ -5,18 +5,18 @@ use std::fmt;
 use type_safe_id::{DynamicType, TypeSafeId};
 
 #[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone)]
-pub struct Root<'a>(pub(crate) Cow<'a, str>);
+pub struct Root(pub(crate) Cow<'static, str>);
 
-impl<'a> Root<'a> {
+impl Root {
     pub fn as_str(&self) -> &str {
         &self.0
     }
 
-    pub fn into_owned(self) -> Root<'static> {
+    pub fn into_owned(self) -> Root {
         Root(Cow::Owned(self.0.into_owned()))
     }
 
-    pub fn new(value: impl Into<Cow<'a, str>>) -> Result<Self, ArnError> {
+    pub fn new(value: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
         let value = value.into();
         let value = if value.is_empty() {
             let val = AKTON;
@@ -30,14 +30,14 @@ impl<'a> Root<'a> {
     }
 }
 
-impl<'a> Default for Root<'a> {
+impl Default for Root {
     fn default() -> Self {
         Root::new("").expect("Couldn't create default Akton ARN")
         // Root(Cow::Borrowed(AKTON))
     }
 }
 
-impl<'a> fmt::Display for Root<'a> {
+impl fmt::Display for Root {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let id = &self.0;
         write!(f, "{id}")
@@ -45,15 +45,15 @@ impl<'a> fmt::Display for Root<'a> {
 }
 const AKTON: &str = "akton";
 
-impl<'a> std::str::FromStr for Root<'a> {
+impl std::str::FromStr for Root {
     type Err = ArnError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Root::new(s.to_string())
     }
 }
 
-impl<'a> From<Root<'a>> for String {
-    fn from(root: Root<'a>) -> Self {
+impl From<Root> for String {
+    fn from(root: Root) -> Self {
         root.0.into_owned()
     }
 }
