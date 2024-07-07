@@ -1,9 +1,11 @@
-use crate::errors::ArnError;
-use derive_more::{AsRef, From, Into};
 use std::borrow::Cow;
 use std::fmt;
 
-#[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone)]
+use derive_more::{AsRef, From, Into};
+
+use crate::errors::ArnError;
+
+#[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash)]
 pub struct Part(pub(crate) Cow<'static, str>);
 impl Part {
     pub fn as_str(&self) -> &str {
