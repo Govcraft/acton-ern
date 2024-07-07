@@ -4,7 +4,7 @@ use std::borrow::Cow;
 use std::fmt;
 use type_safe_id::{DynamicType, TypeSafeId};
 
-#[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone)]
+#[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash)]
 pub struct Root(pub(crate) Cow<'static, str>);
 
 impl Root {
