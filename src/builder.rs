@@ -1,10 +1,10 @@
 use crate::errors::EidError;
-use crate::model::{Account, Eid, Category, Domain, Part, Parts};
+use crate::model::{Account, Ern, Category, Domain, Part, Parts};
 use crate::traits::EidComponent;
 use crate::{IdType, Root, UnixTime};
 use std::borrow::Cow;
 
-/// A builder for constructing Ein instances using a state-driven approach with type safety.
+/// A builder for constructing ERN (Entity Resource Name) instances using a state-driven approach with type safety.
 pub struct ArnBuilder<State, T: IdType + Clone + PartialEq> {
     builder: PrivateArnBuilder<T>,
     _marker: std::marker::PhantomData<(State, T)>,
@@ -12,7 +12,7 @@ pub struct ArnBuilder<State, T: IdType + Clone + PartialEq> {
 
 /// Implementation of `ArnBuilder` for the initial state, starting with `Domain`.
 impl<T:IdType+Clone+PartialEq> ArnBuilder<(),T> {
-    /// Creates a new Ein builder initialized to start building from the `Domain` component.
+    /// Creates a new ERN (Entity Resource Name) builder initialized to start building from the `Domain` component.
     pub fn new() -> ArnBuilder<Domain, T> {
         ArnBuilder {
             builder: PrivateArnBuilder::new(),
@@ -21,25 +21,25 @@ impl<T:IdType+Clone+PartialEq> ArnBuilder<(),T> {
     }
 }
 
-/// Implementation of `ArnBuilder` for `Part` states, allowing for building the final Ein.
+/// Implementation of `ArnBuilder` for `Part` states, allowing for building the final ERN (Entity Resource Name).
 impl<T:IdType+Clone+PartialEq> ArnBuilder<Part,T> {
-    /// Finalizes the building process and constructs the Ein.
-    pub fn build(self) -> Result<Eid<T>, EidError> {
+    /// Finalizes the building process and constructs the ERN (Entity Resource Name).
+    pub fn build(self) -> Result<Ern<T>, EidError> {
         self.builder.build()
     }
 }
 
 /// Implementation of `ArnBuilder` for handling `Parts` states.
 impl<T:IdType+Clone+PartialEq> ArnBuilder<Parts,T> {
-    /// Finalizes the building process and constructs the Ein when in the `Parts` state.
-    pub fn build(self) -> Result<Eid<T>, EidError> {
+    /// Finalizes the building process and constructs the ERN (Entity Resource Name) when in the `Parts` state.
+    pub fn build(self) -> Result<Ern<T>, EidError> {
         self.builder.build()
     }
 }
 
 /// Generic implementation of `ArnBuilder` for all states that can transition to another state.
 impl<Component: EidComponent, T:IdType+Clone+PartialEq> ArnBuilder<Component, T> {
-    /// Adds a new part to the Ein, transitioning to the next appropriate state.
+    /// Adds a new part to the ERN (Entity Resource Name), transitioning to the next appropriate state.
     pub fn with<N>(
         self,
         part: impl Into<Cow<'static, str>>,
@@ -54,7 +54,7 @@ impl<Component: EidComponent, T:IdType+Clone+PartialEq> ArnBuilder<Component, T>
     }
 }
 
-/// Represents a private, internal structure for building the Ein.
+/// Represents a private, internal structure for building the ERN (Entity Resource Name).
 struct PrivateArnBuilder<T: IdType + Clone + PartialEq> {
     domain: Option<Domain>,
     category: Option<Category>,
@@ -65,7 +65,7 @@ struct PrivateArnBuilder<T: IdType + Clone + PartialEq> {
 }
 
 impl<T: IdType + Clone + PartialEq> PrivateArnBuilder<T> {
-    /// Constructs a new private Ein builder.
+    /// Constructs a new private ERN (Entity Resource Name) builder.
     fn new() -> Self {
         Self {
             domain: None,
@@ -102,8 +102,8 @@ impl<T: IdType + Clone + PartialEq> PrivateArnBuilder<T> {
         Ok(self)
     }
 
-    /// Finalizes and builds the Ein.
-    fn build(self) -> Result<Eid<T>, EidError> {
+    /// Finalizes and builds the ERN (Entity Resource Name).
+    fn build(self) -> Result<Ern<T>, EidError> {
         let domain = self
             .domain
             .ok_or(EidError::MissingPart("domain".to_string()))?;
@@ -115,7 +115,7 @@ impl<T: IdType + Clone + PartialEq> PrivateArnBuilder<T> {
             .ok_or(EidError::MissingPart("account".to_string()))?;
         let root = self.root.ok_or(EidError::MissingPart("root".to_string()))?;
 
-        Ok(Eid::new(domain, category, account, root, self.parts))
+        Ok(Ern::new(domain, category, account, root, self.parts))
     }
 }
 
@@ -128,8 +128,8 @@ mod tests {
 
     #[test]
     fn test() -> anyhow::Result<()> {
-        // Create an Ein using the ArnBuilder with specified components
-        let eid: Result<Eid<UnixTime>, EidError> = ArnBuilder::new()
+        // Create an ERN (Entity Resource Name) using the ArnBuilder with specified components
+        let eid: Result<Ern<UnixTime>, EidError> = ArnBuilder::new()
             .with::<Domain>("acton-internal")?
             .with::<Category>("hr")?
             .with::<Account>("company123")?
@@ -138,7 +138,7 @@ mod tests {
             .with::<Part>("team1")?
             .build();
 
-        // Verify the constructed Ein matches the expected value
+        // Verify the constructed ERN (Entity Resource Name) matches the expected value
         assert!(
             eid.is_ok(),
             "eid:acton-internal:hr:company123:root/departmentA/team1"
@@ -147,7 +147,7 @@ mod tests {
     }
     #[test]
     fn test_eid_builder() -> anyhow::Result<()> {
-        let eid: Eid<UnixTime> = ArnBuilder::new()
+        let eid: Ern<UnixTime> = ArnBuilder::new()
             .with::<Domain>("custom")?
             .with::<Category>("service")?
             .with::<Account>("account123")?
@@ -167,17 +167,17 @@ mod tests {
     #[test]
     fn test_eid_builder_with_default_parts() -> anyhow::Result<(), EidError> {
         init_tracing();
-        let eid: Eid<UnixTime> = Eid::default();
+        let eid: Ern<UnixTime> = Ern::default();
         tracing::debug!("{}", eid);
         let parser:ArnParser<UnixTime> = ArnParser::new(eid.to_string());
-        let parsed: Eid<UnixTime> = parser.parse()?;
+        let parsed: Ern<UnixTime> = parser.parse()?;
         assert_eq!(parsed.domain.as_str(), "acton");
         Ok(())
     }
 
     #[test]
     fn test_eid_builder_with_owned_strings() -> anyhow::Result<(), EidError> {
-        let eid: Eid<UnixTime> = ArnBuilder::new()
+        let eid: Ern<UnixTime> = ArnBuilder::new()
             .with::<Domain>(String::from("custom"))?
             .with::<Category>(String::from("service"))?
             .with::<Account>(String::from("account123"))?
