@@ -5,6 +5,7 @@ use std::hash::Hash;
 
 use derive_more::{AsRef, From, Into};
 use type_safe_id::{DynamicType, TypeSafeId};
+use uuid::Uuid;
 
 use crate::{IdType, Timestamp, UnixTime};
 use crate::errors::ErnError;
@@ -12,6 +13,7 @@ use crate::errors::ErnError;
 #[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash, PartialOrd)]
 pub struct Root<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash = UnixTime> {
     pub(crate) name: Cow<'static, str>,
+    pub(crate) uuid: Uuid,
     marker: std::marker::PhantomData<T>,
 }
 impl Ord for Root<Timestamp> {
@@ -34,6 +36,7 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> Root<T> {
         Root {
             name: Cow::Owned(self.name.into_owned()),
             marker: Default::default(),
+            uuid: self.uuid,
         }
     }
 
@@ -41,16 +44,18 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> Root<T> {
         let value = value.into();
         let value = if value.is_empty() {
             let val = ACTON;
-            TypeSafeId::from_type_and_uuid(DynamicType::new(val)?, T::generate_id(val)).to_string()
+            TypeSafeId::from_type_and_uuid(DynamicType::new(val)?, T::generate_id(val))
         } else {
             TypeSafeId::from_type_and_uuid(
                 DynamicType::new(&value)?,
                 T::generate_id(value.as_ref()),
             )
-            .to_string()
+
         };
+
         Ok(Root {
-            name: Cow::from(value),
+            name: Cow::from(value.to_string()),
+            uuid: value.uuid(),
             marker: Default::default(),
         })
     }
@@ -75,6 +80,7 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> std::str::FromStr f
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Root {
             name: Cow::from(s.to_string()),
+            uuid: Uuid::from_str(s).map_err( |e| ErnError::UuidError(e.to_string()))?,
             marker: Default::default(),
         })
     }
