@@ -2,7 +2,7 @@ use std::borrow::Cow;
 
 use crate::{Account, Category, Domain, IdType, Part, Parts, Root};
 
-/// Represents a component of a Ein (Akton Resource Name) that ensures type safety and ordering.
+/// Represents a component of a Ein (Acton Resource Name) that ensures type safety and ordering.
 pub trait EidComponent {
     /// Returns the prefix string that should appear before this component in a Ein.
     fn prefix() -> &'static str;
