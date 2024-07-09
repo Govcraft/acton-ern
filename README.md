@@ -4,7 +4,7 @@
   
   The `acton-ern` crate provides a Rust-based implementation for handling Acton Resource Names (Arns), enabling the generation, parsing, and management of Arns within the Acton framework. This crate is designed to support cloud-native Acton-based solutions by offering robust, type-safe, and efficient ERN (Entity Resource Name) management capabilities. The functionality includes constructing, parsing, validating, and manipulating Arns according to the specified hierarchical structure used within various services.
   
-  ## Acton Resource Name (ERN (Entity Resource Name)) System
+  ## Acton ERNs (Entity Resource Name)
   
   ### What is ERN (Entity Resource Name)?
   
