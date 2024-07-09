@@ -1,11 +1,11 @@
 use crate::{Account, Category, Domain, Part, Parts, Root};
 use std::borrow::Cow;
 
-/// Represents a component of a Arn (Akton Resource Name) that ensures type safety and ordering.
+/// Represents a component of a Ein (Akton Resource Name) that ensures type safety and ordering.
 pub trait ArnComponent {
-    /// Returns the prefix string that should appear before this component in a Arn.
+    /// Returns the prefix string that should appear before this component in a Ein.
     fn prefix() -> &'static str;
-    /// The type of the next Arn component in the sequence.
+    /// The type of the next Ein component in the sequence.
     type NextState;
     /// Returns the string representation of this component.
     fn as_cow(&self) -> Cow<'static, str>;
@@ -31,7 +31,7 @@ impl_arn_component!(Account, "", Root);
 impl_arn_component!(Root, "", Part);
 impl_arn_component!(Part, "", Parts);
 
-/// Implementation for the `Parts` component of a Arn.
+/// Implementation for the `Parts` component of a Ein.
 impl ArnComponent for Parts {
     fn prefix() -> &'static str {
         ":"
