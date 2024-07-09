@@ -1,2 +1,2 @@
-mod arn_component;
-pub use arn_component::ArnComponent;
+mod eid_component;
+pub use eid_component::ArnComponent;
