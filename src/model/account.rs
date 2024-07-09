@@ -1,7 +1,7 @@
 use derive_more::{AsRef, From, Into};
 use std::borrow::Cow;
 use std::fmt;
-/// Represents an account identifier in the Arn system.
+/// Represents an account identifier in the Ein system.
 
 #[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash)]
 pub struct Account(pub(crate) Cow<'static, str>);
