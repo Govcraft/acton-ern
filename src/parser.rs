@@ -1,16 +1,18 @@
-use crate::errors::ArnError;
-use crate::model::{Account, Ein, Category, Domain, Part, Parts};
-use crate::Root;
 use std::borrow::Cow;
 use std::str::FromStr;
 
+use crate::{IdType, Root};
+use crate::errors::ArnError;
+use crate::model::{Account, Category, Domain, Ein, Part, Parts};
+
 /// A parser for decoding Ein strings into their constituent components.
-pub struct ArnParser {
+pub struct ArnParser<T: IdType + Clone + PartialEq> {
     /// The Ein string to be parsed.
-    arn: Cow<'static, str>,
+    eid: Cow<'static, str>,
+    _marker: std::marker::PhantomData<T>,
 }
 
-impl ArnParser {
+impl<T: IdType + Clone + PartialEq> ArnParser<T> {
     /// Constructs a new `ArnParser` for a given Ein string.
     ///
     /// # Arguments
@@ -20,8 +22,11 @@ impl ArnParser {
     /// # Returns
     ///
     /// Returns an `ArnParser` instance initialized with the given Ein string.
-    pub fn new(arn: impl Into<Cow<'static, str>>) -> Self {
-        Self { arn: arn.into() }
+    pub fn new(eid: impl Into<Cow<'static, str>>) -> Self {
+        Self {
+            eid: eid.into(),
+            _marker: Default::default(),
+        }
     }
 
     /// Parses the Ein into its component parts and returns them as a structured result.
@@ -31,51 +36,48 @@ impl ArnParser {
     ///
     /// Returns an `Ein` instance containing the parsed components.
     /// If parsing fails, returns an error message as a `String`.
-    pub fn parse(&self) -> Result<Ein, ArnError> {
-        let parts: Vec<&str> = self.arn.splitn(5, ':').collect();
+    pub fn parse(&self) -> Result<Ein<T>, ArnError> {
+        let parts: Vec<String> = self.eid.splitn(5, ':').map(|s| s.to_string()).collect();
 
         if parts.len() != 5 || parts[0] != "arn" {
             return Err(ArnError::InvalidFormat);
         }
 
-        let domain = Domain::from_str(parts[1])?;
-        let category = Category::from_str(parts[2])?;
-        let account = Account::from_str(parts[3])?;
+        let domain = Domain::from_str(&parts[1])?;
+        let category = Category::from_str(&parts[2])?;
+        let account = Account::from_str(&parts[3])?;
 
         // Split the root and the path part
-        let root_path: Vec<&str> = parts[4].splitn(2, '/').collect();
-        let root_str = root_path[0];
-        let root = Root{ 0: root_str.to_string().into() };
+        let root_path: Vec<String> = parts[4].splitn(2, '/').map(|s| s.to_string()).collect();
+        let root_str = root_path[0].clone();
+        let root: Root<T> = Root::<T>::new(root_str)?;
 
         // Continue with the path parts
         let mut arn_parts = Vec::new();
         if root_path.len() > 1 {
-            let path_parts: Vec<&str> = root_path[1].split('/').collect();
+            let path_parts: Vec<String> = root_path[1].split('/').map(|s| s.to_string()).collect();
             for part in path_parts.iter() {
                 arn_parts.push(Part::from_str(part)?);
             }
         }
 
-        // // Process the remaining parts after root
-        // let remaining_parts: Vec<&str> = parts[4].split("/").collect();
-        // for part in remaining_parts.iter() {
-        //     arn_parts.push(Part::from_str(part).map_err(|_| ParseError::InvalidPartFormat)?);
-        // }
-
         let parts = Parts::new(arn_parts);
         Ok(Ein::new(domain, category, account, root, parts))
     }
+
+
+
 }
 
 #[cfg(test)]
 mod tests {
-
+    use crate::UnixTime;
     use super::*;
 
     #[test]
     fn test_valid_arn_parsing() {
         let arn_str = "arn:custom:service:account123:root/resource/subresource";
-        let parser = ArnParser::new(arn_str);
+        let parser: ArnParser<UnixTime> = ArnParser::new(arn_str);
         let result = parser.parse();
 
         assert!(result.is_ok());
@@ -86,7 +88,7 @@ mod tests {
     #[test]
     fn test_invalid_arn_format() {
         let arn_str = "invalid:arn:format";
-        let parser = ArnParser::new(arn_str);
+        let parser: ArnParser<UnixTime> = ArnParser::new(arn_str);
         let result = parser.parse();
         assert!(result.is_err());
         assert_eq!(result.err().unwrap(), ArnError::InvalidFormat);
@@ -96,7 +98,7 @@ mod tests {
     #[test]
     fn test_arn_with_invalid_part() -> anyhow::Result<()> {
         let arn_str = "arn:domain:category:account:root/invalid:part";
-        let parser = ArnParser::new(arn_str);
+        let parser: ArnParser<UnixTime> = ArnParser::new(arn_str);
         let result = parser.parse();
         assert!(result.is_err());
         // assert!(result.unwrap_err().to_string().starts_with("Failed to parse Part"));
@@ -106,7 +108,7 @@ mod tests {
     #[test]
     fn test_arn_parsing_with_owned_string() {
         let arn_str = String::from("arn:custom:service:account123:root/resource");
-        let parser = ArnParser::new(arn_str);
+        let parser: ArnParser<UnixTime> = ArnParser::new(arn_str);
         let result = parser.parse();
         assert!(result.is_ok());
     }
