@@ -1,4 +1,4 @@
-use crate::errors::EidError;
+use crate::errors::ErnError;
 use derive_more::{AsRef, From, Into};
 use std::borrow::Cow;
 use std::fmt;
@@ -14,10 +14,10 @@ impl Domain {
     pub fn into_owned(self) -> Domain {
         Domain(Cow::Owned(self.0.into_owned()))
     }
-    pub fn new(value: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
+    pub fn new(value: impl Into<Cow<'static, str>>) -> Result<Self, ErnError> {
         let val = value.into();
         if val.is_empty() {
-            Err(EidError::ParseFailure("Domain", "cannot be empty".to_string()))
+            Err(ErnError::ParseFailure("Domain", "cannot be empty".to_string()))
         } else {
             Ok(Domain(val))
         }
@@ -37,7 +37,7 @@ impl fmt::Display for Domain {
 }
 
 impl std::str::FromStr for Domain {
-    type Err = EidError;
+    type Err = ErnError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Domain::new(s.to_string())
