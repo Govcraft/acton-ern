@@ -1,7 +1,7 @@
 use crate::errors::ErnError;
 use crate::model::{Account, Ern, Category, Domain, Part, Parts};
 use crate::traits::ErnComponent;
-use crate::{IdType, Root, UnixTime};
+use crate::{IdType, Root};
 use std::borrow::Cow;
 
 /// A builder for constructing ERN (Entity Resource Name) instances using a state-driven approach with type safety.
