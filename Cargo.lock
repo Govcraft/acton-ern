@@ -3,7 +3,7 @@
 version = 3
 
 [[package]]
-name = "acton-ein"
+name = "acton-eid"
 version = "2.0.0-alpha"
 dependencies = [
  "anyhow",
