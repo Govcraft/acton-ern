@@ -52,7 +52,8 @@ const ACTON: &str = "acton";
 impl<T:IdType+Clone+PartialEq> std::str::FromStr for Root<T> {
     type Err = EidError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Root::new(s.to_string())
+        Ok(Root { name: Cow::from(s.to_string()), marker: Default::default() })
+        // Root::new(s.to_string())
     }
 }
 
