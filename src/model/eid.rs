@@ -4,7 +4,7 @@ use std::fmt::{Display, Formatter};
 use std::ops::Add;
 
 use crate::{Account, Category, Domain, EidComponent, IdType, Part, Parts, Root};
-use crate::errors::ArnError;
+use crate::errors::EidError;
 
 /// Represents an Akton Resource Name (Ein), which uniquely identifies resources within the Akton framework.
 #[derive(Debug, PartialEq, Clone, Eq, Hash)]
@@ -70,7 +70,7 @@ impl<T: IdType + Clone + PartialEq> Ein<T> {
     }
 
     /// Creates a new Ein with the given root and default values for other fields
-    pub fn with_root(root: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
+    pub fn with_root(root: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
         let root = Root::new(root)?;
         Ok(Ein {
             root,
@@ -79,7 +79,7 @@ impl<T: IdType + Clone + PartialEq> Ein<T> {
     }
 
     /// Creates a new Ein based on an existing Ein but with a new root
-    pub fn with_new_root(&self, new_root: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
+    pub fn with_new_root(&self, new_root: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
         let new_root = Root::new(new_root)?;
         Ok(Ein {
             domain: self.domain.clone(),
@@ -91,7 +91,7 @@ impl<T: IdType + Clone + PartialEq> Ein<T> {
         })
     }
 
-    pub fn with_domain(domain: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
+    pub fn with_domain(domain: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
         let domain = Domain::new(domain)?;
         Ok(Ein {
             domain,
@@ -103,7 +103,7 @@ impl<T: IdType + Clone + PartialEq> Ein<T> {
         })
     }
 
-    pub fn with_category(category: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
+    pub fn with_category(category: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
         let category = Category::new(category);
         Ok(Ein {
             domain: Domain::default(),
@@ -115,7 +115,7 @@ impl<T: IdType + Clone + PartialEq> Ein<T> {
         })
     }
 
-    pub fn with_account(account: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
+    pub fn with_account(account: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
         let account = Account::new(account);
         Ok(Ein {
             domain: Domain::default(),
@@ -127,7 +127,7 @@ impl<T: IdType + Clone + PartialEq> Ein<T> {
         })
     }
 
-    pub fn add_part(&self, part: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
+    pub fn add_part(&self, part: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
         let mut new_parts = self.parts.clone();
         new_parts.0.push(Part::new(part)?);
         Ok(Ein {
@@ -143,7 +143,7 @@ impl<T: IdType + Clone + PartialEq> Ein<T> {
     pub fn with_parts(
         &self,
         parts: impl IntoIterator<Item = impl Into<Cow<'static, str>>>,
-    ) -> Result<Self, ArnError> {
+    ) -> Result<Self, EidError> {
         let new_parts: Result<Vec<Part>, _> = parts.into_iter().map(Part::new).collect();
         Ok(Ein {
             domain: self.domain.clone(),
