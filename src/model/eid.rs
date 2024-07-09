@@ -346,7 +346,7 @@ mod tests {
         );
         assert!(arn
             .to_string()
-            .starts_with("arn:custom:service:account123:root"));
+            .starts_with("eid:custom:service:account123:root"));
         Ok(())
     }
 
