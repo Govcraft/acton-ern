@@ -15,12 +15,12 @@ pub struct Root<T: IdType + Clone + PartialEq + Eq + PartialOrd = UnixTime> {
 }
 impl Ord for Root<Timestamp> {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.cmp(other)
+        self.as_str().cmp(other.as_str())
     }
 }
 impl Ord for Root<UnixTime> {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.cmp(other)
+        self.as_str().cmp(other.as_str())
     }
 }
 
