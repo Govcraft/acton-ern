@@ -39,18 +39,28 @@ acton-ern = "2.1.0-alpha"
 
 ## ERN Structure
 
-An ERN follows this structure:
+An ERN follows the URN format and has the following structure:
 
 ```
 ern:domain:category:account:root/path/to/resource
 ```
 
-- `ern`: Prefix indicating an Entity Resource Name
+This structure can be mapped to the URN format as follows:
+
+- `ern`: NID (Namespace Identifier)
+- `domain:category:account:root`: NSS (Namespace Specific String)
+- `/path/to/resource`: Optional path components
+
+The components of an ERN are:
+
+- `ern`: Prefix indicating an Entity Resource Name (serves as the URN namespace)
 - `domain`: Classifies the resource (e.g., internal, external, custom domains)
 - `category`: Specifies the service or category within the system
 - `account`: Identifies the owner or account responsible for the resource
-- `root`: A unique identifier for the root of the resource hierarchy
+- `root`: A unique identifier for the root of the resource hierarchy. When using `UnixTime` or `Timestamp` ID types, this component enables k-sortability.
 - `path`: Optional path-like structure showing the resource's position within the hierarchy
+
+By extending the URN format with k-sortability and type-safe construction, ERNs provide a powerful naming scheme for distributed systems that goes beyond the capabilities of standard URNs.
 
 ## Basic Usage
 
