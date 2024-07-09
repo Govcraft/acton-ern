@@ -24,6 +24,38 @@ fn test() -> anyhow::Result<()> {
 }
 
 #[test]
+fn test_v7() -> anyhow::Result<()> {
+    // Create an ERN (Entity Resource Name) using the ArnBuilder with specified components
+    let ern_left: Result<Ern<UnixTime>, ErnError> = ArnBuilder::new()
+        .with::<Domain>("acton-internal")?
+        .with::<Category>("hr")?
+        .with::<Account>("company123")?
+        .with::<Root>("root")?
+        .with::<Part>("departmentA")?
+        .with::<Part>("team1")?
+        .build();
+
+    let ern_right: Result<Ern<UnixTime>, ErnError> = ArnBuilder::new()
+        .with::<Domain>("acton-internal")?
+        .with::<Category>("hr")?
+        .with::<Account>("company123")?
+        .with::<Root>("root")?
+        .with::<Part>("departmentA")?
+        .with::<Part>("team1")?
+        .build();
+
+    // Verify the constructed ERN (Entity Resource Name) matches the expected value
+    assert!(
+        ern_left.is_ok());
+    assert!(
+        ern_right.is_ok(),
+        "ern:acton-internal:hr:company123:root/departmentA/team1"
+    );
+    assert_ne!(ern_left?, ern_right?);
+    Ok(())
+}
+
+#[test]
 fn test_v5() -> anyhow::Result<()> {
     // Create an ERN (Entity Resource Name) using the ArnBuilder with specified components
     let ern_left: Result<Ern<SHA1Name>, ErnError> = ArnBuilder::new()
