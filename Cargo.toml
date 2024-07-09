@@ -2,7 +2,7 @@
 name = "acton-ein"
 version = "2.0.0-alpha"
 edition = "2021"
-authors = ["Govcraft <contact@govcraft.ai>"]
+authors = ["Govcraft <acton@govcraft.ai>"]
 description = "A Rust library for handling Akton Resource Names (ARNs), providing tools for generating, parsing, and managing ARNs within Akton-based cloud-native solutions."
 repository = "https://github.com/govcraft/akton-arn"
 documentation = "https://docs.rs/akton-arn"
