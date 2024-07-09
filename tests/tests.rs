@@ -18,7 +18,7 @@ fn test() -> anyhow::Result<()> {
 
     // Verify the constructed Ein matches the expected value
     assert!(
-        arn.is_ok(),
+        eid.is_ok(),
         "eid:akton-internal:hr:company123:root/departmentA/team1"
     );
     Ok(())
@@ -44,18 +44,18 @@ fn test_parser() -> anyhow::Result<()> {
 
     // Verify each component matches the expected value
     assert_eq!(
-        arn.domain.to_string(),
+        eid.domain.to_string(),
         "acton-internal",
         "Domain should be 'akton-internal'"
     );
-    assert_eq!(arn.category.to_string(), "hr", "Category should be 'hr'");
+    assert_eq!(eid.category.to_string(), "hr", "Category should be 'hr'");
     assert_eq!(
-        arn.account.to_string(),
+        eid.account.to_string(),
         "company123",
         "Account should be 'company123'"
     );
     assert_eq!(
-        arn.parts.to_string(),
+        eid.parts.to_string(),
         "departmentA/team1",
         "Parts should match expected values"
     );
