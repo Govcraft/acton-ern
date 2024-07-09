@@ -58,7 +58,7 @@ fn test_v5() -> anyhow::Result<()> {
         .with::<Domain>("acton-internal")?
         .with::<Category>("hr")?
         .with::<Account>("company123")?
-        .with::<Root>("root")?
+        .with::<Root>("same")?
         .with::<Part>("departmentA")?
         .with::<Part>("team1")?
         .build();
@@ -67,7 +67,7 @@ fn test_v5() -> anyhow::Result<()> {
         .with::<Domain>("acton-internal")?
         .with::<Category>("hr")?
         .with::<Account>("company123")?
-        .with::<Root>("root")?
+        .with::<Root>("same")?
         .with::<Part>("departmentA")?
         .with::<Part>("team1")?
         .build();
