@@ -5,6 +5,7 @@ pub trait IdType {
 }
 
 // Implement the trait for each ID version with user-friendly names
+#[derive(Debug, Clone, PartialEq)]
 pub struct Random;
 
 impl IdType for Random {
@@ -13,6 +14,7 @@ impl IdType for Random {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct SHA1Name;
 
 impl IdType for SHA1Name {
@@ -21,6 +23,7 @@ impl IdType for SHA1Name {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct Timestamp;
 
 impl IdType for Timestamp {
@@ -29,6 +32,7 @@ impl IdType for Timestamp {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct UnixTime;
 
 impl IdType for UnixTime {
@@ -37,6 +41,7 @@ impl IdType for UnixTime {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct UserDefined;
 
 impl IdType for UserDefined {
