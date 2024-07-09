@@ -47,7 +47,7 @@ impl<T:IdType+Clone+PartialEq> fmt::Display for Root<T> {
         write!(f, "{id}")
     }
 }
-const ACTON: &str = "akton";
+const ACTON: &str = "acton";
 
 impl<T:IdType+Clone+PartialEq> std::str::FromStr for Root<T> {
     type Err = EidError;
