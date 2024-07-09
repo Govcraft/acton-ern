@@ -1,6 +1,6 @@
 [package]
 name = "acton-ern"
-version = "2.0.0-alpha"
+version = "2.1.0-alpha"
 edition = "2021"
 authors = ["Govcraft <acton@govcraft.ai>"]
 description = "A Rust library for handling Acton Entity Resource Names (ERNs), providing tools for generating, parsing, and managing ERNs within Acton-based solutions."
