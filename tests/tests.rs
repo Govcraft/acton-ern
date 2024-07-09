@@ -27,7 +27,7 @@ fn test() -> anyhow::Result<()> {
 #[test]
 fn test_parser() -> anyhow::Result<()> {
     // Create an ArnParser with a specific Ein string
-    let parser = ArnParser::new("arn:akton-internal:hr:company123:root/departmentA/team1");
+    let parser: ArnParser<UnixTime> = ArnParser::new("arn:akton-internal:hr:company123:root/departmentA/team1");
 
     // Parse the Ein string into its components
     let result = parser.parse();
