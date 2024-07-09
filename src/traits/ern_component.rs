@@ -25,7 +25,7 @@ macro_rules! impl_ern_component {
         }
     };
 }
-impl<T: IdType + Clone + PartialEq> ErnComponent for Root<T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> ErnComponent for Root<T> {
     fn prefix() -> &'static str {
         ""
     }
