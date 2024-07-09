@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 use std::fmt;
 use std::fmt::{Display, Formatter};
-use std::ops::{Add, Deref};
+use std::ops::{Add};
 
 use crate::{Account, ArnComponent, Category, Domain, Part, Parts, Root};
 use crate::errors::ArnError;
@@ -14,15 +14,6 @@ pub struct Arn {
     pub account: Account,
     pub root: Root,
     pub parts: Parts,
-}
-
-impl Deref for Arn {
-    type Target = str;
-
-    fn deref(&self) -> &Self::Target {
-        let arn = self.to_string().clone();
-        arn.as_str()
-    }
 }
 
 impl Display for Arn {
