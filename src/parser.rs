@@ -6,13 +6,13 @@ use crate::errors::ErnError;
 use crate::model::{Account, Category, Domain, Ern, Part, Parts};
 
 /// A parser for decoding ERN (Entity Resource Name) strings into their constituent components.
-pub struct ArnParser<T: IdType + Clone + PartialEq> {
+pub struct ArnParser<T: IdType + Clone + PartialEq + Eq + PartialOrd> {
     /// The ERN (Entity Resource Name) string to be parsed.
     ern: Cow<'static, str>,
     _marker: std::marker::PhantomData<T>,
 }
 
-impl<T: IdType + Clone + PartialEq> ArnParser<T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> ArnParser<T> {
     /// Constructs a new `ArnParser` for a given ERN (Entity Resource Name) string.
     ///
     /// # Arguments
