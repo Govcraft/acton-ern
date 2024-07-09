@@ -223,7 +223,7 @@ mod tests {
     #[test]
     fn test_ern_with_sha_root() {
         let ern: Ern<SHA1Name> = Ern::with_root("sha1_root").unwrap();
-        assert!(ern.root.name().starts_with("unix_time_root"));
+        assert!(ern.root.name().starts_with("sha1_root"));
     }
 
     #[test]
