@@ -4,7 +4,7 @@ use std::fmt::{Display, Formatter};
 use std::ops::Add;
 
 use crate::{Account, Category, Domain, EidComponent, IdType, Part, Parts, Root};
-use crate::errors::EidError;
+use crate::errors::ErnError;
 
 /// Represents an Acton RN (Entity Resource Name), which uniquely identifies resources within the Acton framework.
 #[derive(Debug, PartialEq, Clone, Eq, Hash)]
@@ -70,7 +70,7 @@ impl<T: IdType + Clone + PartialEq> Ern<T> {
     }
 
     /// Creates a new ERN (Entity Resource Name) with the given root and default values for other fields
-    pub fn with_root(root: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
+    pub fn with_root(root: impl Into<Cow<'static, str>>) -> Result<Self, ErnError> {
         let root = Root::new(root)?;
         Ok(Ern {
             root,
@@ -79,7 +79,7 @@ impl<T: IdType + Clone + PartialEq> Ern<T> {
     }
 
     /// Creates a new ERN (Entity Resource Name) based on an existing ERN (Entity Resource Name) but with a new root
-    pub fn with_new_root(&self, new_root: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
+    pub fn with_new_root(&self, new_root: impl Into<Cow<'static, str>>) -> Result<Self, ErnError> {
         let new_root = Root::new(new_root)?;
         Ok(Ern {
             domain: self.domain.clone(),
@@ -91,7 +91,7 @@ impl<T: IdType + Clone + PartialEq> Ern<T> {
         })
     }
 
-    pub fn with_domain(domain: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
+    pub fn with_domain(domain: impl Into<Cow<'static, str>>) -> Result<Self, ErnError> {
         let domain = Domain::new(domain)?;
         Ok(Ern {
             domain,
@@ -103,7 +103,7 @@ impl<T: IdType + Clone + PartialEq> Ern<T> {
         })
     }
 
-    pub fn with_category(category: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
+    pub fn with_category(category: impl Into<Cow<'static, str>>) -> Result<Self, ErnError> {
         let category = Category::new(category);
         Ok(Ern {
             domain: Domain::default(),
@@ -115,7 +115,7 @@ impl<T: IdType + Clone + PartialEq> Ern<T> {
         })
     }
 
-    pub fn with_account(account: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
+    pub fn with_account(account: impl Into<Cow<'static, str>>) -> Result<Self, ErnError> {
         let account = Account::new(account);
         Ok(Ern {
             domain: Domain::default(),
@@ -127,7 +127,7 @@ impl<T: IdType + Clone + PartialEq> Ern<T> {
         })
     }
 
-    pub fn add_part(&self, part: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
+    pub fn add_part(&self, part: impl Into<Cow<'static, str>>) -> Result<Self, ErnError> {
         let mut new_parts = self.parts.clone();
         new_parts.0.push(Part::new(part)?);
         Ok(Ern {
@@ -143,7 +143,7 @@ impl<T: IdType + Clone + PartialEq> Ern<T> {
     pub fn with_parts(
         &self,
         parts: impl IntoIterator<Item = impl Into<Cow<'static, str>>>,
-    ) -> Result<Self, EidError> {
+    ) -> Result<Self, ErnError> {
         let new_parts: Result<Vec<Part>, _> = parts.into_iter().map(Part::new).collect();
         Ok(Ern {
             domain: self.domain.clone(),
@@ -204,12 +204,12 @@ mod tests {
 
     #[test]
     fn test_eid_with_root() {
-        let eid: Ern<UnixTime> = Ern::with_root("custom_root").unwrap();
-        assert!(eid.root.as_str().starts_with("custom_root"));
-        assert_eq!(eid.domain, Domain::default());
-        assert_eq!(eid.category, Category::default());
-        assert_eq!(eid.account, Account::default());
-        assert_eq!(eid.parts, Parts::default());
+        let ern: Ern<UnixTime> = Ern::with_root("custom_root").unwrap();
+        assert!(ern.root.as_str().starts_with("custom_root"));
+        assert_eq!(ern.domain, Domain::default());
+        assert_eq!(ern.category, Category::default());
+        assert_eq!(ern.account, Account::default());
+        assert_eq!(ern.parts, Parts::default());
     }
 
     #[test]
@@ -333,20 +333,20 @@ mod tests {
 
         assert!(combined
             .to_string()
-            .starts_with("eid:acton-internal:hr:company123:rootp"));
+            .starts_with("ern:acton-internal:hr:company123:rootp"));
     }
     #[test]
     fn test_eid_custom() -> anyhow::Result<()> {
-        let eid: Ern<UnixTime> = Ern::new(
+        let ern: Ern<UnixTime> = Ern::new(
             Domain::new("custom")?,
             Category::new("service"),
             Account::new("account123"),
             Root::new("root")?,
             Parts::new(vec![Part::new("resource")?]),
         );
-        assert!(eid
+        assert!(ern
             .to_string()
-            .starts_with("eid:custom:service:account123:root"));
+            .starts_with("ern:custom:service:account123:root"));
         Ok(())
     }
 
