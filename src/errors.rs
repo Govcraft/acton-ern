@@ -28,6 +28,8 @@ pub enum ErnError {
     // Converted the Infallible implementation to ErnError
     #[error("Infallible error")]
     InfallibleError,
+    #[error("Invalid UUID: {0}")]
+    UuidError(String),
 }
 
 impl From<Infallible> for ErnError {
