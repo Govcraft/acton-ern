@@ -5,7 +5,7 @@ pub trait IdType {
 }
 
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd)]
 pub struct SHA1Name;
 
 impl IdType for SHA1Name {
