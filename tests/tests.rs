@@ -27,7 +27,7 @@ fn test() -> anyhow::Result<()> {
 #[test]
 fn test_parser() -> anyhow::Result<()> {
     // Create an ArnParser with a specific Ein string
-    let parser: ArnParser<UnixTime> = ArnParser::new("arn:akton-internal:hr:company123:root/departmentA/team1");
+    let parser: ArnParser<UnixTime> = ArnParser::new("ein:acton-internal:hr:company123:root/departmentA/team1");
 
     // Parse the Ein string into its components
     let result = parser.parse();
@@ -45,7 +45,7 @@ fn test_parser() -> anyhow::Result<()> {
     // Verify each component matches the expected value
     assert_eq!(
         arn.domain.to_string(),
-        "akton-internal",
+        "acton-internal",
         "Domain should be 'akton-internal'"
     );
     assert_eq!(arn.category.to_string(), "hr", "Category should be 'hr'");
