@@ -33,7 +33,6 @@ impl Root {
 impl Default for Root {
     fn default() -> Self {
         Root::new("").expect("Couldn't create default Akton ARN")
-        // Root(Cow::Borrowed(AKTON))
     }
 }
 
