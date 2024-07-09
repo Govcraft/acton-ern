@@ -19,7 +19,15 @@ pub struct Timestamp;
 
 impl IdType for Timestamp {
     fn generate_id(value: &str) -> Uuid {
-        Uuid::now_v6(&<[u8; 6]>::try_from(value.as_bytes()).unwrap())
+        let bytes = value.as_bytes();
+        let mut id_bytes = [0u8; 6];
+
+        // Copy the first six bytes or as many bytes as available
+        for (i, &byte) in bytes.iter().take(6).enumerate() {
+            id_bytes[i] = byte;
+        }
+
+        Uuid::now_v6(&id_bytes)
     }
 }
 
