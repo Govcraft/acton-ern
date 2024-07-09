@@ -2,7 +2,7 @@ use std::convert::Infallible;
 
 // Merged ArnBuilderError and ArnParseError into ArnError
 #[derive(Debug, thiserror::Error, PartialEq)]
-pub enum EidError {
+pub enum ErnError {
     #[error("Failed to parse {0}: {1}")]
     ParseFailure(&'static str, String),
     #[error("Part has invalid format (starts with ':' or contains '/')")]
@@ -30,13 +30,13 @@ pub enum EidError {
     InfallibleError,
 }
 
-impl From<Infallible> for EidError {
+impl From<Infallible> for ErnError {
     fn from(_: Infallible) -> Self {
-        EidError::InfallibleError
+        ErnError::InfallibleError
     }
 }
-impl From<type_safe_id::Error> for EidError {
+impl From<type_safe_id::Error> for ErnError {
     fn from(e: type_safe_id::Error) -> Self {
-        EidError::IdGenerationFailure(e.to_string())
+        ErnError::IdGenerationFailure(e.to_string())
     }
 }
