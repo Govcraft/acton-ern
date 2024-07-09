@@ -82,7 +82,7 @@ mod tests {
 
         assert!(result.is_ok());
         let arn = result.unwrap();
-        assert_eq!(arn.domain.as_str(), "custom");
+        assert_eq!(eid.domain.as_str(), "custom");
     }
 
     #[test]
