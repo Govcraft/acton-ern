@@ -1,6 +1,6 @@
 //! # Akton Resource Name (Ein) Library
 //!
-//! `akton-arn` is a Rust library designed to handle Akton Resource Names (Arns), which are structured identifiers used within the [Akton distributed actor framework](https://github.com/GovCraft/akton-framework) to uniquely identify and manage hierarchical resources across different services and partitions.
+//! `akton-eid` is a Rust library designed to handle Akton Resource Names (Arns), which are structured identifiers used within the [Akton distributed actor framework](https://github.com/GovCraft/akton-framework) to uniquely identify and manage hierarchical resources across different services and partitions.
 //!
 //! This crate provides tools for generating, parsing, and managing Arns, ensuring type safety and alignment with the hierarchical structure needed Akton-based cloud-native solutions.
 //!
@@ -29,7 +29,7 @@ mod parser;
 mod traits;
 
 pub mod prelude {
-    //! The prelude module for `akton-arn`.
+    //! The prelude module for `akton-eid`.
     //!
     //! This module re-exports essential traits and structures for easy use by downstream consumers.
 
