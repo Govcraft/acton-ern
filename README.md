@@ -1,9 +1,12 @@
 # Acton ERN (Entity Resource Name)
 
-## Overview
+The acton-ern crate provides a robust, type-safe implementation for handling Entity Resource Names (ERNs). ERNs are structured identifiers used to uniquely identify and manage hierarchical resources across different services and partitions in distributed systems. While ERNs adhere to the Uniform Resource Name (URN) format as defined in RFC 8141, they extend beyond standard URNs by offering additional features:
 
-The `acton-ern` crate provides a robust, type-safe implementation for handling Entity Resource Names (ERNs). ERNs are structured identifiers used to uniquely identify and manage hierarchical resources across different services and partitions in distributed systems.
+K-Sortability: Unlike standard URNs, ERNs can be k-sortable when using UnixTime or Timestamp ID types. This allows for efficient ordering and range queries on ERNs, which is particularly valuable in distributed systems and databases.
+Type-Safe Construction: The builder pattern ensures that ERNs are constructed correctly, with all required components in the right order.
+Flexible ID Types: ERNs support various ID types for the root component, allowing for different use cases such as content-based hashing or time-based ordering.
 
+These features make ERNs particularly suitable for use in distributed systems, providing a standardized, hierarchical, and sortable naming scheme that is both human-readable and machine-parseable.
 ## Table of Contents
 
 - [Installation](#installation)
