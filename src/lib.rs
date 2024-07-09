@@ -36,7 +36,7 @@ pub mod prelude {
     pub use super::builder::ArnBuilder;
     pub use super::model::{Account, Ern, Category, Domain, Part, Parts};
     pub use super::parser::ArnParser;
-    pub use super::traits::EidComponent;
+    pub use super::traits::ErnComponent;
     pub use super::errors::ErnError;
 }
 
