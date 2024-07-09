@@ -46,9 +46,7 @@ fn test_v7() -> anyhow::Result<()> {
 
     // Verify the constructed ERN (Entity Resource Name) matches the expected value
     assert!(ern_left.is_ok());
-    assert!(
-        ern_right.is_ok()
-    );
+    assert!(ern_right.is_ok());
     assert_ne!(ern_left?, ern_right?);
     Ok(())
 }
