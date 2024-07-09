@@ -124,7 +124,7 @@ mod tests {
     use super::*;
     use crate::errors::ErnError;
     use crate::tests::init_tracing;
-    use crate::{ArnBuilder, ArnParser};
+    use crate::prelude::*;
 
     #[test]
     fn test() -> anyhow::Result<()> {
