@@ -20,7 +20,7 @@ pub struct Ern<T: IdType + Clone + PartialEq + Eq + PartialOrd> {
 
 impl Ord for Ern<Timestamp> {
     fn cmp(&self, other: &Self) -> Ordering {
-        todo!()
+        self.root.cmp(&other.root)
     }
 }
 
