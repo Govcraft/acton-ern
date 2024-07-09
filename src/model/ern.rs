@@ -222,7 +222,8 @@ mod tests {
 
     #[test]
     fn test_ern_with_root() {
-        let ern: Ern<UnixTime> = Ern::with_root();
+        let ern: Ern<UnixTime> = Ern::with_root("unix_time_root").unwrap();
+        assert!(ern.root.name().starts_with("unix_time_root"));
     }
 
     #[test]
