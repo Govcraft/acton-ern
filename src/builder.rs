@@ -1,5 +1,5 @@
 use crate::errors::EidError;
-use crate::model::{Account, Ein, Category, Domain, Part, Parts};
+use crate::model::{Account, Eid, Category, Domain, Part, Parts};
 use crate::traits::EidComponent;
 use crate::{IdType, Root, UnixTime};
 use std::borrow::Cow;
@@ -24,7 +24,7 @@ impl<T:IdType+Clone+PartialEq> ArnBuilder<(),T> {
 /// Implementation of `ArnBuilder` for `Part` states, allowing for building the final Ein.
 impl<T:IdType+Clone+PartialEq> ArnBuilder<Part,T> {
     /// Finalizes the building process and constructs the Ein.
-    pub fn build(self) -> Result<Ein<T>, EidError> {
+    pub fn build(self) -> Result<Eid<T>, EidError> {
         self.builder.build()
     }
 }
@@ -32,7 +32,7 @@ impl<T:IdType+Clone+PartialEq> ArnBuilder<Part,T> {
 /// Implementation of `ArnBuilder` for handling `Parts` states.
 impl<T:IdType+Clone+PartialEq> ArnBuilder<Parts,T> {
     /// Finalizes the building process and constructs the Ein when in the `Parts` state.
-    pub fn build(self) -> Result<Ein<T>, EidError> {
+    pub fn build(self) -> Result<Eid<T>, EidError> {
         self.builder.build()
     }
 }
@@ -103,7 +103,7 @@ impl<T: IdType + Clone + PartialEq> PrivateArnBuilder<T> {
     }
 
     /// Finalizes and builds the Ein.
-    fn build(self) -> Result<Ein<T>, EidError> {
+    fn build(self) -> Result<Eid<T>, EidError> {
         let domain = self
             .domain
             .ok_or(EidError::MissingPart("domain".to_string()))?;
@@ -115,13 +115,12 @@ impl<T: IdType + Clone + PartialEq> PrivateArnBuilder<T> {
             .ok_or(EidError::MissingPart("account".to_string()))?;
         let root = self.root.ok_or(EidError::MissingPart("root".to_string()))?;
 
-        Ok(Ein::new(domain, category, account, root, self.parts))
+        Ok(Eid::new(domain, category, account, root, self.parts))
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::fmt::Error;
     use super::*;
     use crate::errors::EidError;
     use crate::tests::init_tracing;
@@ -130,7 +129,7 @@ mod tests {
     #[test]
     fn test() -> anyhow::Result<()> {
         // Create an Ein using the ArnBuilder with specified components
-        let eid: Result<Ein<UnixTime>, EidError> = ArnBuilder::new()
+        let eid: Result<Eid<UnixTime>, EidError> = ArnBuilder::new()
             .with::<Domain>("acton-internal")?
             .with::<Category>("hr")?
             .with::<Account>("company123")?
@@ -148,7 +147,7 @@ mod tests {
     }
     #[test]
     fn test_eid_builder() -> anyhow::Result<()> {
-        let eid: Ein<UnixTime> = ArnBuilder::new()
+        let eid: Eid<UnixTime> = ArnBuilder::new()
             .with::<Domain>("custom")?
             .with::<Category>("service")?
             .with::<Account>("account123")?
@@ -168,17 +167,17 @@ mod tests {
     #[test]
     fn test_eid_builder_with_default_parts() -> anyhow::Result<(), EidError> {
         init_tracing();
-        let eid: Ein<UnixTime> = Ein::default();
+        let eid: Eid<UnixTime> = Eid::default();
         tracing::debug!("{}", eid);
         let parser:ArnParser<UnixTime> = ArnParser::new(eid.to_string());
-        let parsed: Ein<UnixTime> = parser.parse()?;
+        let parsed: Eid<UnixTime> = parser.parse()?;
         assert_eq!(parsed.domain.as_str(), "acton");
         Ok(())
     }
 
     #[test]
     fn test_eid_builder_with_owned_strings() -> anyhow::Result<(), EidError> {
-        let eid: Ein<UnixTime> = ArnBuilder::new()
+        let eid: Eid<UnixTime> = ArnBuilder::new()
             .with::<Domain>(String::from("custom"))?
             .with::<Category>(String::from("service"))?
             .with::<Account>(String::from("account123"))?
