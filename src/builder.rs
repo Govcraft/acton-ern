@@ -13,7 +13,6 @@ pub struct ErnBuilder<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash, St
     _marker: PhantomData<State>,
 }
 
-/// Implementation of `ErnBuilder` for the initial state, starting with `Domain`.
 impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> ErnBuilder<T, ()> {
     /// Creates a new ERN (Entity Resource Name) builder initialized to start building from the `Domain` component.
     pub fn new() -> Self {
@@ -22,9 +21,22 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> ErnBuilder<T, ()> {
             _marker: PhantomData,
         }
     }
+
+    /// Adds the Domain component to the ERN (Entity Resource Name).
+    pub fn with<N>(
+        self,
+        part: impl Into<Cow<'static, str>>,
+    ) -> Result<ErnBuilder<T, N::NextState>, ErnError>
+    where
+        N: ErnComponent<NextState = Domain>,
+    {
+        Ok(ErnBuilder {
+            builder: self.builder.add_part(N::prefix(), part.into())?,
+            _marker: PhantomData,
+        })
+    }
 }
 
-/// Implementation of `ErnBuilder` for `Part` states, allowing for building the final ERN (Entity Resource Name).
 impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> ErnBuilder<T, Part> {
     /// Finalizes the building process and constructs the ERN (Entity Resource Name).
     pub fn build(self) -> Result<Ern<T>, ErnError> {
@@ -39,7 +51,6 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> ErnBuilder<T, Parts
     }
 }
 
-/// Generic implementation of `ErnBuilder` for all states that can transition to another state.
 impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash, State: ErnComponent> ErnBuilder<T, State> {
     /// Adds a new part to the ERN (Entity Resource Name), transitioning to the next appropriate state.
     pub fn with<N>(
