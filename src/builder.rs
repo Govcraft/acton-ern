@@ -1,5 +1,6 @@
 use std::borrow::Cow;
 use std::hash::Hash;
+use std::marker::PhantomData;
 
 use crate::{IdType, Root};
 use crate::errors::ErnError;
@@ -7,32 +8,31 @@ use crate::model::{Account, Category, Domain, Ern, Part, Parts};
 use crate::traits::ErnComponent;
 
 /// A builder for constructing ERN (Entity Resource Name) instances using a state-driven approach with type safety.
-pub struct ErnBuilder<State, T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> {
+pub struct ErnBuilder<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash, State = ()> {
     builder: PrivateErnBuilder<T>,
-    _marker: std::marker::PhantomData<(State, T)>,
+    _marker: PhantomData<State>,
 }
 
 /// Implementation of `ErnBuilder` for the initial state, starting with `Domain`.
-impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> ErnBuilder<(), T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> ErnBuilder<T, ()> {
     /// Creates a new ERN (Entity Resource Name) builder initialized to start building from the `Domain` component.
-    pub fn new() -> ErnBuilder<Domain, T> {
-        ErnBuilder {
+    pub fn new() -> Self {
+        Self {
             builder: PrivateErnBuilder::new(),
-            _marker: std::marker::PhantomData,
+            _marker: PhantomData,
         }
     }
 }
 
 /// Implementation of `ErnBuilder` for `Part` states, allowing for building the final ERN (Entity Resource Name).
-impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> ErnBuilder<Part, T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> ErnBuilder<T, Part> {
     /// Finalizes the building process and constructs the ERN (Entity Resource Name).
     pub fn build(self) -> Result<Ern<T>, ErnError> {
         self.builder.build()
     }
 }
 
-/// Implementation of `ErnBuilder` for handling `Parts` states.
-impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> ErnBuilder<Parts, T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> ErnBuilder<T, Parts> {
     /// Finalizes the building process and constructs the ERN (Entity Resource Name) when in the `Parts` state.
     pub fn build(self) -> Result<Ern<T>, ErnError> {
         self.builder.build()
@@ -40,18 +40,18 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> ErnBuilder<Parts, T
 }
 
 /// Generic implementation of `ErnBuilder` for all states that can transition to another state.
-impl<Component: ErnComponent, T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> ErnBuilder<Component, T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash, State: ErnComponent> ErnBuilder<T, State> {
     /// Adds a new part to the ERN (Entity Resource Name), transitioning to the next appropriate state.
     pub fn with<N>(
         self,
         part: impl Into<Cow<'static, str>>,
-    ) -> Result<ErnBuilder<N::NextState, T>, ErnError>
+    ) -> Result<ErnBuilder<T, N::NextState>, ErnError>
     where
-        N: ErnComponent<NextState = Component::NextState>,
+        N: ErnComponent<NextState = State::NextState>,
     {
         Ok(ErnBuilder {
             builder: self.builder.add_part(N::prefix(), part.into())?,
-            _marker: std::marker::PhantomData,
+            _marker: PhantomData,
         })
     }
 }
