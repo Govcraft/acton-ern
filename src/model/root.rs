@@ -5,7 +5,7 @@ use std::fmt;
 use derive_more::{AsRef, From, Into};
 use type_safe_id::{DynamicType, TypeSafeId};
 
-use crate::{Ern, IdType, Timestamp, UnixTime};
+use crate::{IdType, Timestamp, UnixTime};
 use crate::errors::ErnError;
 
 #[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash, PartialOrd)]
