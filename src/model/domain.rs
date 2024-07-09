@@ -26,7 +26,7 @@ impl Domain {
 
 impl Default for Domain {
     fn default() -> Self {
-        Domain(Cow::Borrowed("akton"))
+        Domain(Cow::Borrowed("acton"))
     }
 }
 
@@ -61,7 +61,7 @@ mod tests {
     #[test]
     fn test_domain_default() {
         let domain = Domain::default();
-        assert_eq!(domain.as_str(), "akton");
+        assert_eq!(domain.as_str(), "acton");
     }
 
     #[test]
