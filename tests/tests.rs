@@ -45,11 +45,9 @@ fn test_v7() -> anyhow::Result<()> {
         .build();
 
     // Verify the constructed ERN (Entity Resource Name) matches the expected value
+    assert!(ern_left.is_ok());
     assert!(
-        ern_left.is_ok());
-    assert!(
-        ern_right.is_ok(),
-        "ern:acton-internal:hr:company123:root/departmentA/team1"
+        ern_right.is_ok()
     );
     assert_ne!(ern_left?, ern_right?);
     Ok(())
@@ -92,7 +90,8 @@ fn test_v5() -> anyhow::Result<()> {
 #[test]
 fn test_parser() -> anyhow::Result<()> {
     // Create an ArnParser with a specific ERN (Entity Resource Name) string
-    let parser: ArnParser<UnixTime> = ArnParser::new("ern:acton-internal:hr:company123:root/departmentA/team1");
+    let parser: ArnParser<UnixTime> =
+        ArnParser::new("ern:acton-internal:hr:company123:root/departmentA/team1");
 
     // Parse the ERN (Entity Resource Name) string into its components
     let result = parser.parse();
