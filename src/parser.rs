@@ -92,7 +92,7 @@ mod tests {
         let result = parser.parse();
         assert!(result.is_err());
         assert_eq!(result.err().unwrap(), EidError::InvalidFormat);
-        // assert_eq!(result.unwrap_err().to_string(), "Invalid ARN format");
+        // assert_eq!(result.unwrap_err().to_string(), "Invalid Eid format");
     }
 
     #[test]
