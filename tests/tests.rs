@@ -7,7 +7,7 @@ use acton_eid::prelude::EidError;
 #[test]
 fn test() -> anyhow::Result<()> {
     // Create an ERN (Entity Resource Name) using the ArnBuilder with specified components
-    let eid: Result<Eid<UnixTime>, EidError> = ArnBuilder::new()
+    let ern: Result<Eid<UnixTime>, EidError> = ArnBuilder::new()
         .with::<Domain>("acton-internal")?
         .with::<Category>("hr")?
         .with::<Account>("company123")?
@@ -18,8 +18,8 @@ fn test() -> anyhow::Result<()> {
 
     // Verify the constructed ERN (Entity Resource Name) matches the expected value
     assert!(
-        eid.is_ok(),
-        "eid:acton-internal:hr:company123:root/departmentA/team1"
+        ern.is_ok(),
+        "ern:acton-internal:hr:company123:root/departmentA/team1"
     );
     Ok(())
 }
@@ -40,22 +40,22 @@ fn test_parser() -> anyhow::Result<()> {
     );
 
     // Extract the components from the result
-    let eid = result.unwrap();
+    let ern = result.unwrap();
 
     // Verify each component matches the expected value
     assert_eq!(
-        eid.domain.to_string(),
+        ern.domain.to_string(),
         "acton-internal",
         "Domain should be 'acton-internal'"
     );
-    assert_eq!(eid.category.to_string(), "hr", "Category should be 'hr'");
+    assert_eq!(ern.category.to_string(), "hr", "Category should be 'hr'");
     assert_eq!(
-        eid.account.to_string(),
+        ern.account.to_string(),
         "company123",
         "Account should be 'company123'"
     );
     assert_eq!(
-        eid.parts.to_string(),
+        ern.parts.to_string(),
         "departmentA/team1",
         "Parts should match expected values"
     );
