@@ -132,7 +132,7 @@ mod tests {
     #[test]
     fn test() -> anyhow::Result<()> {
         // Create an ERN (Entity Resource Name) using the ErnBuilder with specified components
-        let ern = ErnBuilder::new()
+        let ern = ErnBuilder::<UnixTime>::new()
             .with::<Domain>("acton-internal")?
             .with::<Category>("hr")?
             .with::<Account>("company123")?
