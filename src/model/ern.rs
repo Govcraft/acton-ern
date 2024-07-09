@@ -3,7 +3,7 @@ use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::ops::Add;
 
-use crate::{Account, Category, Domain, EidComponent, IdType, Part, Parts, Root};
+use crate::{Account, Category, Domain, ErnComponent, IdType, Part, Parts, Root};
 use crate::errors::ErnError;
 
 /// Represents an Acton RN (Entity Resource Name), which uniquely identifies resources within the Acton framework.
