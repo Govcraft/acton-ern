@@ -44,7 +44,7 @@ impl EidComponent for Account {
     }
 }
 
-impl_eid_component!(Domain, "eid:", Category);
+impl_eid_component!(Domain, "ern:", Category);
 impl_eid_component!(Category, "", Account);
 impl_eid_component!(Part, "", Parts);
 
