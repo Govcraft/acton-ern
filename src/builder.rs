@@ -141,7 +141,7 @@ mod tests {
 
         // Verify the constructed Ein matches the expected value
         assert!(
-            arn.is_ok(),
+            eid.is_ok(),
             "eid:akton-internal:hr:company123:root/departmentA/team1"
         );
         Ok(())
@@ -157,7 +157,7 @@ mod tests {
             .build()?;
 
         assert!(
-            arn.to_string().ends_with("/subresource"),
+            eid.to_string().ends_with("/subresource"),
             "{} did not end with expected string",
             arn
         );
@@ -170,7 +170,7 @@ mod tests {
         init_tracing();
         let eid: Ein<UnixTime> = Ein::default();
         tracing::debug!("{}", arn);
-        let parser:ArnParser<UnixTime> = ArnParser::new(arn.to_string());
+        let parser:ArnParser<UnixTime> = ArnParser::new(eid.to_string());
         let parsed: Ein<UnixTime> = parser.parse()?;
         assert_eq!(parsed.domain.as_str(), "acton");
         Ok(())
