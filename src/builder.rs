@@ -150,7 +150,7 @@ mod tests {
     }
     #[test]
     fn test_builder_match() -> anyhow::Result<()> {
-        match ErnBuilder::new()
+        match ErnBuilder::<_,UnixTime>::new()
             .with::<Domain>("")?
             .with::<Category>("service")?
             .with::<Account>("account123")?
