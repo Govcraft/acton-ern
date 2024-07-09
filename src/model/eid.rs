@@ -1,22 +1,23 @@
 use std::borrow::Cow;
 use std::fmt;
 use std::fmt::{Display, Formatter};
-use std::ops::{Add};
+use std::ops::Add;
 
-use crate::{Account, ArnComponent, Category, Domain, Part, Parts, Root};
+use crate::{Account, Category, Domain, EidComponent, IdType, Part, Parts, Root};
 use crate::errors::ArnError;
 
 /// Represents an Akton Resource Name (Ein), which uniquely identifies resources within the Akton framework.
 #[derive(Debug, PartialEq, Clone, Eq, Hash)]
-pub struct Ein {
+pub struct Ein<T: IdType + Clone + PartialEq> {
     pub domain: Domain,
     pub category: Category,
     pub account: Account,
-    pub root: Root,
+    pub root: Root<T>,
     pub parts: Parts,
+    _marker: std::marker::PhantomData<T>,
 }
 
-impl Display for Ein {
+impl<T: IdType + Clone + PartialEq> Display for Ein<T> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let mut display = format!(
             "{}{}:{}:{}:{}",
@@ -33,8 +34,8 @@ impl Display for Ein {
     }
 }
 
-impl Add for Ein {
-    type Output = Ein;
+impl<T: IdType + Clone + PartialEq> Add for Ein<T> {
+    type Output = Ein<T>;
 
     fn add(self, rhs: Self) -> Self::Output {
         let mut new_parts = self.parts.0;
@@ -45,16 +46,17 @@ impl Add for Ein {
             account: self.account,
             root: self.root,
             parts: Parts(new_parts),
+            _marker: Default::default(),
         }
     }
 }
-impl Ein {
+impl<T: IdType + Clone + PartialEq> Ein<T> {
     /// Creates a new Ein with the given components.
     pub fn new(
         domain: Domain,
         category: Category,
         account: Account,
-        root: Root,
+        root: Root<T>,
         parts: Parts,
     ) -> Self {
         Ein {
@@ -63,6 +65,7 @@ impl Ein {
             account,
             root,
             parts,
+            _marker: Default::default(),
         }
     }
 
@@ -84,6 +87,7 @@ impl Ein {
             account: self.account.clone(),
             root: new_root,
             parts: self.parts.clone(),
+            _marker: Default::default(),
         })
     }
 
@@ -95,6 +99,7 @@ impl Ein {
             account: Account::default(),
             root: Root::default(),
             parts: Parts::default(),
+            _marker: Default::default(),
         })
     }
 
@@ -106,6 +111,7 @@ impl Ein {
             account: Account::default(),
             root: Root::default(),
             parts: Parts::default(),
+            _marker: Default::default(),
         })
     }
 
@@ -117,6 +123,7 @@ impl Ein {
             account,
             root: Root::default(),
             parts: Parts::default(),
+            _marker: Default::default(),
         })
     }
 
@@ -129,6 +136,7 @@ impl Ein {
             account: self.account.clone(),
             root: self.root.clone(),
             parts: new_parts,
+            _marker: Default::default(),
         })
     }
 
@@ -143,10 +151,11 @@ impl Ein {
             account: self.account.clone(),
             root: self.root.clone(),
             parts: Parts(new_parts?),
+            _marker: Default::default(),
         })
     }
 
-    pub fn is_child_of(&self, other: &Ein) -> bool {
+    pub fn is_child_of(&self, other: &Ein<T>) -> bool {
         self.domain == other.domain
             && self.category == other.category
             && self.account == other.account
@@ -165,12 +174,13 @@ impl Ein {
                 account: self.account.clone(),
                 root: self.root.clone(),
                 parts: Parts(self.parts.0[..self.parts.0.len() - 1].to_vec()),
+                _marker: Default::default(),
             })
         }
     }
 }
 
-impl Default for Ein {
+impl<T: IdType + Clone + PartialEq> Default for Ein<T> {
     /// Provides a default value for Ein using the defaults of all its components.
     fn default() -> Self {
         Ein {
@@ -179,6 +189,7 @@ impl Default for Ein {
             account: Account::default(),
             root: Root::default(),
             parts: Parts::new(Vec::default()),
+            _marker: Default::default(),
         }
     }
 }
@@ -187,13 +198,13 @@ impl Default for Ein {
 mod tests {
     use std::str::FromStr;
 
-    use crate::Part;
+    use crate::{Part, UnixTime};
 
     use super::*;
 
     #[test]
     fn test_arn_with_root() {
-        let arn = Ein::with_root("custom_root").unwrap();
+        let arn: Ein<UnixTime> = Ein::with_root("custom_root").unwrap();
         assert!(arn.root.as_str().starts_with("custom_root"));
         assert_eq!(arn.domain, Domain::default());
         assert_eq!(arn.category, Category::default());
@@ -203,8 +214,8 @@ mod tests {
 
     #[test]
     fn test_arn_with_new_root() {
-        let original_arn = Ein::default();
-        let new_arn = original_arn.with_new_root("new_root").unwrap();
+        let original_arn: Ein<UnixTime> = Ein::default();
+        let new_arn: Ein<UnixTime> = original_arn.with_new_root("new_root").unwrap();
         assert!(new_arn.root.as_str().starts_with("new_root"));
         assert_eq!(new_arn.domain, original_arn.domain);
         assert_eq!(new_arn.category, original_arn.category);
@@ -214,8 +225,8 @@ mod tests {
 
     #[test]
     fn test_add_arns() -> anyhow::Result<()> {
-        let parent_root = Root::from_str("root_a")?;
-        let parent = Ein::new(
+        let parent_root: Root<UnixTime> = Root::from_str("root_a")?;
+        let parent: Ein<UnixTime> = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -226,7 +237,7 @@ mod tests {
             ]),
         );
 
-        let child = Ein::new(
+        let child: Ein<UnixTime> = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -234,7 +245,7 @@ mod tests {
             Parts(vec![Part::from_str("role_x").unwrap()]),
         );
 
-        let combined = parent + child;
+        let combined: Ein<UnixTime> = parent + child;
 
         assert_eq!(combined.domain, Domain::from_str("akton-internal").unwrap());
         assert_eq!(combined.category, Category::from_str("hr").unwrap());
@@ -253,7 +264,7 @@ mod tests {
 
     #[test]
     fn test_add_arns_empty_child() {
-        let parent = Ein::new(
+        let parent: Ein<UnixTime> = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -261,7 +272,7 @@ mod tests {
             Parts(vec![Part::from_str("department_a").unwrap()]),
         );
 
-        let child = Ein::new(
+        let child: Ein<UnixTime> = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -279,14 +290,14 @@ mod tests {
 
     #[test]
     fn test_add_arns_empty_parent() {
-        let parent = Ein::new(
+        let parent: Ein<UnixTime> = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
             Root::from_str("rootp").unwrap(),
             Parts(vec![]),
         );
-        let child = Ein::new(
+        let child: Ein<UnixTime> = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -302,7 +313,7 @@ mod tests {
 
     #[test]
     fn test_add_arns_display() {
-        let parent = Ein::new(
+        let parent: Ein<UnixTime> = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -310,7 +321,7 @@ mod tests {
             Parts(vec![Part::from_str("department_a").unwrap()]),
         );
 
-        let child = Ein::new(
+        let child: Ein<UnixTime> = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -326,7 +337,7 @@ mod tests {
     }
     #[test]
     fn test_arn_custom() -> anyhow::Result<()> {
-        let arn = Ein::new(
+        let arn: Ein<UnixTime> = Ein::new(
             Domain::new("custom")?,
             Category::new("service"),
             Account::new("account123"),
