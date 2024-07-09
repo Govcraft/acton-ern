@@ -25,6 +25,26 @@ fn test() -> anyhow::Result<()> {
 }
 
 #[test]
+fn test_v5() -> anyhow::Result<()> {
+    // Create an ERN (Entity Resource Name) using the ArnBuilder with specified components
+    let ern: Result<Ern<SHA1Name>, ErnError> = ArnBuilder::new()
+        .with::<Domain>("acton-internal")?
+        .with::<Category>("hr")?
+        .with::<Account>("company123")?
+        .with::<Root>("root")?
+        .with::<Part>("departmentA")?
+        .with::<Part>("team1")?
+        .build();
+
+    // Verify the constructed ERN (Entity Resource Name) matches the expected value
+    assert!(
+        ern.is_ok(),
+        "ern:acton-internal:hr:company123:root/departmentA/team1"
+    );
+    Ok(())
+}
+
+#[test]
 fn test_parser() -> anyhow::Result<()> {
     // Create an ArnParser with a specific ERN (Entity Resource Name) string
     let parser: ArnParser<UnixTime> = ArnParser::new("ern:acton-internal:hr:company123:root/departmentA/team1");
