@@ -1,4 +1,4 @@
-use akton_arn::*;
+use acton_eid::*;
 
 /// Tests for the Akton ARN implementation
 
