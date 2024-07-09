@@ -3,7 +3,7 @@ use std::fmt;
 use std::hash::{Hash, Hasher};
 use derive_new::new;
 /// Represents a collection of parts in the ERN (Entity Resource Name), handling multiple segments.
-#[derive(new, Debug, PartialEq, Clone, Eq, Default)]
+#[derive(new, Debug, PartialEq, Clone, Eq, Default, PartialOrd)]
 pub struct Parts(pub(crate) Vec<Part>);
 
 impl Parts {
