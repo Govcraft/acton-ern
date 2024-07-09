@@ -219,41 +219,13 @@ mod tests {
 
     use super::*;
 
-    // #[test]
-    // fn test_ern_timestamp_ordering() {
-    //     let ern1: Ern<Timestamp> = Ern::with_root("root1").unwrap();
-    //     sleep(Duration::from_millis(10));
-    //     let ern2: Ern<Timestamp> = Ern::with_root("root2").unwrap();
-    //     sleep(Duration::from_millis(10));
-    //     let ern3: Ern<Timestamp> = Ern::with_root("root3").unwrap();
-    //
-    //     // Test ascending order
-    //     assert!(ern1 < ern2);
-    //     assert!(ern2 < ern3);
-    //     assert!(ern1 < ern3);
-    //
-    //     // Test descending order
-    //     assert!(ern3 > ern2);
-    //     assert!(ern2 > ern1);
-    //     assert!(ern3 > ern1);
-    //
-    //     // Test equality
-    //     let ern1_clone = ern1.clone();
-    //     assert_eq!(ern1, ern1_clone);
-    //
-    //     // Test sorting
-    //     let mut erns = vec![ern3.clone(), ern1.clone(), ern2.clone()];
-    //     erns.sort();
-    //     assert_eq!(erns, vec![ern1, ern2, ern3]);
-    // }
-
     #[test]
-    fn test_ern_unixtime_ordering() {
-        let ern1: Ern<UnixTime> = Ern::with_root("root1").unwrap();
+    fn test_ern_timestamp_ordering() {
+        let ern1: Ern<Timestamp> = Ern::with_root("root_a").unwrap();
         sleep(Duration::from_millis(10));
-        let ern2: Ern<UnixTime> = Ern::with_root("root2").unwrap();
+        let ern2: Ern<Timestamp> = Ern::with_root("root_b").unwrap();
         sleep(Duration::from_millis(10));
-        let ern3: Ern<UnixTime> = Ern::with_root("root3").unwrap();
+        let ern3: Ern<Timestamp> = Ern::with_root("root_c").unwrap();
 
         // Test ascending order
         assert!(ern1 < ern2);
@@ -275,22 +247,50 @@ mod tests {
         assert_eq!(erns, vec![ern1, ern2, ern3]);
     }
 
-    // #[test]
-    // fn test_ern_timestamp_unixtime_consistency() {
-    //     let ern_timestamp1: Ern<Timestamp> = Ern::with_root("root1").unwrap();
-    //     let ern_unixtime1: Ern<UnixTime> = Ern::with_root("root1").unwrap();
-    //
-    //     sleep(Duration::from_millis(10));
-    //
-    //     let ern_timestamp2: Ern<Timestamp> = Ern::with_root("root2").unwrap();
-    //     let ern_unixtime2: Ern<UnixTime> = Ern::with_root("root2").unwrap();
-    //
-    //     // Ensure that the ordering is consistent between Timestamp and UnixTime
-    //     assert_eq!(
-    //         ern_timestamp1 < ern_timestamp2,
-    //         ern_unixtime1 < ern_unixtime2
-    //     );
-    // }
+    #[test]
+    fn test_ern_unixtime_ordering() {
+        let ern1: Ern<UnixTime> = Ern::with_root("root_a").unwrap();
+        sleep(Duration::from_millis(10));
+        let ern2: Ern<UnixTime> = Ern::with_root("root_b").unwrap();
+        sleep(Duration::from_millis(10));
+        let ern3: Ern<UnixTime> = Ern::with_root("root_c").unwrap();
+
+        // Test ascending order
+        assert!(ern1 < ern2);
+        assert!(ern2 < ern3);
+        assert!(ern1 < ern3);
+
+        // Test descending order
+        assert!(ern3 > ern2);
+        assert!(ern2 > ern1);
+        assert!(ern3 > ern1);
+
+        // Test equality
+        let ern1_clone = ern1.clone();
+        assert_eq!(ern1, ern1_clone);
+
+        // Test sorting
+        let mut erns = vec![ern3.clone(), ern1.clone(), ern2.clone()];
+        erns.sort();
+        assert_eq!(erns, vec![ern1, ern2, ern3]);
+    }
+
+    #[test]
+    fn test_ern_timestamp_unixtime_consistency() {
+        let ern_timestamp1: Ern<Timestamp> = Ern::with_root("root_a").unwrap();
+        let ern_unixtime1: Ern<UnixTime> = Ern::with_root("root_a").unwrap();
+
+        sleep(Duration::from_millis(10));
+
+        let ern_timestamp2: Ern<Timestamp> = Ern::with_root("root_b").unwrap();
+        let ern_unixtime2: Ern<UnixTime> = Ern::with_root("root_b").unwrap();
+
+        // Ensure that the ordering is consistent between Timestamp and UnixTime
+        assert_eq!(
+            ern_timestamp1 < ern_timestamp2,
+            ern_unixtime1 < ern_unixtime2
+        );
+    }
     #[test]
     fn test_ern_with_root() {
         let ern: Ern<UnixTime> = Ern::with_root("custom_root").unwrap();
