@@ -1,6 +1,6 @@
 //! # Akton Resource Name (Ein) Library
 //!
-//! `akton-eid` is a Rust library designed to handle Akton Resource Names (Arns), which are structured identifiers used within the [Akton distributed actor framework](https://github.com/GovCraft/akton-framework) to uniquely identify and manage hierarchical resources across different services and partitions.
+//! `acton-eid` is a Rust library designed to handle Akton Resource Names (Arns), which are structured identifiers used within the [Akton distributed actor framework](https://github.com/GovCraft/acton-framework) to uniquely identify and manage hierarchical resources across different services and partitions.
 //!
 //! This crate provides tools for generating, parsing, and managing Arns, ensuring type safety and alignment with the hierarchical structure needed Akton-based cloud-native solutions.
 //!
@@ -29,7 +29,7 @@ mod parser;
 mod traits;
 
 pub mod prelude {
-    //! The prelude module for `akton-eid`.
+    //! The prelude module for `acton-eid`.
     //!
     //! This module re-exports essential traits and structures for easy use by downstream consumers.
 
@@ -60,20 +60,20 @@ mod tests {
             // Define an environment filter to suppress logs from the specific function
 
             // let filter = EnvFilter::new("")
-            //     // .add_directive("akton_core::common::context::emit_pool=trace".parse().unwrap())
-            //     // .add_directive("akton_core::common::context::my_func=trace".parse().unwrap())
-            //     .add_directive("akton_core::common::context[my_func]=trace".parse().unwrap())
+            //     // .add_directive("acton_core::common::context::emit_pool=trace".parse().unwrap())
+            //     // .add_directive("acton_core::common::context::my_func=trace".parse().unwrap())
+            //     .add_directive("acton_core::common::context[my_func]=trace".parse().unwrap())
             //     .add_directive(Level::INFO.into()); // Set global log level to INFO
 
             let filter = EnvFilter::new("")
-                .add_directive("akton-eid::parser::tests=trace".parse().unwrap())
+                .add_directive("acton-eid::parser::tests=trace".parse().unwrap())
                 .add_directive("broker_tests=trace".parse().unwrap())
                 .add_directive("launchpad_tests=trace".parse().unwrap())
                 .add_directive("lifecycle_tests=info".parse().unwrap())
                 .add_directive("actor_tests=info".parse().unwrap())
                 .add_directive("load_balancer_tests=info".parse().unwrap())
                 .add_directive(
-                    "akton::tests::setup::actors::pool_item=info"
+                    "acton::tests::setup::actors::pool_item=info"
                         .parse()
                         .unwrap(),
                 )
