@@ -2,7 +2,7 @@ use anyhow::Error;
 use acton_eid::*;
 use acton_eid::prelude::EidError;
 
-/// Tests for the Akton ARN implementation
+/// Tests for the Akton Eid implementation
 
 #[test]
 fn test() -> anyhow::Result<()> {
