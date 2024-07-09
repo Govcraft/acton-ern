@@ -222,8 +222,8 @@ mod tests {
 
     #[test]
     fn test_ern_with_sha_root() {
-        let ern: Ern<SHA1Name> = Ern::with_root("sha1_root").unwrap();
-        assert!(ern.root.as_str().starts_with("sha1_root"));
+        let ern: Ern<SHA1Name> = Ern::with_root("sha_root").unwrap();
+        assert!(ern.root.as_str().starts_with("sha_root"));
     }
 
     #[test]
