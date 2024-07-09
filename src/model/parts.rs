@@ -2,7 +2,7 @@ use crate::Part;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use derive_new::new;
-/// Represents a collection of parts in the Arn, handling multiple segments.
+/// Represents a collection of parts in the Ein, handling multiple segments.
 #[derive(new, Debug, PartialEq, Clone, Eq, Default)]
 pub struct Parts(pub(crate) Vec<Part>);
 
