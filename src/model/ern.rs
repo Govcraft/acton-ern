@@ -203,7 +203,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_eid_with_root() {
+    fn test_ern_with_root() {
         let ern: Ern<UnixTime> = Ern::with_root("custom_root").unwrap();
         assert!(ern.root.as_str().starts_with("custom_root"));
         assert_eq!(ern.domain, Domain::default());
@@ -213,18 +213,18 @@ mod tests {
     }
 
     #[test]
-    fn test_eid_with_new_root() {
-        let original_eid: Ern<UnixTime> = Ern::default();
-        let new_eid: Ern<UnixTime> = original_eid.with_new_root("new_root").unwrap();
-        assert!(new_eid.root.as_str().starts_with("new_root"));
-        assert_eq!(new_eid.domain, original_eid.domain);
-        assert_eq!(new_eid.category, original_eid.category);
-        assert_eq!(new_eid.account, original_eid.account);
-        assert_eq!(new_eid.parts, original_eid.parts);
+    fn test_ern_with_new_root() {
+        let original_ern: Ern<UnixTime> = Ern::default();
+        let new_ern: Ern<UnixTime> = original_ern.with_new_root("new_root").unwrap();
+        assert!(new_ern.root.as_str().starts_with("new_root"));
+        assert_eq!(new_ern.domain, original_ern.domain);
+        assert_eq!(new_ern.category, original_ern.category);
+        assert_eq!(new_ern.account, original_ern.account);
+        assert_eq!(new_ern.parts, original_ern.parts);
     }
 
     #[test]
-    fn test_add_eids() -> anyhow::Result<()> {
+    fn test_add_erns() -> anyhow::Result<()> {
         let parent_root: Root<UnixTime> = Root::from_str("root_a")?;
         let parent: Ern<UnixTime> = Ern::new(
             Domain::from_str("acton-internal").unwrap(),
@@ -263,7 +263,7 @@ mod tests {
     }
 
     #[test]
-    fn test_add_eids_empty_child() {
+    fn test_add_erns_empty_child() {
         let parent: Ern<UnixTime> = Ern::new(
             Domain::from_str("acton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
@@ -289,7 +289,7 @@ mod tests {
     }
 
     #[test]
-    fn test_add_eids_empty_parent() {
+    fn test_add_erns_empty_parent() {
         let parent: Ern<UnixTime> = Ern::new(
             Domain::from_str("acton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
@@ -312,7 +312,7 @@ mod tests {
     }
 
     #[test]
-    fn test_add_eids_display() {
+    fn test_add_erns_display() {
         let parent: Ern<UnixTime> = Ern::new(
             Domain::from_str("acton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
@@ -336,7 +336,7 @@ mod tests {
             .starts_with("ern:acton-internal:hr:company123:rootp"));
     }
     #[test]
-    fn test_eid_custom() -> anyhow::Result<()> {
+    fn test_ern_custom() -> anyhow::Result<()> {
         let ern: Ern<UnixTime> = Ern::new(
             Domain::new("custom")?,
             Category::new("service"),
@@ -351,7 +351,7 @@ mod tests {
     }
 
     #[test]
-    fn test_eid_append_invalid_part() -> anyhow::Result<()> {
+    fn test_ern_append_invalid_part() -> anyhow::Result<()> {
         let invalid_part = Part::new(":invalid");
 
         assert!(invalid_part.is_err());

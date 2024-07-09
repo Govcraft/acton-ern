@@ -12,7 +12,7 @@ pub trait ErnComponent {
     fn as_cow(&self) -> Cow<'static, str>;
 }
 
-macro_rules! impl_eid_component {
+macro_rules! impl_ern_component {
     ($type:ty, $prefix:expr, $next:ty) => {
         impl ErnComponent for $type {
             fn prefix() -> &'static str {
@@ -44,9 +44,9 @@ impl ErnComponent for Account {
     }
 }
 
-impl_eid_component!(Domain, "ern:", Category);
-impl_eid_component!(Category, "", Account);
-impl_eid_component!(Part, "", Parts);
+impl_ern_component!(Domain, "ern:", Category);
+impl_ern_component!(Category, "", Account);
+impl_ern_component!(Part, "", Parts);
 
 /// Implementation for the `Parts` component of a ERN (Entity Resource Name).
 impl ErnComponent for Parts {
