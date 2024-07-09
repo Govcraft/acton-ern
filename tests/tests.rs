@@ -27,7 +27,7 @@ fn test() -> anyhow::Result<()> {
 #[test]
 fn test_parser() -> anyhow::Result<()> {
     // Create an ArnParser with a specific ERN (Entity Resource Name) string
-    let parser: ArnParser<UnixTime> = ArnParser::new("ein:acton-internal:hr:company123:root/departmentA/team1");
+    let parser: ArnParser<UnixTime> = ArnParser::new("ern:acton-internal:hr:company123:root/departmentA/team1");
 
     // Parse the ERN (Entity Resource Name) string into its components
     let result = parser.parse();
