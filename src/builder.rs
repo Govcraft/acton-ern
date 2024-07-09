@@ -1,19 +1,19 @@
 use crate::errors::ArnError;
 use crate::model::{Account, Ein, Category, Domain, Part, Parts};
-use crate::traits::ArnComponent;
-use crate::Root;
+use crate::traits::EidComponent;
+use crate::{IdType, Root, UnixTime};
 use std::borrow::Cow;
 
 /// A builder for constructing Ein instances using a state-driven approach with type safety.
-pub struct ArnBuilder<State> {
-    builder: PrivateArnBuilder,
-    _marker: std::marker::PhantomData<State>,
+pub struct ArnBuilder<State, T: IdType + Clone + PartialEq> {
+    builder: PrivateArnBuilder<T>,
+    _marker: std::marker::PhantomData<(State, T)>,
 }
 
 /// Implementation of `ArnBuilder` for the initial state, starting with `Domain`.
-impl ArnBuilder<()> {
+impl<T:IdType+Clone+PartialEq> ArnBuilder<(),T> {
     /// Creates a new Ein builder initialized to start building from the `Domain` component.
-    pub fn new() -> ArnBuilder<Domain> {
+    pub fn new() -> ArnBuilder<Domain, T> {
         ArnBuilder {
             builder: PrivateArnBuilder::new(),
             _marker: std::marker::PhantomData,
@@ -22,30 +22,30 @@ impl ArnBuilder<()> {
 }
 
 /// Implementation of `ArnBuilder` for `Part` states, allowing for building the final Ein.
-impl ArnBuilder<Part> {
+impl<T:IdType+Clone+PartialEq> ArnBuilder<Part,T> {
     /// Finalizes the building process and constructs the Ein.
-    pub fn build(self) -> Result<Ein, ArnError> {
+    pub fn build(self) -> Result<Ein<T>, ArnError> {
         self.builder.build()
     }
 }
 
 /// Implementation of `ArnBuilder` for handling `Parts` states.
-impl ArnBuilder<Parts> {
+impl<T:IdType+Clone+PartialEq> ArnBuilder<Parts,T> {
     /// Finalizes the building process and constructs the Ein when in the `Parts` state.
-    pub fn build(self) -> Result<Ein, ArnError> {
+    pub fn build(self) -> Result<Ein<T>, ArnError> {
         self.builder.build()
     }
 }
 
 /// Generic implementation of `ArnBuilder` for all states that can transition to another state.
-impl<T: ArnComponent> ArnBuilder<T> {
+impl<Component: EidComponent, T:IdType+Clone+PartialEq> ArnBuilder<Component, T> {
     /// Adds a new part to the Ein, transitioning to the next appropriate state.
     pub fn with<N>(
         self,
         part: impl Into<Cow<'static, str>>,
-    ) -> Result<ArnBuilder<N::NextState>, ArnError>
+    ) -> Result<ArnBuilder<N::NextState, T>, ArnError>
     where
-        N: ArnComponent<NextState = T::NextState>,
+        N: EidComponent<NextState = Component::NextState>,
     {
         Ok(ArnBuilder {
             builder: self.builder.add_part(N::prefix(), part.into())?,
@@ -55,15 +55,16 @@ impl<T: ArnComponent> ArnBuilder<T> {
 }
 
 /// Represents a private, internal structure for building the Ein.
-struct PrivateArnBuilder {
+struct PrivateArnBuilder<T: IdType + Clone + PartialEq> {
     domain: Option<Domain>,
     category: Option<Category>,
     account: Option<Account>,
-    root: Option<Root>,
+    root: Option<Root<T>>,
     parts: Parts,
+    _marker: std::marker::PhantomData<T>,
 }
 
-impl PrivateArnBuilder {
+impl<T: IdType + Clone + PartialEq> PrivateArnBuilder<T> {
     /// Constructs a new private Ein builder.
     fn new() -> Self {
         Self {
@@ -72,6 +73,7 @@ impl PrivateArnBuilder {
             account: None,
             root: None,
             parts: Parts::new(Vec::new()),
+            _marker: Default::default(),
         }
     }
 
@@ -101,7 +103,7 @@ impl PrivateArnBuilder {
     }
 
     /// Finalizes and builds the Ein.
-    fn build(self) -> Result<Ein, ArnError> {
+    fn build(self) -> Result<Ein<T>, ArnError> {
         let domain = self
             .domain
             .ok_or(ArnError::MissingPart("domain".to_string()))?;
@@ -119,6 +121,7 @@ impl PrivateArnBuilder {
 
 #[cfg(test)]
 mod tests {
+    use std::fmt::Error;
     use super::*;
     use crate::errors::ArnError;
     use crate::tests::init_tracing;
@@ -127,11 +130,11 @@ mod tests {
     #[test]
     fn test() -> anyhow::Result<()> {
         // Create an Ein using the ArnBuilder with specified components
-        let arn = ArnBuilder::new()
+        let arn: Result<Ein<UnixTime>, ArnError> = ArnBuilder::new()
             .with::<Domain>("akton-internal")?
             .with::<Category>("hr")?
             .with::<Account>("company123")?
-            .with::<Root>("root")?
+            .with::<Root<UnixTime>>("root")?
             .with::<Part>("departmentA")?
             .with::<Part>("team1")?
             .build();
@@ -145,11 +148,11 @@ mod tests {
     }
     #[test]
     fn test_arn_builder() -> anyhow::Result<()> {
-        let arn = ArnBuilder::new()
+        let arn: Ein<UnixTime> = ArnBuilder::new()
             .with::<Domain>("custom")?
             .with::<Category>("service")?
             .with::<Account>("account123")?
-            .with::<Root>("resource")?
+            .with::<Root<UnixTime>>("resource")?
             .with::<Part>("subresource")?
             .build()?;
 
@@ -165,10 +168,10 @@ mod tests {
     #[test]
     fn test_arn_builder_with_default_parts() -> anyhow::Result<(), ArnError> {
         init_tracing();
-        let arn = Ein::default();
+        let arn: Ein<UnixTime> = Ein::default();
         tracing::debug!("{}", arn);
-        let parser = ArnParser::new(arn.to_string());
-        let parsed = parser.parse()?;
+        let parser:ArnParser<UnixTime> = ArnParser::new(arn.to_string());
+        let parsed: Ein<UnixTime> = parser.parse()?;
         assert_eq!(parsed.domain.as_str(), "akton");
         // assert_eq!(arn.to_string(), "arn:akton:system:default:root");
         Ok(())
@@ -176,11 +179,11 @@ mod tests {
 
     #[test]
     fn test_arn_builder_with_owned_strings() -> anyhow::Result<(), ArnError> {
-        let arn = ArnBuilder::new()
+        let arn: Ein<UnixTime> = ArnBuilder::new()
             .with::<Domain>(String::from("custom"))?
             .with::<Category>(String::from("service"))?
             .with::<Account>(String::from("account123"))?
-            .with::<Root>(String::from("resource"))?
+            .with::<Root<UnixTime>>(String::from("resource"))?
             .build()?;
 
         assert!(arn
