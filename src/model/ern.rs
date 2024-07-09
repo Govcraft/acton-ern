@@ -4,6 +4,7 @@ use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::hash::Hash;
 use std::ops::Add;
+use uuid::Uuid;
 
 use crate::{
     Account, Category, Domain, ErnComponent, IdType, Part, Parts, Root, Timestamp, UnixTime,
@@ -66,6 +67,7 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> Add for Ern<T> {
         }
     }
 }
+
 impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> Ern<T> {
     /// Creates a new ERN (Entity Resource Name) with the given components.
     pub fn new(
@@ -83,6 +85,9 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> Ern<T> {
             parts,
             _marker: Default::default(),
         }
+    }
+    pub fn uuid(&self) -> &Uuid {
+        &self.root.uuid
     }
 
     /// Creates a new ERN (Entity Resource Name) with the given root and default values for other fields
@@ -158,7 +163,7 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> Ern<T> {
 
     pub fn with_parts(
         &self,
-        parts: impl IntoIterator<Item = impl Into<Cow<'static, str>>>,
+        parts: impl IntoIterator<Item=impl Into<Cow<'static, str>>>,
     ) -> Result<Self, ErnError> {
         let new_parts: Result<Vec<Part>, _> = parts.into_iter().map(Part::new).collect();
         Ok(Ern {
@@ -298,6 +303,7 @@ mod tests {
             ern_unixtime1 < ern_unixtime2
         );
     }
+
     #[test]
     fn test_ern_with_root() {
         let ern: Ern<UnixTime> = Ern::with_root("custom_root").unwrap();
@@ -431,6 +437,7 @@ mod tests {
             .to_string()
             .starts_with("ern:acton-internal:hr:company123:rootp"));
     }
+
     #[test]
     fn test_ern_custom() -> anyhow::Result<()> {
         let ern: Ern<UnixTime> = Ern::new(
