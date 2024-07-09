@@ -2,6 +2,7 @@ use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::fmt;
 use std::fmt::{Display, Formatter};
+use std::hash::Hash;
 use std::ops::Add;
 
 use crate::{
@@ -11,7 +12,7 @@ use crate::errors::ErnError;
 
 /// Represents an Acton RN (Entity Resource Name), which uniquely identifies resources within the Acton framework.
 #[derive(Debug, PartialEq, Clone, Eq, Hash, PartialOrd)]
-pub struct Ern<T: IdType + Clone + PartialEq + Eq + PartialOrd> {
+pub struct Ern<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> {
     pub domain: Domain,
     pub category: Category,
     pub account: Account,
@@ -32,7 +33,7 @@ impl Ord for Ern<UnixTime> {
     }
 }
 
-impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> Display for Ern<T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> Display for Ern<T> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let mut display = format!(
             "{}{}:{}:{}:{}",
@@ -49,7 +50,7 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> Display for Ern<T> {
     }
 }
 
-impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> Add for Ern<T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> Add for Ern<T> {
     type Output = Ern<T>;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -65,7 +66,7 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> Add for Ern<T> {
         }
     }
 }
-impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> Ern<T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> Ern<T> {
     /// Creates a new ERN (Entity Resource Name) with the given components.
     pub fn new(
         domain: Domain,
@@ -195,7 +196,7 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> Ern<T> {
     }
 }
 
-impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> Default for Ern<T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> Default for Ern<T> {
     /// Provides a default value for ERN (Entity Resource Name) using the defaults of all its components.
     fn default() -> Self {
         Ern {
