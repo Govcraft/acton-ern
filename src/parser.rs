@@ -3,25 +3,25 @@ use std::str::FromStr;
 
 use crate::{IdType, Root};
 use crate::errors::EidError;
-use crate::model::{Account, Category, Domain, Eid, Part, Parts};
+use crate::model::{Account, Category, Domain, Ern, Part, Parts};
 
-/// A parser for decoding Ein strings into their constituent components.
+/// A parser for decoding ERN (Entity Resource Name) strings into their constituent components.
 pub struct ArnParser<T: IdType + Clone + PartialEq> {
-    /// The Ein string to be parsed.
+    /// The ERN (Entity Resource Name) string to be parsed.
     eid: Cow<'static, str>,
     _marker: std::marker::PhantomData<T>,
 }
 
 impl<T: IdType + Clone + PartialEq> ArnParser<T> {
-    /// Constructs a new `ArnParser` for a given Ein string.
+    /// Constructs a new `ArnParser` for a given ERN (Entity Resource Name) string.
     ///
     /// # Arguments
     ///
-    /// * `eid` - A string slice or owned String representing the Ein to be parsed.
+    /// * `eid` - A string slice or owned String representing the ERN (Entity Resource Name) to be parsed.
     ///
     /// # Returns
     ///
-    /// Returns an `ArnParser` instance initialized with the given Ein string.
+    /// Returns an `ArnParser` instance initialized with the given ERN (Entity Resource Name) string.
     pub fn new(eid: impl Into<Cow<'static, str>>) -> Self {
         Self {
             eid: eid.into(),
@@ -29,14 +29,14 @@ impl<T: IdType + Clone + PartialEq> ArnParser<T> {
         }
     }
 
-    /// Parses the Ein into its component parts and returns them as a structured result.
-    /// Verifies correct Ein format and validates each part.
+    /// Parses the ERN (Entity Resource Name) into its component parts and returns them as a structured result.
+    /// Verifies correct ERN (Entity Resource Name) format and validates each part.
     ///
     /// # Returns
     ///
-    /// Returns an `Ein` instance containing the parsed components.
+    /// Returns an `ERN (Entity Resource Name)` instance containing the parsed components.
     /// If parsing fails, returns an error message as a `String`.
-    pub fn parse(&self) -> Result<Eid<T>, EidError> {
+    pub fn parse(&self) -> Result<Ern<T>, EidError> {
         let parts: Vec<String> = self.eid.splitn(5, ':').map(|s| s.to_string()).collect();
 
         if parts.len() != 5 || parts[0] != "eid" {
@@ -62,7 +62,7 @@ impl<T: IdType + Clone + PartialEq> ArnParser<T> {
         }
 
         let parts = Parts::new(eid_parts);
-        Ok(Eid::new(domain, category, account, root, parts))
+        Ok(Ern::new(domain, category, account, root, parts))
     }
 
 
