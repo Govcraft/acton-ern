@@ -10,7 +10,7 @@ license = "MIT OR Apache-2.0"
 readme = "README.md"
 keywords = ["eid", "resource-management", "cloud", "actor"]
 categories = ["api-bindings", "cryptography", "data-structures", "network-programming", "authentication"]
-homepage = "https://govcraft.com/acton-eid"
+homepage = "https://govcraft.com/acton-ern"
 
 [dependencies]
 derive-new = "0.6.0"
