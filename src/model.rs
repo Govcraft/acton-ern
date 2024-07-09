@@ -7,7 +7,7 @@ mod parts;
 mod root;
 
 pub use account::Account;
-pub use ern::Eid;
+pub use ern::Ern;
 pub use category::Category;
 pub use domain::Domain;
 pub use part::Part;
