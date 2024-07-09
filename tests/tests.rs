@@ -7,7 +7,7 @@ use acton_eid::prelude::EidError;
 #[test]
 fn test() -> anyhow::Result<()> {
     // Create an Ein using the ArnBuilder with specified components
-    let eid: Result<Ein<UnixTime>, EidError> = ArnBuilder::new()
+    let eid: Result<Eid<UnixTime>, EidError> = ArnBuilder::new()
         .with::<Domain>("acton-internal")?
         .with::<Category>("hr")?
         .with::<Account>("company123")?
