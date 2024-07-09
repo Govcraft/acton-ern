@@ -1,8 +1,8 @@
-  # akton-arn
+  # akton-eid
   
   ## Overview
   
-  The `akton-arn` crate provides a Rust-based implementation for handling Akton Resource Names (Arns), enabling the generation, parsing, and management of Arns within the Akton framework. This crate is designed to support cloud-native Akton-based solutions by offering robust, type-safe, and efficient Ein management capabilities. The functionality includes constructing, parsing, validating, and manipulating Arns according to the specified hierarchical structure used within various services.
+  The `akton-eid` crate provides a Rust-based implementation for handling Akton Resource Names (Arns), enabling the generation, parsing, and management of Arns within the Akton framework. This crate is designed to support cloud-native Akton-based solutions by offering robust, type-safe, and efficient Ein management capabilities. The functionality includes constructing, parsing, validating, and manipulating Arns according to the specified hierarchical structure used within various services.
   
   ## Akton Resource Name (Ein) System
   
@@ -54,6 +54,6 @@
   
   ## Conclusion
   
-  The `akton-arn` crate is an essential component of the Akton framework, providing a robust method for uniquely identifying and managing actors within a complex, hierarchical structure, supporting enhanced security, operational management, and clarity throughout the system.
+  The `akton-eid` crate is an essential component of the Akton framework, providing a robust method for uniquely identifying and managing actors within a complex, hierarchical structure, supporting enhanced security, operational management, and clarity throughout the system.
   
   For more information, visit [Akton's Github](https://github.com/GovCraft/akton-framework).
