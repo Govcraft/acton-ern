@@ -204,7 +204,7 @@ mod tests {
 
     #[test]
     fn test_arn_with_root() {
-        let arn: Ein<UnixTime> = Ein::with_root("custom_root").unwrap();
+        let eid: Ein<UnixTime> = Ein::with_root("custom_root").unwrap();
         assert!(arn.root.as_str().starts_with("custom_root"));
         assert_eq!(arn.domain, Domain::default());
         assert_eq!(arn.category, Category::default());
@@ -214,8 +214,8 @@ mod tests {
 
     #[test]
     fn test_arn_with_new_root() {
-        let original_arn: Ein<UnixTime> = Ein::default();
-        let new_arn: Ein<UnixTime> = original_arn.with_new_root("new_root").unwrap();
+        let original_eid: Ein<UnixTime> = Ein::default();
+        let new_eid: Ein<UnixTime> = original_arn.with_new_root("new_root").unwrap();
         assert!(new_arn.root.as_str().starts_with("new_root"));
         assert_eq!(new_arn.domain, original_arn.domain);
         assert_eq!(new_arn.category, original_arn.category);
@@ -337,7 +337,7 @@ mod tests {
     }
     #[test]
     fn test_arn_custom() -> anyhow::Result<()> {
-        let arn: Ein<UnixTime> = Ein::new(
+        let eid: Ein<UnixTime> = Ein::new(
             Domain::new("custom")?,
             Category::new("service"),
             Account::new("account123"),
