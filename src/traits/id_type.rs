@@ -14,7 +14,7 @@ impl IdType for SHA1Name {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Eq)]
 pub struct Timestamp;
 
 impl IdType for Timestamp {
@@ -23,7 +23,7 @@ impl IdType for Timestamp {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Eq)]
 pub struct UnixTime;
 
 impl IdType for UnixTime {
