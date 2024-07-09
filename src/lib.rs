@@ -1,20 +1,20 @@
-//! # Akton Resource Name (Arn) Library
+//! # Akton Resource Name (Ein) Library
 //!
 //! `akton-arn` is a Rust library designed to handle Akton Resource Names (Arns), which are structured identifiers used within the [Akton distributed actor framework](https://github.com/GovCraft/akton-framework) to uniquely identify and manage hierarchical resources across different services and partitions.
 //!
 //! This crate provides tools for generating, parsing, and managing Arns, ensuring type safety and alignment with the hierarchical structure needed Akton-based cloud-native solutions.
 //!
 //! ## Features
-//! - **Arn Parsing**: Parse Arn strings into structured components.
-//! - **Arn Building**: Programmatically build Arns with validation.
-//! - **Type Safety**: Strongly typed components prevent mixing parts of Arn.
+//! - **Ein Parsing**: Parse Ein strings into structured components.
+//! - **Ein Building**: Programmatically build Arns with validation.
+//! - **Type Safety**: Strongly typed components prevent mixing parts of Ein.
 //! - **Easy Integration**: Designed to be integrated with other systems managing hierarchical resources.
 //!
 //! ## Usage
 //! This crate is structured into several modules, each providing distinct functionalities:
 //! - `builder`: Module for building Arns.
 //! - `parser`: Module for parsing Arns.
-//! - `model`: Contains the models representing different parts of an Arn.
+//! - `model`: Contains the models representing different parts of an Ein.
 //! - `traits`: Traits used across the crate for common functionality.
 //!
 
@@ -34,7 +34,7 @@ pub mod prelude {
     //! This module re-exports essential traits and structures for easy use by downstream consumers.
 
     pub use super::builder::ArnBuilder;
-    pub use super::model::{Account, Arn, Category, Domain, Part, Parts};
+    pub use super::model::{Account, Ein, Category, Domain, Part, Parts};
     pub use super::parser::ArnParser;
     pub use super::traits::ArnComponent;
 }
