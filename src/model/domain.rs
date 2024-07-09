@@ -3,7 +3,7 @@ use derive_more::{AsRef, From, Into};
 use std::borrow::Cow;
 use std::fmt;
 
-#[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash)]
+#[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash, PartialOrd)]
 pub struct Domain(pub(crate) Cow<'static, str>);
 
 impl Domain {
