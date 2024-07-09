@@ -150,7 +150,13 @@ mod tests {
     }
     #[test]
     fn test_builder_match() -> anyhow::Result<()> {
-        match ErnBuilder::new().with::<Domain>("")?.build::<UnixTime>() {
+        match ErnBuilder::new()
+            .with::<Domain>("")?
+            .with::<Category>("service")?
+            .with::<Account>("account123")?
+            .with::<Root<UnixTime>>("resource")?
+            .with::<Part>("subresource")?
+            .build() {
             Ok(ern) => println!("Created ERN: {}", ern),
             Err(ErnError::ParseFailure(component, msg)) => {
                 eprintln!("Failed to parse {}: {}", component, msg);
