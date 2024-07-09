@@ -333,7 +333,7 @@ mod tests {
 
         assert!(combined
             .to_string()
-            .starts_with("arn:akton-internal:hr:company123:rootp"));
+            .starts_with("eid:akton-internal:hr:company123:rootp"));
     }
     #[test]
     fn test_arn_custom() -> anyhow::Result<()> {
