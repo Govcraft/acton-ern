@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use crate::{Account, Category, Domain, IdType, Part, Parts, Root};
 
 /// Represents a component of a ERN (Entity Resource Name) (Acton Resource Name) that ensures type safety and ordering.
-pub trait EidComponent {
+pub trait ErnComponent {
     /// Returns the prefix string that should appear before this component in a ERN (Entity Resource Name).
     fn prefix() -> &'static str;
     /// The type of the next ERN (Entity Resource Name) component in the sequence.
@@ -14,7 +14,7 @@ pub trait EidComponent {
 
 macro_rules! impl_eid_component {
     ($type:ty, $prefix:expr, $next:ty) => {
-        impl EidComponent for $type {
+        impl ErnComponent for $type {
             fn prefix() -> &'static str {
                 $prefix
             }
@@ -25,7 +25,7 @@ macro_rules! impl_eid_component {
         }
     };
 }
-impl<T: IdType + Clone + PartialEq> EidComponent for Root<T> {
+impl<T: IdType + Clone + PartialEq> ErnComponent for Root<T> {
     fn prefix() -> &'static str {
         ""
     }
@@ -34,7 +34,7 @@ impl<T: IdType + Clone + PartialEq> EidComponent for Root<T> {
         self.name.clone()
     }
 }
-impl EidComponent for Account {
+impl ErnComponent for Account {
     fn prefix() -> &'static str {
         ""
     }
@@ -49,7 +49,7 @@ impl_eid_component!(Category, "", Account);
 impl_eid_component!(Part, "", Parts);
 
 /// Implementation for the `Parts` component of a ERN (Entity Resource Name).
-impl EidComponent for Parts {
+impl ErnComponent for Parts {
     fn prefix() -> &'static str {
         ":"
     }
