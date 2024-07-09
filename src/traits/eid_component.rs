@@ -2,11 +2,11 @@ use std::borrow::Cow;
 
 use crate::{Account, Category, Domain, IdType, Part, Parts, Root};
 
-/// Represents a component of a Ein (Acton Resource Name) that ensures type safety and ordering.
+/// Represents a component of a ERN (Entity Resource Name) (Acton Resource Name) that ensures type safety and ordering.
 pub trait EidComponent {
-    /// Returns the prefix string that should appear before this component in a Ein.
+    /// Returns the prefix string that should appear before this component in a ERN (Entity Resource Name).
     fn prefix() -> &'static str;
-    /// The type of the next Ein component in the sequence.
+    /// The type of the next ERN (Entity Resource Name) component in the sequence.
     type NextState;
     /// Returns the string representation of this component.
     fn as_cow(&self) -> Cow<'static, str>;
@@ -48,7 +48,7 @@ impl_eid_component!(Domain, "eid:", Category);
 impl_eid_component!(Category, "", Account);
 impl_eid_component!(Part, "", Parts);
 
-/// Implementation for the `Parts` component of a Ein.
+/// Implementation for the `Parts` component of a ERN (Entity Resource Name).
 impl EidComponent for Parts {
     fn prefix() -> &'static str {
         ":"
