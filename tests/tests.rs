@@ -6,7 +6,7 @@ use acton_eid::prelude::EidError;
 
 #[test]
 fn test() -> anyhow::Result<()> {
-    // Create an Ein using the ArnBuilder with specified components
+    // Create an ERN (Entity Resource Name) using the ArnBuilder with specified components
     let eid: Result<Eid<UnixTime>, EidError> = ArnBuilder::new()
         .with::<Domain>("acton-internal")?
         .with::<Category>("hr")?
@@ -16,7 +16,7 @@ fn test() -> anyhow::Result<()> {
         .with::<Part>("team1")?
         .build();
 
-    // Verify the constructed Ein matches the expected value
+    // Verify the constructed ERN (Entity Resource Name) matches the expected value
     assert!(
         eid.is_ok(),
         "eid:acton-internal:hr:company123:root/departmentA/team1"
@@ -26,10 +26,10 @@ fn test() -> anyhow::Result<()> {
 
 #[test]
 fn test_parser() -> anyhow::Result<()> {
-    // Create an ArnParser with a specific Ein string
+    // Create an ArnParser with a specific ERN (Entity Resource Name) string
     let parser: ArnParser<UnixTime> = ArnParser::new("ein:acton-internal:hr:company123:root/departmentA/team1");
 
-    // Parse the Ein string into its components
+    // Parse the ERN (Entity Resource Name) string into its components
     let result = parser.parse();
 
     // Verify the parser returns a successful result
