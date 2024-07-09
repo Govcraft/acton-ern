@@ -4,7 +4,9 @@ use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::ops::Add;
 
-use crate::{Account, Category, Domain, ErnComponent, IdType, Part, Parts, Root, Timestamp, UnixTime};
+use crate::{
+    Account, Category, Domain, ErnComponent, IdType, Part, Parts, Root, Timestamp, UnixTime,
+};
 use crate::errors::ErnError;
 
 /// Represents an Acton RN (Entity Resource Name), which uniquely identifies resources within the Acton framework.
@@ -210,12 +212,12 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> Default for Ern<T> {
 #[cfg(test)]
 mod tests {
     use std::str::FromStr;
+    use std::thread::sleep;
+    use std::time::Duration;
 
     use crate::{Part, UnixTime};
 
     use super::*;
-    use std::thread::sleep;
-    use std::time::Duration;
 
     #[test]
     fn test_ern_timestamp_ordering() {
@@ -284,7 +286,10 @@ mod tests {
         let ern_unixtime2: Ern<UnixTime> = Ern::with_root("root2").unwrap();
 
         // Ensure that the ordering is consistent between Timestamp and UnixTime
-        assert_eq!(ern_timestamp1 < ern_timestamp2, ern_unixtime1 < ern_unixtime2);
+        assert_eq!(
+            ern_timestamp1 < ern_timestamp2,
+            ern_unixtime1 < ern_unixtime2
+        );
     }
     #[test]
     fn test_ern_with_root() {
