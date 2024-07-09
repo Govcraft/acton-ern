@@ -146,7 +146,7 @@ mod tests {
         Ok(())
     }
     #[test]
-    fn test_eid_builder() -> anyhow::Result<()> {
+    fn test_ern_builder() -> anyhow::Result<()> {
         let ern: Ern<UnixTime> = ArnBuilder::new()
             .with::<Domain>("custom")?
             .with::<Category>("service")?
@@ -165,7 +165,7 @@ mod tests {
     }
 
     #[test]
-    fn test_eid_builder_with_default_parts() -> anyhow::Result<(), ErnError> {
+    fn test_ern_builder_with_default_parts() -> anyhow::Result<(), ErnError> {
         init_tracing();
         let ern: Ern<UnixTime> = Ern::default();
         tracing::debug!("{}", ern);
@@ -176,7 +176,7 @@ mod tests {
     }
 
     #[test]
-    fn test_eid_builder_with_owned_strings() -> anyhow::Result<(), ErnError> {
+    fn test_ern_builder_with_owned_strings() -> anyhow::Result<(), ErnError> {
         let ern: Ern<UnixTime> = ArnBuilder::new()
             .with::<Domain>(String::from("custom"))?
             .with::<Category>(String::from("service"))?
