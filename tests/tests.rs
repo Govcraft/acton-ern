@@ -7,7 +7,7 @@ use acton_eid::prelude::EidError;
 #[test]
 fn test() -> anyhow::Result<()> {
     // Create an Ein using the ArnBuilder with specified components
-    let arn: Result<Ein<UnixTime>, EidError> = ArnBuilder::new()
+    let eid: Result<Ein<UnixTime>, EidError> = ArnBuilder::new()
         .with::<Domain>("akton-internal")?
         .with::<Category>("hr")?
         .with::<Account>("company123")?
@@ -19,7 +19,7 @@ fn test() -> anyhow::Result<()> {
     // Verify the constructed Ein matches the expected value
     assert!(
         arn.is_ok(),
-        "arn:akton-internal:hr:company123:root/departmentA/team1"
+        "eid:akton-internal:hr:company123:root/departmentA/team1"
     );
     Ok(())
 }
