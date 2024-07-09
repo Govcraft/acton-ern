@@ -40,7 +40,7 @@ fn test_parser() -> anyhow::Result<()> {
     );
 
     // Extract the components from the result
-    let arn = result.unwrap();
+    let eid = result.unwrap();
 
     // Verify each component matches the expected value
     assert_eq!(
