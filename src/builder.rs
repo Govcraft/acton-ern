@@ -130,7 +130,7 @@ mod tests {
     #[test]
     fn test() -> anyhow::Result<()> {
         // Create an Ein using the ArnBuilder with specified components
-        let arn: Result<Ein<UnixTime>, EidError> = ArnBuilder::new()
+        let eid: Result<Ein<UnixTime>, EidError> = ArnBuilder::new()
             .with::<Domain>("akton-internal")?
             .with::<Category>("hr")?
             .with::<Account>("company123")?
@@ -142,13 +142,13 @@ mod tests {
         // Verify the constructed Ein matches the expected value
         assert!(
             arn.is_ok(),
-            "arn:akton-internal:hr:company123:root/departmentA/team1"
+            "eid:akton-internal:hr:company123:root/departmentA/team1"
         );
         Ok(())
     }
     #[test]
     fn test_arn_builder() -> anyhow::Result<()> {
-        let arn: Ein<UnixTime> = ArnBuilder::new()
+        let eid: Ein<UnixTime> = ArnBuilder::new()
             .with::<Domain>("custom")?
             .with::<Category>("service")?
             .with::<Account>("account123")?
@@ -168,7 +168,7 @@ mod tests {
     #[test]
     fn test_arn_builder_with_default_parts() -> anyhow::Result<(), EidError> {
         init_tracing();
-        let arn: Ein<UnixTime> = Ein::default();
+        let eid: Ein<UnixTime> = Ein::default();
         tracing::debug!("{}", arn);
         let parser:ArnParser<UnixTime> = ArnParser::new(arn.to_string());
         let parsed: Ein<UnixTime> = parser.parse()?;
@@ -178,7 +178,7 @@ mod tests {
 
     #[test]
     fn test_arn_builder_with_owned_strings() -> anyhow::Result<(), EidError> {
-        let arn: Ein<UnixTime> = ArnBuilder::new()
+        let eid: Ein<UnixTime> = ArnBuilder::new()
             .with::<Domain>(String::from("custom"))?
             .with::<Category>(String::from("service"))?
             .with::<Account>(String::from("account123"))?
