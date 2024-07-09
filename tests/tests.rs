@@ -1,13 +1,13 @@
 use anyhow::Error;
 use acton_eid::*;
-use acton_eid::prelude::EidError;
+use acton_eid::prelude::ErnError;
 
-/// Tests for the Acton Eid implementation
+/// Tests for the Acton Ern implementation
 
 #[test]
 fn test() -> anyhow::Result<()> {
     // Create an ERN (Entity Resource Name) using the ArnBuilder with specified components
-    let ern: Result<Eid<UnixTime>, EidError> = ArnBuilder::new()
+    let ern: Result<Ern<UnixTime>, ErnError> = ArnBuilder::new()
         .with::<Domain>("acton-internal")?
         .with::<Category>("hr")?
         .with::<Account>("company123")?
