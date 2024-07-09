@@ -39,7 +39,7 @@ impl<T: IdType + Clone + PartialEq> ArnParser<T> {
     pub fn parse(&self) -> Result<Ein<T>, EidError> {
         let parts: Vec<String> = self.eid.splitn(5, ':').map(|s| s.to_string()).collect();
 
-        if parts.len() != 5 || parts[0] != "arn" {
+        if parts.len() != 5 || parts[0] != "eid" {
             return Err(EidError::InvalidFormat);
         }
 
