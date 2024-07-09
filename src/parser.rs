@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 use crate::{IdType, Root};
 use crate::errors::EidError;
-use crate::model::{Account, Category, Domain, Ein, Part, Parts};
+use crate::model::{Account, Category, Domain, Eid, Part, Parts};
 
 /// A parser for decoding Ein strings into their constituent components.
 pub struct ArnParser<T: IdType + Clone + PartialEq> {
@@ -36,7 +36,7 @@ impl<T: IdType + Clone + PartialEq> ArnParser<T> {
     ///
     /// Returns an `Ein` instance containing the parsed components.
     /// If parsing fails, returns an error message as a `String`.
-    pub fn parse(&self) -> Result<Ein<T>, EidError> {
+    pub fn parse(&self) -> Result<Eid<T>, EidError> {
         let parts: Vec<String> = self.eid.splitn(5, ':').map(|s| s.to_string()).collect();
 
         if parts.len() != 5 || parts[0] != "eid" {
@@ -62,7 +62,7 @@ impl<T: IdType + Clone + PartialEq> ArnParser<T> {
         }
 
         let parts = Parts::new(eid_parts);
-        Ok(Ein::new(domain, category, account, root, parts))
+        Ok(Eid::new(domain, category, account, root, parts))
     }
 
 
