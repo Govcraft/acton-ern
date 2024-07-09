@@ -142,22 +142,20 @@ mod tests {
 
     #[test]
     fn test() -> anyhow::Result<()> {
-        // Create an ERN (Entity Resource Name) using the ErnBuilder with specified components
-        let ern = ErnBuilder::<UnixTime>::new()
-            .with::<Domain>("acton-internal")?
-            .with::<Category>("hr")?
-            .with::<Account>("company123")?
-            .with::<Root<UnixTime>>("root")?
-            .with::<Part>("departmentA")?
-            .with::<Part>("team1")?
-            .build()?;
+        #[test]
+        fn test_ern_builder_error_handling() {
+            let result = ErnBuilder::<UnixTime>::new()
+                .with::<Domain>("")
+                .and_then(|builder| builder.with::<Category>(""))
+                .and_then(|builder| builder.with::<Account>(""))
+                .and_then(|builder| builder.with::<Root<UnixTime>>(""))
+                .and_then(|builder| builder.build());
 
-        // Verify the constructed ERN (Entity Resource Name) matches the expected value
-        assert!(
-            ern.is_ok(),
-            "ern:acton-internal:hr:company123:root/departmentA/team1"
-        );
-        Ok(())
+            assert!(result.is_err());
+            if let Err(e) = result {
+                assert!(matches!(e, ErnError::ParseFailure(_, _)));
+            }
+        }
     }
     #[test]
     fn test_builder_match() -> anyhow::Result<()> {
