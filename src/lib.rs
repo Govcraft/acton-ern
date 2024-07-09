@@ -66,7 +66,7 @@ mod tests {
             //     .add_directive(Level::INFO.into()); // Set global log level to INFO
 
             let filter = EnvFilter::new("")
-                .add_directive("akton-arn::parser::tests=trace".parse().unwrap())
+                .add_directive("akton-eid::parser::tests=trace".parse().unwrap())
                 .add_directive("broker_tests=trace".parse().unwrap())
                 .add_directive("launchpad_tests=trace".parse().unwrap())
                 .add_directive("lifecycle_tests=info".parse().unwrap())
