@@ -37,6 +37,7 @@ pub mod prelude {
     pub use super::model::{Account, Ein, Category, Domain, Part, Parts};
     pub use super::parser::ArnParser;
     pub use super::traits::EidComponent;
+    pub use super::errors::EidError;
 }
 
 // Re-exporting the public API under the root of the crate for direct access
