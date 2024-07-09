@@ -1,17 +1,18 @@
-use crate::errors::ErnError;
-use crate::model::{Account, Ern, Category, Domain, Part, Parts};
-use crate::traits::ErnComponent;
-use crate::{IdType, Root};
 use std::borrow::Cow;
 
+use crate::{IdType, Root};
+use crate::errors::ErnError;
+use crate::model::{Account, Category, Domain, Ern, Part, Parts};
+use crate::traits::ErnComponent;
+
 /// A builder for constructing ERN (Entity Resource Name) instances using a state-driven approach with type safety.
-pub struct ArnBuilder<State, T: IdType + Clone + PartialEq> {
+pub struct ArnBuilder<State, T: IdType + Clone + PartialEq + Eq + PartialOrd> {
     builder: PrivateArnBuilder<T>,
     _marker: std::marker::PhantomData<(State, T)>,
 }
 
 /// Implementation of `ArnBuilder` for the initial state, starting with `Domain`.
-impl<T:IdType+Clone+PartialEq> ArnBuilder<(),T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> ArnBuilder<(), T> {
     /// Creates a new ERN (Entity Resource Name) builder initialized to start building from the `Domain` component.
     pub fn new() -> ArnBuilder<Domain, T> {
         ArnBuilder {
@@ -22,7 +23,7 @@ impl<T:IdType+Clone+PartialEq> ArnBuilder<(),T> {
 }
 
 /// Implementation of `ArnBuilder` for `Part` states, allowing for building the final ERN (Entity Resource Name).
-impl<T:IdType+Clone+PartialEq> ArnBuilder<Part,T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> ArnBuilder<Part, T> {
     /// Finalizes the building process and constructs the ERN (Entity Resource Name).
     pub fn build(self) -> Result<Ern<T>, ErnError> {
         self.builder.build()
@@ -30,7 +31,7 @@ impl<T:IdType+Clone+PartialEq> ArnBuilder<Part,T> {
 }
 
 /// Implementation of `ArnBuilder` for handling `Parts` states.
-impl<T:IdType+Clone+PartialEq> ArnBuilder<Parts,T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> ArnBuilder<Parts, T> {
     /// Finalizes the building process and constructs the ERN (Entity Resource Name) when in the `Parts` state.
     pub fn build(self) -> Result<Ern<T>, ErnError> {
         self.builder.build()
@@ -38,7 +39,7 @@ impl<T:IdType+Clone+PartialEq> ArnBuilder<Parts,T> {
 }
 
 /// Generic implementation of `ArnBuilder` for all states that can transition to another state.
-impl<Component: ErnComponent, T:IdType+Clone+PartialEq> ArnBuilder<Component, T> {
+impl<Component: ErnComponent, T: IdType + Clone + PartialEq + Eq + PartialOrd> ArnBuilder<Component, T> {
     /// Adds a new part to the ERN (Entity Resource Name), transitioning to the next appropriate state.
     pub fn with<N>(
         self,
@@ -55,7 +56,7 @@ impl<Component: ErnComponent, T:IdType+Clone+PartialEq> ArnBuilder<Component, T>
 }
 
 /// Represents a private, internal structure for building the ERN (Entity Resource Name).
-struct PrivateArnBuilder<T: IdType + Clone + PartialEq> {
+struct PrivateArnBuilder<T: IdType + Clone + PartialEq + Eq + PartialOrd> {
     domain: Option<Domain>,
     category: Option<Category>,
     account: Option<Account>,
@@ -64,7 +65,7 @@ struct PrivateArnBuilder<T: IdType + Clone + PartialEq> {
     _marker: std::marker::PhantomData<T>,
 }
 
-impl<T: IdType + Clone + PartialEq> PrivateArnBuilder<T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> PrivateArnBuilder<T> {
     /// Constructs a new private ERN (Entity Resource Name) builder.
     fn new() -> Self {
         Self {
@@ -121,10 +122,11 @@ impl<T: IdType + Clone + PartialEq> PrivateArnBuilder<T> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::errors::ErnError;
-    use crate::tests::init_tracing;
     use crate::prelude::*;
+    use crate::tests::init_tracing;
+
+    use super::*;
 
     #[test]
     fn test() -> anyhow::Result<()> {
@@ -169,7 +171,7 @@ mod tests {
         init_tracing();
         let ern: Ern<UnixTime> = Ern::default();
         tracing::debug!("{}", ern);
-        let parser:ArnParser<UnixTime> = ArnParser::new(ern.to_string());
+        let parser: ArnParser<UnixTime> = ArnParser::new(ern.to_string());
         let parsed: Ern<UnixTime> = parser.parse()?;
         assert_eq!(parsed.domain.as_str(), "acton");
         Ok(())
