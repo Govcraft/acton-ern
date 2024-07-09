@@ -1,7 +1,7 @@
 use derive_more::{AsRef, From, Into};
 use std::borrow::Cow;
 use std::fmt;
-/// Represents a category in the Ein system, typically indicating the service.
+/// Represents a category in the ERN (Entity Resource Name) system, typically indicating the service.
 
 #[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash)]
 pub struct Category(pub(crate) Cow<'static, str>);
