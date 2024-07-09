@@ -53,15 +53,15 @@ impl<T: IdType + Clone + PartialEq> ArnParser<T> {
         let root: Root<T> = Root::<T>::from_str(root_str.as_str())?;
 
         // Continue with the path parts
-        let mut eid_parts = Vec::new();
+        let mut ern_parts = Vec::new();
         if root_path.len() > 1 {
             let path_parts: Vec<String> = root_path[1].split('/').map(|s| s.to_string()).collect();
             for part in path_parts.iter() {
-                eid_parts.push(Part::from_str(part)?);
+                ern_parts.push(Part::from_str(part)?);
             }
         }
 
-        let parts = Parts::new(eid_parts);
+        let parts = Parts::new(ern_parts);
         Ok(Ern::new(domain, category, account, root, parts))
     }
 
@@ -75,9 +75,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_valid_eid_parsing() {
-        let eid_str = "ern:custom:service:account123:root/resource/subresource";
-        let parser: ArnParser<UnixTime> = ArnParser::new(eid_str);
+    fn test_valid_ern_parsing() {
+        let ern_str = "ern:custom:service:account123:root/resource/subresource";
+        let parser: ArnParser<UnixTime> = ArnParser::new(ern_str);
         let result = parser.parse();
 
         assert!(result.is_ok());
@@ -86,9 +86,9 @@ mod tests {
     }
 
     #[test]
-    fn test_invalid_eid_format() {
-        let eid_str = "invalid:ern:format";
-        let parser: ArnParser<UnixTime> = ArnParser::new(eid_str);
+    fn test_invalid_ern_format() {
+        let ern_str = "invalid:ern:format";
+        let parser: ArnParser<UnixTime> = ArnParser::new(ern_str);
         let result = parser.parse();
         assert!(result.is_err());
         assert_eq!(result.err().unwrap(), ErnError::InvalidFormat);
@@ -96,9 +96,9 @@ mod tests {
     }
 
     #[test]
-    fn test_eid_with_invalid_part() -> anyhow::Result<()> {
-        let eid_str = "ern:domain:category:account:root/invalid:part";
-        let parser: ArnParser<UnixTime> = ArnParser::new(eid_str);
+    fn test_ern_with_invalid_part() -> anyhow::Result<()> {
+        let ern_str = "ern:domain:category:account:root/invalid:part";
+        let parser: ArnParser<UnixTime> = ArnParser::new(ern_str);
         let result = parser.parse();
         assert!(result.is_err());
         // assert!(result.unwrap_err().to_string().starts_with("Failed to parse Part"));
@@ -106,9 +106,9 @@ mod tests {
     }
 
     #[test]
-    fn test_eid_parsing_with_owned_string() {
-        let eid_str = String::from("ern:custom:service:account123:root/resource");
-        let parser: ArnParser<UnixTime> = ArnParser::new(eid_str);
+    fn test_ern_parsing_with_owned_string() {
+        let ern_str = String::from("ern:custom:service:account123:root/resource");
+        let parser: ArnParser<UnixTime> = ArnParser::new(ern_str);
         let result = parser.parse();
         assert!(result.is_ok());
     }
