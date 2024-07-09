@@ -37,7 +37,7 @@ impl<T: IdType + Clone + PartialEq> Root<T> {
 
 impl<T:IdType+Clone+PartialEq> Default for Root<T> {
     fn default() -> Self {
-        Root::new("").expect("Couldn't create default Acton Eid")
+        Root::new("").expect("Couldn't create default Acton Ern")
     }
 }
 
