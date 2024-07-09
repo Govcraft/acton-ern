@@ -11,16 +11,21 @@ use crate::{IdType, Timestamp, UnixTime};
 use crate::errors::ErnError;
 
 #[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash, PartialOrd)]
-pub struct Root<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash = UnixTime> {
+pub struct Root<T = UnixTime>
+where
+    T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash,
+{
     pub(crate) name: Cow<'static, str>,
     pub(crate) uuid: Uuid,
     marker: std::marker::PhantomData<T>,
 }
+
 impl Ord for Root<Timestamp> {
     fn cmp(&self, other: &Self) -> Ordering {
         self.as_str().cmp(other.as_str())
     }
 }
+
 impl Ord for Root<UnixTime> {
     fn cmp(&self, other: &Self) -> Ordering {
         self.as_str().cmp(other.as_str())
@@ -50,7 +55,6 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> Root<T> {
                 DynamicType::new(&value)?,
                 T::generate_id(value.as_ref()),
             )
-
         };
 
         Ok(Root {
@@ -73,6 +77,7 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> fmt::Display for Ro
         write!(f, "{id}")
     }
 }
+
 const ACTON: &str = "acton";
 
 impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> std::str::FromStr for Root<T> {
@@ -80,7 +85,7 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> std::str::FromStr f
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Root {
             name: Cow::from(s.to_string()),
-            uuid: Uuid::from_str(s).map_err( |e| ErnError::UuidError(e.to_string()))?,
+            uuid: Uuid::from_str(s).map_err(|e| ErnError::UuidError(e.to_string()))?,
             marker: Default::default(),
         })
     }
@@ -91,6 +96,7 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> From<Root<T>> for S
         root.name.into_owned()
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
