@@ -216,13 +216,13 @@ mod tests {
     use std::thread::sleep;
     use std::time::Duration;
 
-    use crate::{Part, UnixTime};
+    use crate::{Part, SHA1Name, UnixTime};
 
     use super::*;
 
     #[test]
-    fn test_ern_with_root() {
-        let ern: Ern<UnixTime> = Ern::with_root("unix_time_root").unwrap();
+    fn test_ern_with_sha_root() {
+        let ern: Ern<SHA1Name> = Ern::with_root("unix_time_root").unwrap();
         assert!(ern.root.name().starts_with("unix_time_root"));
     }
 
