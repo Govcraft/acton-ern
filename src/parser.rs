@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::hash::Hash;
 use std::str::FromStr;
 
 use crate::{IdType, Root};
@@ -6,13 +7,13 @@ use crate::errors::ErnError;
 use crate::model::{Account, Category, Domain, Ern, Part, Parts};
 
 /// A parser for decoding ERN (Entity Resource Name) strings into their constituent components.
-pub struct ErnParser<T: IdType + Clone + PartialEq + Eq + PartialOrd> {
+pub struct ErnParser<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> {
     /// The ERN (Entity Resource Name) string to be parsed.
     ern: Cow<'static, str>,
     _marker: std::marker::PhantomData<T>,
 }
 
-impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> ErnParser<T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> ErnParser<T> {
     /// Constructs a new `ErnParser` for a given ERN (Entity Resource Name) string.
     ///
     /// # Arguments
