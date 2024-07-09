@@ -50,7 +50,7 @@ impl<T: IdType + Clone + PartialEq> ArnParser<T> {
         // Split the root and the path part
         let root_path: Vec<String> = parts[4].splitn(2, '/').map(|s| s.to_string()).collect();
         let root_str = root_path[0].clone();
-        let root: Root<T> = Root::<T>::new(root_str)?;
+        let root: Root<T> = Root::<T>::from_str(root_str.as_str())?;
 
         // Continue with the path parts
         let mut eid_parts = Vec::new();
