@@ -8,7 +8,7 @@ repository = "https://github.com/govcraft/acton-ern"
 documentation = "https://docs.rs/acton-ern"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
-keywords = ["eid", "resource-management", "cloud", "actor"]
+keywords = ["ern", "resource-management", "cloud", "actor"]
 categories = ["api-bindings", "cryptography", "data-structures", "network-programming", "authentication"]
 homepage = "https://govcraft.com/acton-ern"
 
