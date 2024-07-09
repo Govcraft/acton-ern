@@ -4,3 +4,4 @@ mod initial_state;
 
 pub use ern_component::ErnComponent;
 pub use id_type::*;
+pub use initial_state::InitialState;
