@@ -6,9 +6,9 @@ use std::ops::{Add};
 use crate::{Account, ArnComponent, Category, Domain, Part, Parts, Root};
 use crate::errors::ArnError;
 
-/// Represents an Akton Resource Name (Arn), which uniquely identifies resources within the Akton framework.
+/// Represents an Akton Resource Name (Ein), which uniquely identifies resources within the Akton framework.
 #[derive(Debug, PartialEq, Clone, Eq, Hash)]
-pub struct Arn {
+pub struct Ein {
     pub domain: Domain,
     pub category: Category,
     pub account: Account,
@@ -16,7 +16,7 @@ pub struct Arn {
     pub parts: Parts,
 }
 
-impl Display for Arn {
+impl Display for Ein {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let mut display = format!(
             "{}{}:{}:{}:{}",
@@ -33,13 +33,13 @@ impl Display for Arn {
     }
 }
 
-impl Add for Arn {
-    type Output = Arn;
+impl Add for Ein {
+    type Output = Ein;
 
     fn add(self, rhs: Self) -> Self::Output {
         let mut new_parts = self.parts.0;
         new_parts.extend(rhs.parts.0);
-        Arn {
+        Ein {
             domain: self.domain,
             category: self.category,
             account: self.account,
@@ -48,8 +48,8 @@ impl Add for Arn {
         }
     }
 }
-impl Arn {
-    /// Creates a new Arn with the given components.
+impl Ein {
+    /// Creates a new Ein with the given components.
     pub fn new(
         domain: Domain,
         category: Category,
@@ -57,7 +57,7 @@ impl Arn {
         root: Root,
         parts: Parts,
     ) -> Self {
-        Arn {
+        Ein {
             domain,
             category,
             account,
@@ -66,19 +66,19 @@ impl Arn {
         }
     }
 
-    /// Creates a new Arn with the given root and default values for other fields
+    /// Creates a new Ein with the given root and default values for other fields
     pub fn with_root(root: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
         let root = Root::new(root)?;
-        Ok(Arn {
+        Ok(Ein {
             root,
             ..Default::default()
         })
     }
 
-    /// Creates a new Arn based on an existing Arn but with a new root
+    /// Creates a new Ein based on an existing Ein but with a new root
     pub fn with_new_root(&self, new_root: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
         let new_root = Root::new(new_root)?;
-        Ok(Arn {
+        Ok(Ein {
             domain: self.domain.clone(),
             category: self.category.clone(),
             account: self.account.clone(),
@@ -89,7 +89,7 @@ impl Arn {
 
     pub fn with_domain(domain: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
         let domain = Domain::new(domain)?;
-        Ok(Arn {
+        Ok(Ein {
             domain,
             category: Category::default(),
             account: Account::default(),
@@ -100,7 +100,7 @@ impl Arn {
 
     pub fn with_category(category: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
         let category = Category::new(category);
-        Ok(Arn {
+        Ok(Ein {
             domain: Domain::default(),
             category,
             account: Account::default(),
@@ -111,7 +111,7 @@ impl Arn {
 
     pub fn with_account(account: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
         let account = Account::new(account);
-        Ok(Arn {
+        Ok(Ein {
             domain: Domain::default(),
             category: Category::default(),
             account,
@@ -123,7 +123,7 @@ impl Arn {
     pub fn add_part(&self, part: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
         let mut new_parts = self.parts.clone();
         new_parts.0.push(Part::new(part)?);
-        Ok(Arn {
+        Ok(Ein {
             domain: self.domain.clone(),
             category: self.category.clone(),
             account: self.account.clone(),
@@ -137,7 +137,7 @@ impl Arn {
         parts: impl IntoIterator<Item = impl Into<Cow<'static, str>>>,
     ) -> Result<Self, ArnError> {
         let new_parts: Result<Vec<Part>, _> = parts.into_iter().map(Part::new).collect();
-        Ok(Arn {
+        Ok(Ein {
             domain: self.domain.clone(),
             category: self.category.clone(),
             account: self.account.clone(),
@@ -146,7 +146,7 @@ impl Arn {
         })
     }
 
-    pub fn is_child_of(&self, other: &Arn) -> bool {
+    pub fn is_child_of(&self, other: &Ein) -> bool {
         self.domain == other.domain
             && self.category == other.category
             && self.account == other.account
@@ -159,7 +159,7 @@ impl Arn {
         if self.parts.0.is_empty() {
             None
         } else {
-            Some(Arn {
+            Some(Ein {
                 domain: self.domain.clone(),
                 category: self.category.clone(),
                 account: self.account.clone(),
@@ -170,10 +170,10 @@ impl Arn {
     }
 }
 
-impl Default for Arn {
-    /// Provides a default value for Arn using the defaults of all its components.
+impl Default for Ein {
+    /// Provides a default value for Ein using the defaults of all its components.
     fn default() -> Self {
-        Arn {
+        Ein {
             domain: Domain::default(),
             category: Category::default(),
             account: Account::default(),
@@ -193,7 +193,7 @@ mod tests {
 
     #[test]
     fn test_arn_with_root() {
-        let arn = Arn::with_root("custom_root").unwrap();
+        let arn = Ein::with_root("custom_root").unwrap();
         assert!(arn.root.as_str().starts_with("custom_root"));
         assert_eq!(arn.domain, Domain::default());
         assert_eq!(arn.category, Category::default());
@@ -203,7 +203,7 @@ mod tests {
 
     #[test]
     fn test_arn_with_new_root() {
-        let original_arn = Arn::default();
+        let original_arn = Ein::default();
         let new_arn = original_arn.with_new_root("new_root").unwrap();
         assert!(new_arn.root.as_str().starts_with("new_root"));
         assert_eq!(new_arn.domain, original_arn.domain);
@@ -215,7 +215,7 @@ mod tests {
     #[test]
     fn test_add_arns() -> anyhow::Result<()> {
         let parent_root = Root::from_str("root_a")?;
-        let parent = Arn::new(
+        let parent = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -226,7 +226,7 @@ mod tests {
             ]),
         );
 
-        let child = Arn::new(
+        let child = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -253,7 +253,7 @@ mod tests {
 
     #[test]
     fn test_add_arns_empty_child() {
-        let parent = Arn::new(
+        let parent = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -261,7 +261,7 @@ mod tests {
             Parts(vec![Part::from_str("department_a").unwrap()]),
         );
 
-        let child = Arn::new(
+        let child = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -279,14 +279,14 @@ mod tests {
 
     #[test]
     fn test_add_arns_empty_parent() {
-        let parent = Arn::new(
+        let parent = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
             Root::from_str("rootp").unwrap(),
             Parts(vec![]),
         );
-        let child = Arn::new(
+        let child = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -302,7 +302,7 @@ mod tests {
 
     #[test]
     fn test_add_arns_display() {
-        let parent = Arn::new(
+        let parent = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -310,7 +310,7 @@ mod tests {
             Parts(vec![Part::from_str("department_a").unwrap()]),
         );
 
-        let child = Arn::new(
+        let child = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -326,7 +326,7 @@ mod tests {
     }
     #[test]
     fn test_arn_custom() -> anyhow::Result<()> {
-        let arn = Arn::new(
+        let arn = Ein::new(
             Domain::new("custom")?,
             Category::new("service"),
             Account::new("account123"),
