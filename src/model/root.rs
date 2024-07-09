@@ -4,7 +4,7 @@ use std::fmt;
 use derive_more::{AsRef, From, Into};
 use type_safe_id::{DynamicType, TypeSafeId};
 
-use crate::errors::ArnError;
+use crate::errors::EidError;
 use crate::{IdType, UnixTime};
 
 #[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash)]
@@ -22,7 +22,7 @@ impl<T: IdType + Clone + PartialEq> Root<T> {
         Root { name: Cow::Owned(self.name.into_owned()), marker: Default::default() }
     }
 
-    pub fn new(value: impl Into<Cow<'static, str>>) -> Result<Self, ArnError> {
+    pub fn new(value: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
         let value = value.into();
         let value = if value.is_empty() {
             let val = ACTON;
@@ -50,7 +50,7 @@ impl<T:IdType+Clone+PartialEq> fmt::Display for Root<T> {
 const ACTON: &str = "akton";
 
 impl<T:IdType+Clone+PartialEq> std::str::FromStr for Root<T> {
-    type Err = ArnError;
+    type Err = EidError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Root::new(s.to_string())
     }
@@ -90,7 +90,7 @@ mod tests {
     }
 
     #[test]
-    fn test_root_equality() -> Result<(), ArnError> {
+    fn test_root_equality() -> Result<(), EidError> {
         let root1: Root<UnixTime> = Root::new("test")?;
         let root2: Root<UnixTime> = Root::new("test")?;
         let root3: Root<UnixTime> = Root::new("other")?;
