@@ -1,10 +1,10 @@
 use crate::errors::ArnError;
-use crate::model::{Account, Arn, Category, Domain, Part, Parts};
+use crate::model::{Account, Ein, Category, Domain, Part, Parts};
 use crate::traits::ArnComponent;
 use crate::Root;
 use std::borrow::Cow;
 
-/// A builder for constructing Arn instances using a state-driven approach with type safety.
+/// A builder for constructing Ein instances using a state-driven approach with type safety.
 pub struct ArnBuilder<State> {
     builder: PrivateArnBuilder,
     _marker: std::marker::PhantomData<State>,
@@ -12,7 +12,7 @@ pub struct ArnBuilder<State> {
 
 /// Implementation of `ArnBuilder` for the initial state, starting with `Domain`.
 impl ArnBuilder<()> {
-    /// Creates a new Arn builder initialized to start building from the `Domain` component.
+    /// Creates a new Ein builder initialized to start building from the `Domain` component.
     pub fn new() -> ArnBuilder<Domain> {
         ArnBuilder {
             builder: PrivateArnBuilder::new(),
@@ -21,25 +21,25 @@ impl ArnBuilder<()> {
     }
 }
 
-/// Implementation of `ArnBuilder` for `Part` states, allowing for building the final Arn.
+/// Implementation of `ArnBuilder` for `Part` states, allowing for building the final Ein.
 impl ArnBuilder<Part> {
-    /// Finalizes the building process and constructs the Arn.
-    pub fn build(self) -> Result<Arn, ArnError> {
+    /// Finalizes the building process and constructs the Ein.
+    pub fn build(self) -> Result<Ein, ArnError> {
         self.builder.build()
     }
 }
 
 /// Implementation of `ArnBuilder` for handling `Parts` states.
 impl ArnBuilder<Parts> {
-    /// Finalizes the building process and constructs the Arn when in the `Parts` state.
-    pub fn build(self) -> Result<Arn, ArnError> {
+    /// Finalizes the building process and constructs the Ein when in the `Parts` state.
+    pub fn build(self) -> Result<Ein, ArnError> {
         self.builder.build()
     }
 }
 
 /// Generic implementation of `ArnBuilder` for all states that can transition to another state.
 impl<T: ArnComponent> ArnBuilder<T> {
-    /// Adds a new part to the Arn, transitioning to the next appropriate state.
+    /// Adds a new part to the Ein, transitioning to the next appropriate state.
     pub fn with<N>(
         self,
         part: impl Into<Cow<'static, str>>,
@@ -54,7 +54,7 @@ impl<T: ArnComponent> ArnBuilder<T> {
     }
 }
 
-/// Represents a private, internal structure for building the Arn.
+/// Represents a private, internal structure for building the Ein.
 struct PrivateArnBuilder {
     domain: Option<Domain>,
     category: Option<Category>,
@@ -64,7 +64,7 @@ struct PrivateArnBuilder {
 }
 
 impl PrivateArnBuilder {
-    /// Constructs a new private Arn builder.
+    /// Constructs a new private Ein builder.
     fn new() -> Self {
         Self {
             domain: None,
@@ -100,8 +100,8 @@ impl PrivateArnBuilder {
         Ok(self)
     }
 
-    /// Finalizes and builds the Arn.
-    fn build(self) -> Result<Arn, ArnError> {
+    /// Finalizes and builds the Ein.
+    fn build(self) -> Result<Ein, ArnError> {
         let domain = self
             .domain
             .ok_or(ArnError::MissingPart("domain".to_string()))?;
@@ -113,7 +113,7 @@ impl PrivateArnBuilder {
             .ok_or(ArnError::MissingPart("account".to_string()))?;
         let root = self.root.ok_or(ArnError::MissingPart("root".to_string()))?;
 
-        Ok(Arn::new(domain, category, account, root, self.parts))
+        Ok(Ein::new(domain, category, account, root, self.parts))
     }
 }
 
@@ -126,7 +126,7 @@ mod tests {
 
     #[test]
     fn test() -> anyhow::Result<()> {
-        // Create an Arn using the ArnBuilder with specified components
+        // Create an Ein using the ArnBuilder with specified components
         let arn = ArnBuilder::new()
             .with::<Domain>("akton-internal")?
             .with::<Category>("hr")?
@@ -136,7 +136,7 @@ mod tests {
             .with::<Part>("team1")?
             .build();
 
-        // Verify the constructed Arn matches the expected value
+        // Verify the constructed Ein matches the expected value
         assert!(
             arn.is_ok(),
             "arn:akton-internal:hr:company123:root/departmentA/team1"
@@ -165,7 +165,7 @@ mod tests {
     #[test]
     fn test_arn_builder_with_default_parts() -> anyhow::Result<(), ArnError> {
         init_tracing();
-        let arn = Arn::default();
+        let arn = Ein::default();
         tracing::debug!("{}", arn);
         let parser = ArnParser::new(arn.to_string());
         let parsed = parser.parse()?;
