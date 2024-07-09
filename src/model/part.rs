@@ -3,7 +3,7 @@ use std::fmt;
 
 use derive_more::{AsRef, From, Into};
 
-use crate::errors::EidError;
+use crate::errors::ErnError;
 
 #[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash)]
 pub struct Part(pub(crate) Cow<'static, str>);
@@ -16,13 +16,13 @@ impl Part {
         Part(Cow::Owned(self.0.into_owned()))
     }
 
-    pub fn new(value: impl Into<Cow<'static, str>>) -> Result<Part, EidError> {
+    pub fn new(value: impl Into<Cow<'static, str>>) -> Result<Part, ErnError> {
         let value = value.into();
         if value.contains(':') || value.contains('/') {
-            return Err(EidError::InvalidPartFormat);
+            return Err(ErnError::InvalidPartFormat);
         }
         if value.is_empty() {
-            return Err(EidError::ParseFailure(
+            return Err(ErnError::ParseFailure(
                 "Part",
                 "cannot be empty".to_string(),
             ));
@@ -37,7 +37,7 @@ impl fmt::Display for Part {
     }
 }
 impl std::str::FromStr for Part {
-    type Err = EidError;
+    type Err = ErnError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Part::new(Cow::Owned(s.to_owned()))
     }
