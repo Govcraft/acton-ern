@@ -1,6 +1,6 @@
 use anyhow::Error;
-use acton_eid::*;
-use acton_eid::prelude::ErnError;
+use acton_ern::*;
+use acton_ern::prelude::ErnError;
 
 /// Tests for the Acton Ern implementation
 
