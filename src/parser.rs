@@ -17,7 +17,7 @@ impl<T: IdType + Clone + PartialEq> ArnParser<T> {
     ///
     /// # Arguments
     ///
-    /// * `arn` - A string slice or owned String representing the Ein to be parsed.
+    /// * `eid` - A string slice or owned String representing the Ein to be parsed.
     ///
     /// # Returns
     ///
@@ -53,15 +53,15 @@ impl<T: IdType + Clone + PartialEq> ArnParser<T> {
         let root: Root<T> = Root::<T>::new(root_str)?;
 
         // Continue with the path parts
-        let mut arn_parts = Vec::new();
+        let mut eid_parts = Vec::new();
         if root_path.len() > 1 {
             let path_parts: Vec<String> = root_path[1].split('/').map(|s| s.to_string()).collect();
             for part in path_parts.iter() {
-                arn_parts.push(Part::from_str(part)?);
+                eid_parts.push(Part::from_str(part)?);
             }
         }
 
-        let parts = Parts::new(arn_parts);
+        let parts = Parts::new(eid_parts);
         Ok(Ein::new(domain, category, account, root, parts))
     }
 
@@ -75,7 +75,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_valid_arn_parsing() {
+    fn test_valid_eid_parsing() {
         let eid_str = "eid:custom:service:account123:root/resource/subresource";
         let parser: ArnParser<UnixTime> = ArnParser::new(eid_str);
         let result = parser.parse();
@@ -86,7 +86,7 @@ mod tests {
     }
 
     #[test]
-    fn test_invalid_arn_format() {
+    fn test_invalid_eid_format() {
         let eid_str = "invalid:eid:format";
         let parser: ArnParser<UnixTime> = ArnParser::new(eid_str);
         let result = parser.parse();
@@ -96,7 +96,7 @@ mod tests {
     }
 
     #[test]
-    fn test_arn_with_invalid_part() -> anyhow::Result<()> {
+    fn test_eid_with_invalid_part() -> anyhow::Result<()> {
         let eid_str = "eid:domain:category:account:root/invalid:part";
         let parser: ArnParser<UnixTime> = ArnParser::new(eid_str);
         let result = parser.parse();
@@ -106,7 +106,7 @@ mod tests {
     }
 
     #[test]
-    fn test_arn_parsing_with_owned_string() {
+    fn test_eid_parsing_with_owned_string() {
         let eid_str = String::from("eid:custom:service:account123:root/resource");
         let parser: ArnParser<UnixTime> = ArnParser::new(eid_str);
         let result = parser.parse();
