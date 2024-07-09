@@ -5,7 +5,7 @@ pub trait IdType {
 }
 
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash)]
 pub struct SHA1Name;
 
 impl IdType for SHA1Name {
@@ -14,7 +14,7 @@ impl IdType for SHA1Name {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, PartialOrd, Eq)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Hash)]
 pub struct Timestamp;
 
 impl IdType for Timestamp {
@@ -31,7 +31,7 @@ impl IdType for Timestamp {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, PartialOrd, Eq)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Hash)]
 pub struct UnixTime;
 
 impl IdType for UnixTime {
