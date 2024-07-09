@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use std::fmt;
 /// Represents an account identifier in the ERN (Entity Resource Name) system.
 
-#[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash)]
+#[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash, PartialOrd)]
 pub struct Account(pub(crate) Cow<'static, str>);
 
 impl Account {
