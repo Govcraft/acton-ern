@@ -6,14 +6,14 @@ use crate::errors::ErnError;
 use crate::model::{Account, Category, Domain, Ern, Part, Parts};
 
 /// A parser for decoding ERN (Entity Resource Name) strings into their constituent components.
-pub struct ArnParser<T: IdType + Clone + PartialEq + Eq + PartialOrd> {
+pub struct ErnParser<T: IdType + Clone + PartialEq + Eq + PartialOrd> {
     /// The ERN (Entity Resource Name) string to be parsed.
     ern: Cow<'static, str>,
     _marker: std::marker::PhantomData<T>,
 }
 
-impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> ArnParser<T> {
-    /// Constructs a new `ArnParser` for a given ERN (Entity Resource Name) string.
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> ErnParser<T> {
+    /// Constructs a new `ErnParser` for a given ERN (Entity Resource Name) string.
     ///
     /// # Arguments
     ///
@@ -21,7 +21,7 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> ArnParser<T> {
     ///
     /// # Returns
     ///
-    /// Returns an `ArnParser` instance initialized with the given ERN (Entity Resource Name) string.
+    /// Returns an `ErnParser` instance initialized with the given ERN (Entity Resource Name) string.
     pub fn new(ern: impl Into<Cow<'static, str>>) -> Self {
         Self {
             ern: ern.into(),
@@ -77,7 +77,7 @@ mod tests {
     #[test]
     fn test_valid_ern_parsing() {
         let ern_str = "ern:custom:service:account123:root/resource/subresource";
-        let parser: ArnParser<UnixTime> = ArnParser::new(ern_str);
+        let parser: ErnParser<UnixTime> = ErnParser::new(ern_str);
         let result = parser.parse();
 
         assert!(result.is_ok());
@@ -88,7 +88,7 @@ mod tests {
     #[test]
     fn test_invalid_ern_format() {
         let ern_str = "invalid:ern:format";
-        let parser: ArnParser<UnixTime> = ArnParser::new(ern_str);
+        let parser: ErnParser<UnixTime> = ErnParser::new(ern_str);
         let result = parser.parse();
         assert!(result.is_err());
         assert_eq!(result.err().unwrap(), ErnError::InvalidFormat);
@@ -98,7 +98,7 @@ mod tests {
     #[test]
     fn test_ern_with_invalid_part() -> anyhow::Result<()> {
         let ern_str = "ern:domain:category:account:root/invalid:part";
-        let parser: ArnParser<UnixTime> = ArnParser::new(ern_str);
+        let parser: ErnParser<UnixTime> = ErnParser::new(ern_str);
         let result = parser.parse();
         assert!(result.is_err());
         // assert!(result.unwrap_err().to_string().starts_with("Failed to parse Part"));
@@ -108,7 +108,7 @@ mod tests {
     #[test]
     fn test_ern_parsing_with_owned_string() {
         let ern_str = String::from("ern:custom:service:account123:root/resource");
-        let parser: ArnParser<UnixTime> = ArnParser::new(ern_str);
+        let parser: ErnParser<UnixTime> = ErnParser::new(ern_str);
         let result = parser.parse();
         assert!(result.is_ok());
     }

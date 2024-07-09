@@ -2,11 +2,10 @@ use acton_ern::*;
 use acton_ern::prelude::ErnError;
 
 /// Tests for the Acton Ern implementation
-
 #[test]
 fn test() -> anyhow::Result<()> {
-    // Create an ERN (Entity Resource Name) using the ArnBuilder with specified components
-    let ern: Result<Ern<UnixTime>, ErnError> = ArnBuilder::new()
+    // Create an ERN (Entity Resource Name) using the ErnBuilder with specified components
+    let ern: Result<Ern<UnixTime>, ErnError> = ErnBuilder::new()
         .with::<Domain>("acton-internal")?
         .with::<Category>("hr")?
         .with::<Account>("company123")?
@@ -25,8 +24,8 @@ fn test() -> anyhow::Result<()> {
 
 #[test]
 fn test_v7() -> anyhow::Result<()> {
-    // Create an ERN (Entity Resource Name) using the ArnBuilder with specified components
-    let ern_left: Result<Ern<UnixTime>, ErnError> = ArnBuilder::new()
+    // Create an ERN (Entity Resource Name) using the ErnBuilder with specified components
+    let ern_left: Result<Ern<UnixTime>, ErnError> = ErnBuilder::new()
         .with::<Domain>("acton-internal")?
         .with::<Category>("hr")?
         .with::<Account>("company123")?
@@ -35,7 +34,7 @@ fn test_v7() -> anyhow::Result<()> {
         .with::<Part>("team1")?
         .build();
 
-    let ern_right: Result<Ern<UnixTime>, ErnError> = ArnBuilder::new()
+    let ern_right: Result<Ern<UnixTime>, ErnError> = ErnBuilder::new()
         .with::<Domain>("acton-internal")?
         .with::<Category>("hr")?
         .with::<Account>("company123")?
@@ -53,8 +52,8 @@ fn test_v7() -> anyhow::Result<()> {
 
 #[test]
 fn test_v5() -> anyhow::Result<()> {
-    // Create an ERN (Entity Resource Name) using the ArnBuilder with specified components
-    let ern_left: Result<Ern<SHA1Name>, ErnError> = ArnBuilder::new()
+    // Create an ERN (Entity Resource Name) using the ErnBuilder with specified components
+    let ern_left: Result<Ern<SHA1Name>, ErnError> = ErnBuilder::new()
         .with::<Domain>("acton-internal")?
         .with::<Category>("hr")?
         .with::<Account>("company123")?
@@ -63,7 +62,7 @@ fn test_v5() -> anyhow::Result<()> {
         .with::<Part>("team1")?
         .build();
 
-    let ern_right: Result<Ern<SHA1Name>, ErnError> = ArnBuilder::new()
+    let ern_right: Result<Ern<SHA1Name>, ErnError> = ErnBuilder::new()
         .with::<Domain>("acton-internal")?
         .with::<Category>("hr")?
         .with::<Account>("company123")?
@@ -73,23 +72,17 @@ fn test_v5() -> anyhow::Result<()> {
         .build();
 
     // Verify the constructed ERN (Entity Resource Name) matches the expected value
-    assert!(
-        ern_left.is_ok(),
-        "ern:acton-internal:hr:company123:root/departmentA/team1"
-    );
-    assert!(
-        ern_right.is_ok(),
-        "ern:acton-internal:hr:company123:root/departmentA/team1"
-    );
+    assert!(ern_left.is_ok());
+    assert!(ern_right.is_ok());
     assert_eq!(ern_left?, ern_right?);
     Ok(())
 }
 
 #[test]
 fn test_parser() -> anyhow::Result<()> {
-    // Create an ArnParser with a specific ERN (Entity Resource Name) string
-    let parser: ArnParser<UnixTime> =
-        ArnParser::new("ern:acton-internal:hr:company123:root/departmentA/team1");
+    // Create an ErnParser with a specific ERN (Entity Resource Name) string
+    let parser: ErnParser<UnixTime> =
+        ErnParser::new("ern:acton-internal:hr:company123:root/departmentA/team1");
 
     // Parse the ERN (Entity Resource Name) string into its components
     let result = parser.parse();

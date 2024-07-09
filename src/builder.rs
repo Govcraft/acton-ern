@@ -6,49 +6,49 @@ use crate::model::{Account, Category, Domain, Ern, Part, Parts};
 use crate::traits::ErnComponent;
 
 /// A builder for constructing ERN (Entity Resource Name) instances using a state-driven approach with type safety.
-pub struct ArnBuilder<State, T: IdType + Clone + PartialEq + Eq + PartialOrd> {
-    builder: PrivateArnBuilder<T>,
+pub struct ErnBuilder<State, T: IdType + Clone + PartialEq + Eq + PartialOrd> {
+    builder: PrivateErnBuilder<T>,
     _marker: std::marker::PhantomData<(State, T)>,
 }
 
-/// Implementation of `ArnBuilder` for the initial state, starting with `Domain`.
-impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> ArnBuilder<(), T> {
+/// Implementation of `ErnBuilder` for the initial state, starting with `Domain`.
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> ErnBuilder<(), T> {
     /// Creates a new ERN (Entity Resource Name) builder initialized to start building from the `Domain` component.
-    pub fn new() -> ArnBuilder<Domain, T> {
-        ArnBuilder {
-            builder: PrivateArnBuilder::new(),
+    pub fn new() -> ErnBuilder<Domain, T> {
+        ErnBuilder {
+            builder: PrivateErnBuilder::new(),
             _marker: std::marker::PhantomData,
         }
     }
 }
 
-/// Implementation of `ArnBuilder` for `Part` states, allowing for building the final ERN (Entity Resource Name).
-impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> ArnBuilder<Part, T> {
+/// Implementation of `ErnBuilder` for `Part` states, allowing for building the final ERN (Entity Resource Name).
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> ErnBuilder<Part, T> {
     /// Finalizes the building process and constructs the ERN (Entity Resource Name).
     pub fn build(self) -> Result<Ern<T>, ErnError> {
         self.builder.build()
     }
 }
 
-/// Implementation of `ArnBuilder` for handling `Parts` states.
-impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> ArnBuilder<Parts, T> {
+/// Implementation of `ErnBuilder` for handling `Parts` states.
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> ErnBuilder<Parts, T> {
     /// Finalizes the building process and constructs the ERN (Entity Resource Name) when in the `Parts` state.
     pub fn build(self) -> Result<Ern<T>, ErnError> {
         self.builder.build()
     }
 }
 
-/// Generic implementation of `ArnBuilder` for all states that can transition to another state.
-impl<Component: ErnComponent, T: IdType + Clone + PartialEq + Eq + PartialOrd> ArnBuilder<Component, T> {
+/// Generic implementation of `ErnBuilder` for all states that can transition to another state.
+impl<Component: ErnComponent, T: IdType + Clone + PartialEq + Eq + PartialOrd> ErnBuilder<Component, T> {
     /// Adds a new part to the ERN (Entity Resource Name), transitioning to the next appropriate state.
     pub fn with<N>(
         self,
         part: impl Into<Cow<'static, str>>,
-    ) -> Result<ArnBuilder<N::NextState, T>, ErnError>
+    ) -> Result<ErnBuilder<N::NextState, T>, ErnError>
     where
         N: ErnComponent<NextState = Component::NextState>,
     {
-        Ok(ArnBuilder {
+        Ok(ErnBuilder {
             builder: self.builder.add_part(N::prefix(), part.into())?,
             _marker: std::marker::PhantomData,
         })
@@ -56,7 +56,7 @@ impl<Component: ErnComponent, T: IdType + Clone + PartialEq + Eq + PartialOrd> A
 }
 
 /// Represents a private, internal structure for building the ERN (Entity Resource Name).
-struct PrivateArnBuilder<T: IdType + Clone + PartialEq + Eq + PartialOrd> {
+struct PrivateErnBuilder<T: IdType + Clone + PartialEq + Eq + PartialOrd> {
     domain: Option<Domain>,
     category: Option<Category>,
     account: Option<Account>,
@@ -65,7 +65,7 @@ struct PrivateArnBuilder<T: IdType + Clone + PartialEq + Eq + PartialOrd> {
     _marker: std::marker::PhantomData<T>,
 }
 
-impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> PrivateArnBuilder<T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> PrivateErnBuilder<T> {
     /// Constructs a new private ERN (Entity Resource Name) builder.
     fn new() -> Self {
         Self {
@@ -130,8 +130,8 @@ mod tests {
 
     #[test]
     fn test() -> anyhow::Result<()> {
-        // Create an ERN (Entity Resource Name) using the ArnBuilder with specified components
-        let ern: Result<Ern<UnixTime>, ErnError> = ArnBuilder::new()
+        // Create an ERN (Entity Resource Name) using the ErnBuilder with specified components
+        let ern: Result<Ern<UnixTime>, ErnError> = ErnBuilder::new()
             .with::<Domain>("acton-internal")?
             .with::<Category>("hr")?
             .with::<Account>("company123")?
@@ -149,7 +149,7 @@ mod tests {
     }
     #[test]
     fn test_ern_builder() -> anyhow::Result<()> {
-        let ern: Ern<UnixTime> = ArnBuilder::new()
+        let ern: Ern<UnixTime> = ErnBuilder::new()
             .with::<Domain>("custom")?
             .with::<Category>("service")?
             .with::<Account>("account123")?
@@ -171,7 +171,7 @@ mod tests {
         init_tracing();
         let ern: Ern<UnixTime> = Ern::default();
         tracing::debug!("{}", ern);
-        let parser: ArnParser<UnixTime> = ArnParser::new(ern.to_string());
+        let parser: ErnParser<UnixTime> = ErnParser::new(ern.to_string());
         let parsed: Ern<UnixTime> = parser.parse()?;
         assert_eq!(parsed.domain.as_str(), "acton");
         Ok(())
@@ -179,7 +179,7 @@ mod tests {
 
     #[test]
     fn test_ern_builder_with_owned_strings() -> anyhow::Result<(), ErnError> {
-        let ern: Ern<UnixTime> = ArnBuilder::new()
+        let ern: Ern<UnixTime> = ErnBuilder::new()
             .with::<Domain>(String::from("custom"))?
             .with::<Category>(String::from("service"))?
             .with::<Account>(String::from("account123"))?

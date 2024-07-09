@@ -57,7 +57,7 @@ use acton_ern::prelude::*;
 
 fn main() -> Result<(), ErnError> {
     // Create an ERN
-    let ern: Ern<UnixTime> = ArnBuilder::new()
+    let ern: Ern<UnixTime> = ErnBuilder::new()
         .with::<Domain>("acton-internal")?
         .with::<Category>("hr")?
         .with::<Account>("company123")?
@@ -71,7 +71,7 @@ fn main() -> Result<(), ErnError> {
 
     // Parse an ERN string
     let ern_str = "ern:acton-internal:hr:company123:employees/department_a/team1";
-    let parsed_ern: Ern<UnixTime> = ArnParser::new(ern_str).parse()?;
+    let parsed_ern: Ern<UnixTime> = ErnParser::new(ern_str).parse()?;
 
     assert_eq!(ern, parsed_ern);
 
@@ -83,13 +83,13 @@ fn main() -> Result<(), ErnError> {
 
 ### Building ERNs
 
-The `ArnBuilder` provides a fluent interface for constructing ERNs:
+The `ErnBuilder` provides a fluent interface for constructing ERNs:
 
 ```rust
 use acton_ern::prelude::*;
 
 fn create_ern() -> Result<Ern<UnixTime>, ErnError> {
-    ArnBuilder::new()
+    ErnBuilder::new()
         .with::<Domain>("acton-external")?
         .with::<Category>("iot")?
         .with::<Account>("device_manufacturer")?
@@ -104,13 +104,13 @@ fn create_ern() -> Result<Ern<UnixTime>, ErnError> {
 
 ### Parsing ERNs
 
-Use `ArnParser` to parse ERN strings:
+Use `ErnParser` to parse ERN strings:
 
 ```rust
 use acton_ern::prelude::*;
 
 fn parse_ern(ern_str: &str) -> Result<Ern<UnixTime>, ErnError> {
-    ArnParser::new(ern_str).parse()
+    ErnParser::new(ern_str).parse()
 }
 ```
 
@@ -197,7 +197,7 @@ The crate uses a custom `ErnError` type for error handling. Always check for and
 use acton_ern::prelude::*;
 
 fn handle_ern_errors() {
-    match ArnBuilder::new().with::<Domain>("").build() {
+    match ErnBuilder::new().with::<Domain>("").build() {
         Ok(ern) => println!("Created ERN: {}", ern),
         Err(ErnError::ParseFailure(component, msg)) => {
             eprintln!("Failed to parse {}: {}", component, msg);
@@ -209,8 +209,8 @@ fn handle_ern_errors() {
 
 ## Best Practices
 
-1. Use the builder pattern (`ArnBuilder`) for creating new ERNs.
-2. Parse ERN strings using `ArnParser` to ensure validity.
+1. Use the builder pattern (`ErnBuilder`) for creating new ERNs.
+2. Parse ERN strings using `ErnParser` to ensure validity.
 3. Choose appropriate ID types based on your use case (e.g., `UnixTime` for timestamp-based IDs).
 4. Handle all potential errors using the `ErnError` type.
 5. Use the provided component types (`Domain`, `Category`, etc.) for type safety.

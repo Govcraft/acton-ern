@@ -1,6 +1,6 @@
 use std::convert::Infallible;
 
-// Merged ArnBuilderError and ArnParseError into ArnError
+// Merged ErnBuilderError and ErnParseError into ErnError
 #[derive(Debug, thiserror::Error, PartialEq)]
 pub enum ErnError {
     #[error("Failed to parse {0}: {1}")]
@@ -25,7 +25,7 @@ pub enum ErnError {
     #[error("Ern has invalid format")]
     InvalidFormat,
 
-    // Converted the Infallible implementation to ArnError
+    // Converted the Infallible implementation to ErnError
     #[error("Infallible error")]
     InfallibleError,
 }
