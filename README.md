@@ -1,8 +1,8 @@
-  # acton-eid
+  # acton-ern
   
   ## Overview
   
-  The `acton-eid` crate provides a Rust-based implementation for handling Acton Resource Names (Arns), enabling the generation, parsing, and management of Arns within the Acton framework. This crate is designed to support cloud-native Acton-based solutions by offering robust, type-safe, and efficient ERN (Entity Resource Name) management capabilities. The functionality includes constructing, parsing, validating, and manipulating Arns according to the specified hierarchical structure used within various services.
+  The `acton-ern` crate provides a Rust-based implementation for handling Acton Resource Names (Arns), enabling the generation, parsing, and management of Arns within the Acton framework. This crate is designed to support cloud-native Acton-based solutions by offering robust, type-safe, and efficient ERN (Entity Resource Name) management capabilities. The functionality includes constructing, parsing, validating, and manipulating Arns according to the specified hierarchical structure used within various services.
   
   ## Acton Resource Name (ERN (Entity Resource Name)) System
   
@@ -14,7 +14,7 @@
   
   An ERN (Entity Resource Name) is composed of several parts, each representing a specific aspect of the resource:
   
-  `eid:domain:category:account:root_id/path`
+  `ern:domain:category:account:root_id/path`
   
   #### Components
   
@@ -28,13 +28,13 @@
   
   #### Corporate Hierarchy Actor
   
-  `eid:acton-internal:hr:company123:root/departmentA/team1`
+  `ern:acton-internal:hr:company123:root/departmentA/team1`
   
   This ERN (Entity Resource Name) identifies an actor representing Team 1, which is part of Department A under the HR service, managed by account `company123`.
   
   #### IoT Device in a Network Topology
   
-  `eid:acton-external:iot:vendor456:root/region1/building5/floor3/device42`
+  `ern:acton-external:iot:vendor456:root/region1/building5/floor3/device42`
   
   This ERN (Entity Resource Name) points to Device 42 located on Floor 3 of Building 5 in Region 1, managed by IoT services for the vendor account `vendor456`.
   
@@ -54,6 +54,6 @@
   
   ## Conclusion
   
-  The `acton-eid` crate is an essential component of the Acton framework, providing a robust method for uniquely identifying and managing actors within a complex, hierarchical structure, supporting enhanced security, operational management, and clarity throughout the system.
+  The `acton-ern` crate is an essential component of the Acton framework, providing a robust method for uniquely identifying and managing actors within a complex, hierarchical structure, supporting enhanced security, operational management, and clarity throughout the system.
   
   For more information, visit [Acton's Github](https://github.com/GovCraft/acton-framework).
