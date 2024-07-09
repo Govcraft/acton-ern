@@ -1,11 +1,13 @@
+use anyhow::Error;
 use acton_eid::*;
+use acton_eid::prelude::EidError;
 
 /// Tests for the Akton ARN implementation
 
 #[test]
 fn test() -> anyhow::Result<()> {
     // Create an Ein using the ArnBuilder with specified components
-    let arn = ArnBuilder::new()
+    let arn: Result<Ein<UnixTime>, EidError> = ArnBuilder::new()
         .with::<Domain>("akton-internal")?
         .with::<Category>("hr")?
         .with::<Account>("company123")?
