@@ -1,6 +1,6 @@
 //! # Acton Resource Name (ERN (Entity Resource Name)) Library
 //!
-//! `acton-eid` is a Rust library designed to handle Acton Resource Names (Arns), which are structured identifiers used within the [Acton distributed actor framework](https://github.com/GovCraft/acton-framework) to uniquely identify and manage hierarchical resources across different services and partitions.
+//! `acton-ern` is a Rust library designed to handle Acton Resource Names (Arns), which are structured identifiers used within the [Acton distributed actor framework](https://github.com/GovCraft/acton-framework) to uniquely identify and manage hierarchical resources across different services and partitions.
 //!
 //! This crate provides tools for generating, parsing, and managing Arns, ensuring type safety and alignment with the hierarchical structure needed Acton-based cloud-native solutions.
 //!
@@ -29,7 +29,7 @@ mod parser;
 mod traits;
 
 pub mod prelude {
-    //! The prelude module for `acton-eid`.
+    //! The prelude module for `acton-ern`.
     //!
     //! This module re-exports essential traits and structures for easy use by downstream consumers.
 
@@ -37,7 +37,7 @@ pub mod prelude {
     pub use super::model::{Account, Ern, Category, Domain, Part, Parts};
     pub use super::parser::ArnParser;
     pub use super::traits::EidComponent;
-    pub use super::errors::EidError;
+    pub use super::errors::ErnError;
 }
 
 // Re-exporting the public API under the root of the crate for direct access
@@ -66,7 +66,7 @@ mod tests {
             //     .add_directive(Level::INFO.into()); // Set global log level to INFO
 
             let filter = EnvFilter::new("")
-                .add_directive("acton-eid::parser::tests=trace".parse().unwrap())
+                .add_directive("acton-ern::parser::tests=trace".parse().unwrap())
                 .add_directive("broker_tests=trace".parse().unwrap())
                 .add_directive("launchpad_tests=trace".parse().unwrap())
                 .add_directive("lifecycle_tests=info".parse().unwrap())
