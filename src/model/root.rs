@@ -1,25 +1,39 @@
 use std::borrow::Cow;
+use std::cmp::Ordering;
 use std::fmt;
 
 use derive_more::{AsRef, From, Into};
 use type_safe_id::{DynamicType, TypeSafeId};
 
+use crate::{Ern, IdType, Timestamp, UnixTime};
 use crate::errors::ErnError;
-use crate::{IdType, UnixTime};
 
-#[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash)]
-pub struct Root<T: IdType + Clone + PartialEq = UnixTime> {
+#[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash, PartialOrd)]
+pub struct Root<T: IdType + Clone + PartialEq + Eq + PartialOrd = UnixTime> {
     pub(crate) name: Cow<'static, str>,
     marker: std::marker::PhantomData<T>,
 }
+impl Ord for Root<Timestamp> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.cmp(other)
+    }
+}
+impl Ord for Root<UnixTime> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.cmp(other)
+    }
+}
 
-impl<T: IdType + Clone + PartialEq> Root<T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> Root<T> {
     pub fn as_str(&self) -> &str {
         &self.name
     }
 
     pub fn into_owned(self) -> Root<T> {
-        Root { name: Cow::Owned(self.name.into_owned()), marker: Default::default() }
+        Root {
+            name: Cow::Owned(self.name.into_owned()),
+            marker: Default::default(),
+        }
     }
 
     pub fn new(value: impl Into<Cow<'static, str>>) -> Result<Self, ErnError> {
@@ -28,20 +42,26 @@ impl<T: IdType + Clone + PartialEq> Root<T> {
             let val = ACTON;
             TypeSafeId::from_type_and_uuid(DynamicType::new(val)?, T::generate_id(val)).to_string()
         } else {
-            TypeSafeId::from_type_and_uuid(DynamicType::new(&value)?, T::generate_id(value.to_string().as_str()))
-                .to_string()
+            TypeSafeId::from_type_and_uuid(
+                DynamicType::new(&value)?,
+                T::generate_id(value.to_string().as_str()),
+            )
+            .to_string()
         };
-        Ok(Root { name: Cow::from(value), marker: Default::default() })
+        Ok(Root {
+            name: Cow::from(value),
+            marker: Default::default(),
+        })
     }
 }
 
-impl<T:IdType+Clone+PartialEq> Default for Root<T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> Default for Root<T> {
     fn default() -> Self {
         Root::new("").expect("Couldn't create default Acton Ern")
     }
 }
 
-impl<T:IdType+Clone+PartialEq> fmt::Display for Root<T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> fmt::Display for Root<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let id = &self.name;
         write!(f, "{id}")
@@ -49,14 +69,17 @@ impl<T:IdType+Clone+PartialEq> fmt::Display for Root<T> {
 }
 const ACTON: &str = "acton";
 
-impl<T:IdType+Clone+PartialEq> std::str::FromStr for Root<T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> std::str::FromStr for Root<T> {
     type Err = ErnError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Root { name: Cow::from(s.to_string()), marker: Default::default() })
+        Ok(Root {
+            name: Cow::from(s.to_string()),
+            marker: Default::default(),
+        })
     }
 }
 
-impl<T:IdType+Clone+PartialEq> From<Root<T>> for String {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> From<Root<T>> for String {
     fn from(root: Root<T>) -> Self {
         root.name.into_owned()
     }
