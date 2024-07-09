@@ -22,7 +22,7 @@ pub enum EidError {
     #[error("Builder Error - Missing required part: {0}")]
     MissingPart(String),
 
-    #[error("ARN has invalid format")]
+    #[error("Eid has invalid format")]
     InvalidFormat,
 
     // Converted the Infallible implementation to ArnError
