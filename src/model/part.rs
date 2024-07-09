@@ -5,7 +5,7 @@ use derive_more::{AsRef, From, Into};
 
 use crate::errors::ErnError;
 
-#[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash)]
+#[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash, PartialOrd)]
 pub struct Part(pub(crate) Cow<'static, str>);
 impl Part {
     pub fn as_str(&self) -> &str {
