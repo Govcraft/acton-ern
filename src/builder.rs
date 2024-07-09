@@ -188,7 +188,7 @@ mod tests {
 
         assert!(arn
             .to_string()
-            .starts_with("arn:custom:service:account123:resource"));
+            .starts_with("eid:custom:service:account123:resource"));
         Ok(())
     }
 }
