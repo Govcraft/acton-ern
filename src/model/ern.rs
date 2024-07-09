@@ -6,7 +6,7 @@ use std::ops::Add;
 use crate::{Account, Category, Domain, EidComponent, IdType, Part, Parts, Root};
 use crate::errors::EidError;
 
-/// Represents an Acton Resource Name (ERN (Entity Resource Name)), which uniquely identifies resources within the Acton framework.
+/// Represents an Acton RN (Entity Resource Name), which uniquely identifies resources within the Acton framework.
 #[derive(Debug, PartialEq, Clone, Eq, Hash)]
 pub struct Ern<T: IdType + Clone + PartialEq> {
     pub domain: Domain,
