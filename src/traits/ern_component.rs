@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::hash::Hash;
 
 use crate::{Account, Category, Domain, IdType, Part, Parts, Root};
 
@@ -25,7 +26,7 @@ macro_rules! impl_ern_component {
         }
     };
 }
-impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> ErnComponent for Root<T> {
+impl<T: IdType + Clone + PartialEq + Eq + PartialOrd + Hash> ErnComponent for Root<T> {
     fn prefix() -> &'static str {
         ""
     }
@@ -34,6 +35,7 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> ErnComponent for Root<T> {
         self.name.clone()
     }
 }
+
 impl ErnComponent for Account {
     fn prefix() -> &'static str {
         ""
