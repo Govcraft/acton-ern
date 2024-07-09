@@ -1,20 +1,20 @@
-//! # Acton Resource Name (Ein) Library
+//! # Acton Resource Name (ERN (Entity Resource Name)) Library
 //!
 //! `acton-eid` is a Rust library designed to handle Acton Resource Names (Arns), which are structured identifiers used within the [Acton distributed actor framework](https://github.com/GovCraft/acton-framework) to uniquely identify and manage hierarchical resources across different services and partitions.
 //!
 //! This crate provides tools for generating, parsing, and managing Arns, ensuring type safety and alignment with the hierarchical structure needed Acton-based cloud-native solutions.
 //!
 //! ## Features
-//! - **Ein Parsing**: Parse Ein strings into structured components.
-//! - **Ein Building**: Programmatically build Arns with validation.
-//! - **Type Safety**: Strongly typed components prevent mixing parts of Ein.
+//! - **ERN (Entity Resource Name) Parsing**: Parse ERN (Entity Resource Name) strings into structured components.
+//! - **ERN (Entity Resource Name) Building**: Programmatically build Arns with validation.
+//! - **Type Safety**: Strongly typed components prevent mixing parts of ERN (Entity Resource Name).
 //! - **Easy Integration**: Designed to be integrated with other systems managing hierarchical resources.
 //!
 //! ## Usage
 //! This crate is structured into several modules, each providing distinct functionalities:
 //! - `builder`: Module for building Arns.
 //! - `parser`: Module for parsing Arns.
-//! - `model`: Contains the models representing different parts of an Ein.
+//! - `model`: Contains the models representing different parts of an ERN (Entity Resource Name).
 //! - `traits`: Traits used across the crate for common functionality.
 //!
 
@@ -34,7 +34,7 @@ pub mod prelude {
     //! This module re-exports essential traits and structures for easy use by downstream consumers.
 
     pub use super::builder::ArnBuilder;
-    pub use super::model::{Account, Eid, Category, Domain, Part, Parts};
+    pub use super::model::{Account, Ern, Category, Domain, Part, Parts};
     pub use super::parser::ArnParser;
     pub use super::traits::EidComponent;
     pub use super::errors::EidError;
