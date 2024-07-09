@@ -2,13 +2,13 @@ use std::borrow::Cow;
 use std::str::FromStr;
 
 use crate::{IdType, Root};
-use crate::errors::EidError;
+use crate::errors::ErnError;
 use crate::model::{Account, Category, Domain, Ern, Part, Parts};
 
 /// A parser for decoding ERN (Entity Resource Name) strings into their constituent components.
 pub struct ArnParser<T: IdType + Clone + PartialEq> {
     /// The ERN (Entity Resource Name) string to be parsed.
-    eid: Cow<'static, str>,
+    ern: Cow<'static, str>,
     _marker: std::marker::PhantomData<T>,
 }
 
@@ -17,14 +17,14 @@ impl<T: IdType + Clone + PartialEq> ArnParser<T> {
     ///
     /// # Arguments
     ///
-    /// * `eid` - A string slice or owned String representing the ERN (Entity Resource Name) to be parsed.
+    /// * `ern` - A string slice or owned String representing the ERN (Entity Resource Name) to be parsed.
     ///
     /// # Returns
     ///
     /// Returns an `ArnParser` instance initialized with the given ERN (Entity Resource Name) string.
-    pub fn new(eid: impl Into<Cow<'static, str>>) -> Self {
+    pub fn new(ern: impl Into<Cow<'static, str>>) -> Self {
         Self {
-            eid: eid.into(),
+            ern: ern.into(),
             _marker: Default::default(),
         }
     }
@@ -36,11 +36,11 @@ impl<T: IdType + Clone + PartialEq> ArnParser<T> {
     ///
     /// Returns an `ERN (Entity Resource Name)` instance containing the parsed components.
     /// If parsing fails, returns an error message as a `String`.
-    pub fn parse(&self) -> Result<Ern<T>, EidError> {
-        let parts: Vec<String> = self.eid.splitn(5, ':').map(|s| s.to_string()).collect();
+    pub fn parse(&self) -> Result<Ern<T>, ErnError> {
+        let parts: Vec<String> = self.ern.splitn(5, ':').map(|s| s.to_string()).collect();
 
-        if parts.len() != 5 || parts[0] != "eid" {
-            return Err(EidError::InvalidFormat);
+        if parts.len() != 5 || parts[0] != "ern" {
+            return Err(ErnError::InvalidFormat);
         }
 
         let domain = Domain::from_str(&parts[1])?;
@@ -76,28 +76,28 @@ mod tests {
 
     #[test]
     fn test_valid_eid_parsing() {
-        let eid_str = "eid:custom:service:account123:root/resource/subresource";
+        let eid_str = "ern:custom:service:account123:root/resource/subresource";
         let parser: ArnParser<UnixTime> = ArnParser::new(eid_str);
         let result = parser.parse();
 
         assert!(result.is_ok());
-        let eid = result.unwrap();
-        assert_eq!(eid.domain.as_str(), "custom");
+        let ern = result.unwrap();
+        assert_eq!(ern.domain.as_str(), "custom");
     }
 
     #[test]
     fn test_invalid_eid_format() {
-        let eid_str = "invalid:eid:format";
+        let eid_str = "invalid:ern:format";
         let parser: ArnParser<UnixTime> = ArnParser::new(eid_str);
         let result = parser.parse();
         assert!(result.is_err());
-        assert_eq!(result.err().unwrap(), EidError::InvalidFormat);
+        assert_eq!(result.err().unwrap(), ErnError::InvalidFormat);
         // assert_eq!(result.unwrap_err().to_string(), "Invalid Eid format");
     }
 
     #[test]
     fn test_eid_with_invalid_part() -> anyhow::Result<()> {
-        let eid_str = "eid:domain:category:account:root/invalid:part";
+        let eid_str = "ern:domain:category:account:root/invalid:part";
         let parser: ArnParser<UnixTime> = ArnParser::new(eid_str);
         let result = parser.parse();
         assert!(result.is_err());
@@ -107,7 +107,7 @@ mod tests {
 
     #[test]
     fn test_eid_parsing_with_owned_string() {
-        let eid_str = String::from("eid:custom:service:account123:root/resource");
+        let eid_str = String::from("ern:custom:service:account123:root/resource");
         let parser: ArnParser<UnixTime> = ArnParser::new(eid_str);
         let result = parser.parse();
         assert!(result.is_ok());
