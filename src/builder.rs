@@ -172,7 +172,7 @@ mod tests {
         tracing::debug!("{}", arn);
         let parser:ArnParser<UnixTime> = ArnParser::new(arn.to_string());
         let parsed: Ein<UnixTime> = parser.parse()?;
-        assert_eq!(parsed.domain.as_str(), "akton");
+        assert_eq!(parsed.domain.as_str(), "acton");
         // assert_eq!(arn.to_string(), "arn:akton:system:default:root");
         Ok(())
     }
