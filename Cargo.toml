@@ -4,13 +4,13 @@ version = "2.0.0-alpha"
 edition = "2021"
 authors = ["Govcraft <acton@govcraft.ai>"]
 description = "A Rust library for handling Acton Entity Identifiers (EIDs), providing tools for generating, parsing, and managing EIDs within Acton-based solutions."
-repository = "https://github.com/govcraft/akton-arn"
+repository = "https://github.com/govcraft/akton-eid"
 documentation = "https://docs.rs/acton-eid"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
-keywords = ["arn", "resource-management", "cloud", "actor"]
+keywords = ["eid", "resource-management", "cloud", "actor"]
 categories = ["api-bindings", "cryptography", "data-structures", "network-programming", "authentication"]
-homepage = "https://govcraft.com/akton-arn"
+homepage = "https://govcraft.com/akton-eid"
 
 [dependencies]
 derive-new = "0.6.0"
