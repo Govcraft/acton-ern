@@ -221,6 +221,11 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_ern_with_root() {
+        let ern: Ern<UnixTime> = Ern::default();
+    }
+
+    #[test]
     fn test_ern_timestamp_ordering() {
         let ern1: Ern<Timestamp> = Ern::with_root("root_a").unwrap();
         sleep(Duration::from_millis(10));
