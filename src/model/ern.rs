@@ -222,7 +222,7 @@ mod tests {
 
     #[test]
     fn test_ern_with_root() {
-        let ern: Ern<UnixTime> = Ern::default();
+        let ern: Ern<UnixTime> = Ern::with_root();
     }
 
     #[test]
