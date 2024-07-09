@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use std::fmt;
 /// Represents a category in the ERN (Entity Resource Name) system, typically indicating the service.
 
-#[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash)]
+#[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash, PartialOrd)]
 pub struct Category(pub(crate) Cow<'static, str>);
 
 impl Category {
