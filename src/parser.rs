@@ -76,18 +76,18 @@ mod tests {
 
     #[test]
     fn test_valid_arn_parsing() {
-        let arn_str = "eid:custom:service:account123:root/resource/subresource";
+        let eid_str = "eid:custom:service:account123:root/resource/subresource";
         let parser: ArnParser<UnixTime> = ArnParser::new(arn_str);
         let result = parser.parse();
 
         assert!(result.is_ok());
-        let arn = result.unwrap();
+        let eid = result.unwrap();
         assert_eq!(eid.domain.as_str(), "custom");
     }
 
     #[test]
     fn test_invalid_arn_format() {
-        let arn_str = "invalid:eid:format";
+        let eid_str = "invalid:eid:format";
         let parser: ArnParser<UnixTime> = ArnParser::new(arn_str);
         let result = parser.parse();
         assert!(result.is_err());
@@ -97,7 +97,7 @@ mod tests {
 
     #[test]
     fn test_arn_with_invalid_part() -> anyhow::Result<()> {
-        let arn_str = "eid:domain:category:account:root/invalid:part";
+        let eid_str = "eid:domain:category:account:root/invalid:part";
         let parser: ArnParser<UnixTime> = ArnParser::new(arn_str);
         let result = parser.parse();
         assert!(result.is_err());
@@ -107,7 +107,7 @@ mod tests {
 
     #[test]
     fn test_arn_parsing_with_owned_string() {
-        let arn_str = String::from("eid:custom:service:account123:root/resource");
+        let eid_str = String::from("eid:custom:service:account123:root/resource");
         let parser: ArnParser<UnixTime> = ArnParser::new(arn_str);
         let result = parser.parse();
         assert!(result.is_ok());
