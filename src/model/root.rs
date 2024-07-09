@@ -44,7 +44,7 @@ impl<T: IdType + Clone + PartialEq + Eq + PartialOrd> Root<T> {
         } else {
             TypeSafeId::from_type_and_uuid(
                 DynamicType::new(&value)?,
-                T::generate_id(value.to_string().as_str()),
+                T::generate_id(value.as_ref()),
             )
             .to_string()
         };
