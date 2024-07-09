@@ -132,14 +132,14 @@ mod tests {
     #[test]
     fn test() -> anyhow::Result<()> {
         // Create an ERN (Entity Resource Name) using the ErnBuilder with specified components
-        let ern: Result<Ern<UnixTime>, ErnError> = ErnBuilder::new()
+        let ern = ErnBuilder::new()
             .with::<Domain>("acton-internal")?
             .with::<Category>("hr")?
             .with::<Account>("company123")?
             .with::<Root<UnixTime>>("root")?
             .with::<Part>("departmentA")?
             .with::<Part>("team1")?
-            .build();
+            .build()?;
 
         // Verify the constructed ERN (Entity Resource Name) matches the expected value
         assert!(
