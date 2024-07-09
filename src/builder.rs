@@ -131,7 +131,7 @@ mod tests {
     fn test() -> anyhow::Result<()> {
         // Create an Ein using the ArnBuilder with specified components
         let eid: Result<Ein<UnixTime>, EidError> = ArnBuilder::new()
-            .with::<Domain>("akton-internal")?
+            .with::<Domain>("acton-internal")?
             .with::<Category>("hr")?
             .with::<Account>("company123")?
             .with::<Root<UnixTime>>("root")?
@@ -142,7 +142,7 @@ mod tests {
         // Verify the constructed Ein matches the expected value
         assert!(
             eid.is_ok(),
-            "eid:akton-internal:hr:company123:root/departmentA/team1"
+            "eid:acton-internal:hr:company123:root/departmentA/team1"
         );
         Ok(())
     }
