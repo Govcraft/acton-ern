@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use std::str::FromStr;
 
 use crate::{IdType, Root};
-use crate::errors::ArnError;
+use crate::errors::EidError;
 use crate::model::{Account, Category, Domain, Ein, Part, Parts};
 
 /// A parser for decoding Ein strings into their constituent components.
@@ -36,11 +36,11 @@ impl<T: IdType + Clone + PartialEq> ArnParser<T> {
     ///
     /// Returns an `Ein` instance containing the parsed components.
     /// If parsing fails, returns an error message as a `String`.
-    pub fn parse(&self) -> Result<Ein<T>, ArnError> {
+    pub fn parse(&self) -> Result<Ein<T>, EidError> {
         let parts: Vec<String> = self.eid.splitn(5, ':').map(|s| s.to_string()).collect();
 
         if parts.len() != 5 || parts[0] != "arn" {
-            return Err(ArnError::InvalidFormat);
+            return Err(EidError::InvalidFormat);
         }
 
         let domain = Domain::from_str(&parts[1])?;
@@ -91,7 +91,7 @@ mod tests {
         let parser: ArnParser<UnixTime> = ArnParser::new(arn_str);
         let result = parser.parse();
         assert!(result.is_err());
-        assert_eq!(result.err().unwrap(), ArnError::InvalidFormat);
+        assert_eq!(result.err().unwrap(), EidError::InvalidFormat);
         // assert_eq!(result.unwrap_err().to_string(), "Invalid ARN format");
     }
 
