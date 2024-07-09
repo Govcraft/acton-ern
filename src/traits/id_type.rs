@@ -1,6 +1,6 @@
 use uuid::Uuid;
 
-pub trait IdType {
+pub(crate) trait IdType {
     fn generate_id(value: &str) -> Uuid;
 }
 
