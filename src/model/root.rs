@@ -74,7 +74,7 @@ mod tests {
     #[test]
     fn test_root_default() {
         let root: Root<UnixTime> = Root::default();
-        assert!(root.as_str().starts_with("akton"));
+        assert!(root.as_str().starts_with("acton"));
     }
 
     #[test]
