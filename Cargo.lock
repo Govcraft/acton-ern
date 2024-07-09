@@ -3,6 +3,23 @@
 version = 3
 
 [[package]]
+name = "acton-ein"
+version = "2.0.0-alpha"
+dependencies = [
+ "anyhow",
+ "console-subscriber",
+ "derive-new",
+ "derive_more",
+ "log",
+ "thiserror",
+ "tracing",
+ "tracing-futures",
+ "tracing-subscriber",
+ "type-safe-id",
+ "uuid",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -24,23 +41,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8e60d3430d3a69478ad0993f19238d2df97c507009a52b3c10addcd7f6bcb916"
 dependencies = [
  "memchr",
-]
-
-[[package]]
-name = "akton-arn"
-version = "2.0.0-alpha"
-dependencies = [
- "anyhow",
- "console-subscriber",
- "derive-new",
- "derive_more",
- "log",
- "thiserror",
- "tracing",
- "tracing-futures",
- "tracing-subscriber",
- "type-safe-id",
- "uuid",
 ]
 
 [[package]]
