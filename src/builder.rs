@@ -147,7 +147,7 @@ mod tests {
         Ok(())
     }
     #[test]
-    fn test_arn_builder() -> anyhow::Result<()> {
+    fn test_eid_builder() -> anyhow::Result<()> {
         let eid: Ein<UnixTime> = ArnBuilder::new()
             .with::<Domain>("custom")?
             .with::<Category>("service")?
@@ -159,17 +159,17 @@ mod tests {
         assert!(
             eid.to_string().ends_with("/subresource"),
             "{} did not end with expected string",
-            arn
+            eid
         );
 
         Ok(())
     }
 
     #[test]
-    fn test_arn_builder_with_default_parts() -> anyhow::Result<(), EidError> {
+    fn test_eid_builder_with_default_parts() -> anyhow::Result<(), EidError> {
         init_tracing();
         let eid: Ein<UnixTime> = Ein::default();
-        tracing::debug!("{}", arn);
+        tracing::debug!("{}", eid);
         let parser:ArnParser<UnixTime> = ArnParser::new(eid.to_string());
         let parsed: Ein<UnixTime> = parser.parse()?;
         assert_eq!(parsed.domain.as_str(), "acton");
@@ -177,7 +177,7 @@ mod tests {
     }
 
     #[test]
-    fn test_arn_builder_with_owned_strings() -> anyhow::Result<(), EidError> {
+    fn test_eid_builder_with_owned_strings() -> anyhow::Result<(), EidError> {
         let eid: Ein<UnixTime> = ArnBuilder::new()
             .with::<Domain>(String::from("custom"))?
             .with::<Category>(String::from("service"))?
@@ -185,7 +185,7 @@ mod tests {
             .with::<Root<UnixTime>>(String::from("resource"))?
             .build()?;
 
-        assert!(arn
+        assert!(eid
             .to_string()
             .starts_with("eid:custom:service:account123:resource"));
         Ok(())
