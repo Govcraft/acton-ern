@@ -1,37 +1,37 @@
 use crate::errors::ArnError;
-use crate::model::{Account, Arn, Category, Domain, Part, Parts};
+use crate::model::{Account, Ein, Category, Domain, Part, Parts};
 use crate::Root;
 use std::borrow::Cow;
 use std::str::FromStr;
 
-/// A parser for decoding Arn strings into their constituent components.
+/// A parser for decoding Ein strings into their constituent components.
 pub struct ArnParser {
-    /// The Arn string to be parsed.
+    /// The Ein string to be parsed.
     arn: Cow<'static, str>,
 }
 
 impl ArnParser {
-    /// Constructs a new `ArnParser` for a given Arn string.
+    /// Constructs a new `ArnParser` for a given Ein string.
     ///
     /// # Arguments
     ///
-    /// * `arn` - A string slice or owned String representing the Arn to be parsed.
+    /// * `arn` - A string slice or owned String representing the Ein to be parsed.
     ///
     /// # Returns
     ///
-    /// Returns an `ArnParser` instance initialized with the given Arn string.
+    /// Returns an `ArnParser` instance initialized with the given Ein string.
     pub fn new(arn: impl Into<Cow<'static, str>>) -> Self {
         Self { arn: arn.into() }
     }
 
-    /// Parses the Arn into its component parts and returns them as a structured result.
-    /// Verifies correct Arn format and validates each part.
+    /// Parses the Ein into its component parts and returns them as a structured result.
+    /// Verifies correct Ein format and validates each part.
     ///
     /// # Returns
     ///
-    /// Returns an `Arn` instance containing the parsed components.
+    /// Returns an `Ein` instance containing the parsed components.
     /// If parsing fails, returns an error message as a `String`.
-    pub fn parse(&self) -> Result<Arn, ArnError> {
+    pub fn parse(&self) -> Result<Ein, ArnError> {
         let parts: Vec<&str> = self.arn.splitn(5, ':').collect();
 
         if parts.len() != 5 || parts[0] != "arn" {
@@ -63,7 +63,7 @@ impl ArnParser {
         // }
 
         let parts = Parts::new(arn_parts);
-        Ok(Arn::new(domain, category, account, root, parts))
+        Ok(Ein::new(domain, category, account, root, parts))
     }
 }
 
