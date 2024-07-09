@@ -1,6 +1,6 @@
 use crate::errors::ErnError;
 use crate::model::{Account, Ern, Category, Domain, Part, Parts};
-use crate::traits::EidComponent;
+use crate::traits::ErnComponent;
 use crate::{IdType, Root, UnixTime};
 use std::borrow::Cow;
 
@@ -38,14 +38,14 @@ impl<T:IdType+Clone+PartialEq> ArnBuilder<Parts,T> {
 }
 
 /// Generic implementation of `ArnBuilder` for all states that can transition to another state.
-impl<Component: EidComponent, T:IdType+Clone+PartialEq> ArnBuilder<Component, T> {
+impl<Component: ErnComponent, T:IdType+Clone+PartialEq> ArnBuilder<Component, T> {
     /// Adds a new part to the ERN (Entity Resource Name), transitioning to the next appropriate state.
     pub fn with<N>(
         self,
         part: impl Into<Cow<'static, str>>,
     ) -> Result<ArnBuilder<N::NextState, T>, ErnError>
     where
-        N: EidComponent<NextState = Component::NextState>,
+        N: ErnComponent<NextState = Component::NextState>,
     {
         Ok(ArnBuilder {
             builder: self.builder.add_part(N::prefix(), part.into())?,
