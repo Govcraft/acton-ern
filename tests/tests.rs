@@ -4,7 +4,7 @@ use akton_arn::*;
 
 #[test]
 fn test() -> anyhow::Result<()> {
-    // Create an Arn using the ArnBuilder with specified components
+    // Create an Ein using the ArnBuilder with specified components
     let arn = ArnBuilder::new()
         .with::<Domain>("akton-internal")?
         .with::<Category>("hr")?
@@ -14,7 +14,7 @@ fn test() -> anyhow::Result<()> {
         .with::<Part>("team1")?
         .build();
 
-    // Verify the constructed Arn matches the expected value
+    // Verify the constructed Ein matches the expected value
     assert!(
         arn.is_ok(),
         "arn:akton-internal:hr:company123:root/departmentA/team1"
@@ -24,10 +24,10 @@ fn test() -> anyhow::Result<()> {
 
 #[test]
 fn test_parser() -> anyhow::Result<()> {
-    // Create an ArnParser with a specific Arn string
+    // Create an ArnParser with a specific Ein string
     let parser = ArnParser::new("arn:akton-internal:hr:company123:root/departmentA/team1");
 
-    // Parse the Arn string into its components
+    // Parse the Ein string into its components
     let result = parser.parse();
 
     // Verify the parser returns a successful result
