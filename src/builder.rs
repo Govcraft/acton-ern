@@ -145,10 +145,10 @@ mod tests {
         #[test]
         fn test_ern_builder_error_handling() {
             let result = ErnBuilder::<UnixTime>::new()
-                .with::<Domain>("")
-                .and_then(|builder| builder.with::<Category>(""))
-                .and_then(|builder| builder.with::<Account>(""))
-                .and_then(|builder| builder.with::<Root<UnixTime>>(""))
+                .with::<Domain>("")?
+                .and_then(|builder| builder.with::<Category>("")?)
+                .and_then(|builder| builder.with::<Account>("")?)
+                .and_then(|builder| builder.with::<Root<UnixTime>>("")?)
                 .and_then(|builder| builder.build());
 
             assert!(result.is_err());
