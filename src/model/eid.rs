@@ -6,7 +6,7 @@ use std::ops::Add;
 use crate::{Account, Category, Domain, EidComponent, IdType, Part, Parts, Root};
 use crate::errors::EidError;
 
-/// Represents an Akton Resource Name (Ein), which uniquely identifies resources within the Akton framework.
+/// Represents an Acton Resource Name (Ein), which uniquely identifies resources within the Acton framework.
 #[derive(Debug, PartialEq, Clone, Eq, Hash)]
 pub struct Ein<T: IdType + Clone + PartialEq> {
     pub domain: Domain,
