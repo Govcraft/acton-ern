@@ -1,8 +1,8 @@
-//! # Akton Resource Name (Ein) Library
+//! # Acton Resource Name (Ein) Library
 //!
-//! `acton-eid` is a Rust library designed to handle Akton Resource Names (Arns), which are structured identifiers used within the [Akton distributed actor framework](https://github.com/GovCraft/acton-framework) to uniquely identify and manage hierarchical resources across different services and partitions.
+//! `acton-eid` is a Rust library designed to handle Acton Resource Names (Arns), which are structured identifiers used within the [Acton distributed actor framework](https://github.com/GovCraft/acton-framework) to uniquely identify and manage hierarchical resources across different services and partitions.
 //!
-//! This crate provides tools for generating, parsing, and managing Arns, ensuring type safety and alignment with the hierarchical structure needed Akton-based cloud-native solutions.
+//! This crate provides tools for generating, parsing, and managing Arns, ensuring type safety and alignment with the hierarchical structure needed Acton-based cloud-native solutions.
 //!
 //! ## Features
 //! - **Ein Parsing**: Parse Ein strings into structured components.
