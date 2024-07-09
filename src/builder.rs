@@ -150,7 +150,7 @@ mod tests {
     }
     #[test]
     fn test_ern_builder() -> anyhow::Result<()> {
-        let ern: Ern<UnixTime> = ErnBuilder::new()
+        let ern = ErnBuilder::new()
             .with::<Domain>("custom")?
             .with::<Category>("service")?
             .with::<Account>("account123")?
