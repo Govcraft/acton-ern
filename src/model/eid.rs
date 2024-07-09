@@ -203,7 +203,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_arn_with_root() {
+    fn test_eid_with_root() {
         let eid: Ein<UnixTime> = Ein::with_root("custom_root").unwrap();
         assert!(eid.root.as_str().starts_with("custom_root"));
         assert_eq!(eid.domain, Domain::default());
@@ -213,7 +213,7 @@ mod tests {
     }
 
     #[test]
-    fn test_arn_with_new_root() {
+    fn test_eid_with_new_root() {
         let original_eid: Ein<UnixTime> = Ein::default();
         let new_eid: Ein<UnixTime> = original_eid.with_new_root("new_root").unwrap();
         assert!(new_eid.root.as_str().starts_with("new_root"));
@@ -224,7 +224,7 @@ mod tests {
     }
 
     #[test]
-    fn test_add_arns() -> anyhow::Result<()> {
+    fn test_add_eids() -> anyhow::Result<()> {
         let parent_root: Root<UnixTime> = Root::from_str("root_a")?;
         let parent: Ein<UnixTime> = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
@@ -263,7 +263,7 @@ mod tests {
     }
 
     #[test]
-    fn test_add_arns_empty_child() {
+    fn test_add_eids_empty_child() {
         let parent: Ein<UnixTime> = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
@@ -289,7 +289,7 @@ mod tests {
     }
 
     #[test]
-    fn test_add_arns_empty_parent() {
+    fn test_add_eids_empty_parent() {
         let parent: Ein<UnixTime> = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
@@ -312,7 +312,7 @@ mod tests {
     }
 
     #[test]
-    fn test_add_arns_display() {
+    fn test_add_eids_display() {
         let parent: Ein<UnixTime> = Ein::new(
             Domain::from_str("akton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
@@ -336,7 +336,7 @@ mod tests {
             .starts_with("eid:akton-internal:hr:company123:rootp"));
     }
     #[test]
-    fn test_arn_custom() -> anyhow::Result<()> {
+    fn test_eid_custom() -> anyhow::Result<()> {
         let eid: Ein<UnixTime> = Ein::new(
             Domain::new("custom")?,
             Category::new("service"),
@@ -344,14 +344,14 @@ mod tests {
             Root::new("root")?,
             Parts::new(vec![Part::new("resource")?]),
         );
-        assert!(arn
+        assert!(eid
             .to_string()
             .starts_with("eid:custom:service:account123:root"));
         Ok(())
     }
 
     #[test]
-    fn test_arn_append_invalid_part() -> anyhow::Result<()> {
+    fn test_eid_append_invalid_part() -> anyhow::Result<()> {
         let invalid_part = Part::new(":invalid");
 
         assert!(invalid_part.is_err());
