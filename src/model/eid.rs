@@ -227,7 +227,7 @@ mod tests {
     fn test_add_eids() -> anyhow::Result<()> {
         let parent_root: Root<UnixTime> = Root::from_str("root_a")?;
         let parent: Ein<UnixTime> = Ein::new(
-            Domain::from_str("akton-internal").unwrap(),
+            Domain::from_str("acton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
             parent_root.clone(),
@@ -238,7 +238,7 @@ mod tests {
         );
 
         let child: Ein<UnixTime> = Ein::new(
-            Domain::from_str("akton-internal").unwrap(),
+            Domain::from_str("acton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
             Root::from_str("root_b").unwrap(),
@@ -247,7 +247,7 @@ mod tests {
 
         let combined: Ein<UnixTime> = parent + child;
 
-        assert_eq!(combined.domain, Domain::from_str("akton-internal").unwrap());
+        assert_eq!(combined.domain, Domain::from_str("acton-internal").unwrap());
         assert_eq!(combined.category, Category::from_str("hr").unwrap());
         assert_eq!(combined.account, Account::from_str("company123").unwrap());
         assert_eq!(combined.root, parent_root);
@@ -265,7 +265,7 @@ mod tests {
     #[test]
     fn test_add_eids_empty_child() {
         let parent: Ein<UnixTime> = Ein::new(
-            Domain::from_str("akton-internal").unwrap(),
+            Domain::from_str("acton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
             Root::from_str("rootp").unwrap(),
@@ -273,7 +273,7 @@ mod tests {
         );
 
         let child: Ein<UnixTime> = Ein::new(
-            Domain::from_str("akton-internal").unwrap(),
+            Domain::from_str("acton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
             Root::from_str("rootc").unwrap(),
@@ -291,14 +291,14 @@ mod tests {
     #[test]
     fn test_add_eids_empty_parent() {
         let parent: Ein<UnixTime> = Ein::new(
-            Domain::from_str("akton-internal").unwrap(),
+            Domain::from_str("acton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
             Root::from_str("rootp").unwrap(),
             Parts(vec![]),
         );
         let child: Ein<UnixTime> = Ein::new(
-            Domain::from_str("akton-internal").unwrap(),
+            Domain::from_str("acton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
             Root::from_str("rootc").unwrap(),
@@ -314,7 +314,7 @@ mod tests {
     #[test]
     fn test_add_eids_display() {
         let parent: Ein<UnixTime> = Ein::new(
-            Domain::from_str("akton-internal").unwrap(),
+            Domain::from_str("acton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
             Root::from_str("rootp").unwrap(),
@@ -322,7 +322,7 @@ mod tests {
         );
 
         let child: Ein<UnixTime> = Ein::new(
-            Domain::from_str("akton-internal").unwrap(),
+            Domain::from_str("acton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
             Root::from_str("rootc").unwrap(),
@@ -333,7 +333,7 @@ mod tests {
 
         assert!(combined
             .to_string()
-            .starts_with("eid:akton-internal:hr:company123:rootp"));
+            .starts_with("eid:acton-internal:hr:company123:rootp"));
     }
     #[test]
     fn test_eid_custom() -> anyhow::Result<()> {
