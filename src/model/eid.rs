@@ -8,7 +8,7 @@ use crate::errors::EidError;
 
 /// Represents an Acton Resource Name (Ein), which uniquely identifies resources within the Acton framework.
 #[derive(Debug, PartialEq, Clone, Eq, Hash)]
-pub struct Ein<T: IdType + Clone + PartialEq> {
+pub struct Eid<T: IdType + Clone + PartialEq> {
     pub domain: Domain,
     pub category: Category,
     pub account: Account,
@@ -17,7 +17,7 @@ pub struct Ein<T: IdType + Clone + PartialEq> {
     _marker: std::marker::PhantomData<T>,
 }
 
-impl<T: IdType + Clone + PartialEq> Display for Ein<T> {
+impl<T: IdType + Clone + PartialEq> Display for Eid<T> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let mut display = format!(
             "{}{}:{}:{}:{}",
@@ -34,13 +34,13 @@ impl<T: IdType + Clone + PartialEq> Display for Ein<T> {
     }
 }
 
-impl<T: IdType + Clone + PartialEq> Add for Ein<T> {
-    type Output = Ein<T>;
+impl<T: IdType + Clone + PartialEq> Add for Eid<T> {
+    type Output = Eid<T>;
 
     fn add(self, rhs: Self) -> Self::Output {
         let mut new_parts = self.parts.0;
         new_parts.extend(rhs.parts.0);
-        Ein {
+        Eid {
             domain: self.domain,
             category: self.category,
             account: self.account,
@@ -50,7 +50,7 @@ impl<T: IdType + Clone + PartialEq> Add for Ein<T> {
         }
     }
 }
-impl<T: IdType + Clone + PartialEq> Ein<T> {
+impl<T: IdType + Clone + PartialEq> Eid<T> {
     /// Creates a new Ein with the given components.
     pub fn new(
         domain: Domain,
@@ -59,7 +59,7 @@ impl<T: IdType + Clone + PartialEq> Ein<T> {
         root: Root<T>,
         parts: Parts,
     ) -> Self {
-        Ein {
+        Eid {
             domain,
             category,
             account,
@@ -72,7 +72,7 @@ impl<T: IdType + Clone + PartialEq> Ein<T> {
     /// Creates a new Ein with the given root and default values for other fields
     pub fn with_root(root: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
         let root = Root::new(root)?;
-        Ok(Ein {
+        Ok(Eid {
             root,
             ..Default::default()
         })
@@ -81,7 +81,7 @@ impl<T: IdType + Clone + PartialEq> Ein<T> {
     /// Creates a new Ein based on an existing Ein but with a new root
     pub fn with_new_root(&self, new_root: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
         let new_root = Root::new(new_root)?;
-        Ok(Ein {
+        Ok(Eid {
             domain: self.domain.clone(),
             category: self.category.clone(),
             account: self.account.clone(),
@@ -93,7 +93,7 @@ impl<T: IdType + Clone + PartialEq> Ein<T> {
 
     pub fn with_domain(domain: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
         let domain = Domain::new(domain)?;
-        Ok(Ein {
+        Ok(Eid {
             domain,
             category: Category::default(),
             account: Account::default(),
@@ -105,7 +105,7 @@ impl<T: IdType + Clone + PartialEq> Ein<T> {
 
     pub fn with_category(category: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
         let category = Category::new(category);
-        Ok(Ein {
+        Ok(Eid {
             domain: Domain::default(),
             category,
             account: Account::default(),
@@ -117,7 +117,7 @@ impl<T: IdType + Clone + PartialEq> Ein<T> {
 
     pub fn with_account(account: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
         let account = Account::new(account);
-        Ok(Ein {
+        Ok(Eid {
             domain: Domain::default(),
             category: Category::default(),
             account,
@@ -130,7 +130,7 @@ impl<T: IdType + Clone + PartialEq> Ein<T> {
     pub fn add_part(&self, part: impl Into<Cow<'static, str>>) -> Result<Self, EidError> {
         let mut new_parts = self.parts.clone();
         new_parts.0.push(Part::new(part)?);
-        Ok(Ein {
+        Ok(Eid {
             domain: self.domain.clone(),
             category: self.category.clone(),
             account: self.account.clone(),
@@ -145,7 +145,7 @@ impl<T: IdType + Clone + PartialEq> Ein<T> {
         parts: impl IntoIterator<Item = impl Into<Cow<'static, str>>>,
     ) -> Result<Self, EidError> {
         let new_parts: Result<Vec<Part>, _> = parts.into_iter().map(Part::new).collect();
-        Ok(Ein {
+        Ok(Eid {
             domain: self.domain.clone(),
             category: self.category.clone(),
             account: self.account.clone(),
@@ -155,7 +155,7 @@ impl<T: IdType + Clone + PartialEq> Ein<T> {
         })
     }
 
-    pub fn is_child_of(&self, other: &Ein<T>) -> bool {
+    pub fn is_child_of(&self, other: &Eid<T>) -> bool {
         self.domain == other.domain
             && self.category == other.category
             && self.account == other.account
@@ -168,7 +168,7 @@ impl<T: IdType + Clone + PartialEq> Ein<T> {
         if self.parts.0.is_empty() {
             None
         } else {
-            Some(Ein {
+            Some(Eid {
                 domain: self.domain.clone(),
                 category: self.category.clone(),
                 account: self.account.clone(),
@@ -180,10 +180,10 @@ impl<T: IdType + Clone + PartialEq> Ein<T> {
     }
 }
 
-impl<T: IdType + Clone + PartialEq> Default for Ein<T> {
+impl<T: IdType + Clone + PartialEq> Default for Eid<T> {
     /// Provides a default value for Ein using the defaults of all its components.
     fn default() -> Self {
-        Ein {
+        Eid {
             domain: Domain::default(),
             category: Category::default(),
             account: Account::default(),
@@ -204,7 +204,7 @@ mod tests {
 
     #[test]
     fn test_eid_with_root() {
-        let eid: Ein<UnixTime> = Ein::with_root("custom_root").unwrap();
+        let eid: Eid<UnixTime> = Eid::with_root("custom_root").unwrap();
         assert!(eid.root.as_str().starts_with("custom_root"));
         assert_eq!(eid.domain, Domain::default());
         assert_eq!(eid.category, Category::default());
@@ -214,8 +214,8 @@ mod tests {
 
     #[test]
     fn test_eid_with_new_root() {
-        let original_eid: Ein<UnixTime> = Ein::default();
-        let new_eid: Ein<UnixTime> = original_eid.with_new_root("new_root").unwrap();
+        let original_eid: Eid<UnixTime> = Eid::default();
+        let new_eid: Eid<UnixTime> = original_eid.with_new_root("new_root").unwrap();
         assert!(new_eid.root.as_str().starts_with("new_root"));
         assert_eq!(new_eid.domain, original_eid.domain);
         assert_eq!(new_eid.category, original_eid.category);
@@ -226,7 +226,7 @@ mod tests {
     #[test]
     fn test_add_eids() -> anyhow::Result<()> {
         let parent_root: Root<UnixTime> = Root::from_str("root_a")?;
-        let parent: Ein<UnixTime> = Ein::new(
+        let parent: Eid<UnixTime> = Eid::new(
             Domain::from_str("acton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -237,7 +237,7 @@ mod tests {
             ]),
         );
 
-        let child: Ein<UnixTime> = Ein::new(
+        let child: Eid<UnixTime> = Eid::new(
             Domain::from_str("acton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -245,7 +245,7 @@ mod tests {
             Parts(vec![Part::from_str("role_x").unwrap()]),
         );
 
-        let combined: Ein<UnixTime> = parent + child;
+        let combined: Eid<UnixTime> = parent + child;
 
         assert_eq!(combined.domain, Domain::from_str("acton-internal").unwrap());
         assert_eq!(combined.category, Category::from_str("hr").unwrap());
@@ -264,7 +264,7 @@ mod tests {
 
     #[test]
     fn test_add_eids_empty_child() {
-        let parent: Ein<UnixTime> = Ein::new(
+        let parent: Eid<UnixTime> = Eid::new(
             Domain::from_str("acton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -272,7 +272,7 @@ mod tests {
             Parts(vec![Part::from_str("department_a").unwrap()]),
         );
 
-        let child: Ein<UnixTime> = Ein::new(
+        let child: Eid<UnixTime> = Eid::new(
             Domain::from_str("acton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -290,14 +290,14 @@ mod tests {
 
     #[test]
     fn test_add_eids_empty_parent() {
-        let parent: Ein<UnixTime> = Ein::new(
+        let parent: Eid<UnixTime> = Eid::new(
             Domain::from_str("acton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
             Root::from_str("rootp").unwrap(),
             Parts(vec![]),
         );
-        let child: Ein<UnixTime> = Ein::new(
+        let child: Eid<UnixTime> = Eid::new(
             Domain::from_str("acton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -313,7 +313,7 @@ mod tests {
 
     #[test]
     fn test_add_eids_display() {
-        let parent: Ein<UnixTime> = Ein::new(
+        let parent: Eid<UnixTime> = Eid::new(
             Domain::from_str("acton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -321,7 +321,7 @@ mod tests {
             Parts(vec![Part::from_str("department_a").unwrap()]),
         );
 
-        let child: Ein<UnixTime> = Ein::new(
+        let child: Eid<UnixTime> = Eid::new(
             Domain::from_str("acton-internal").unwrap(),
             Category::from_str("hr").unwrap(),
             Account::from_str("company123").unwrap(),
@@ -337,7 +337,7 @@ mod tests {
     }
     #[test]
     fn test_eid_custom() -> anyhow::Result<()> {
-        let eid: Ein<UnixTime> = Ein::new(
+        let eid: Eid<UnixTime> = Eid::new(
             Domain::new("custom")?,
             Category::new("service"),
             Account::new("account123"),
