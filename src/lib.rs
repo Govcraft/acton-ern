@@ -34,7 +34,7 @@ pub mod prelude {
     //! This module re-exports essential traits and structures for easy use by downstream consumers.
 
     pub use super::builder::ArnBuilder;
-    pub use super::model::{Account, Ein, Category, Domain, Part, Parts};
+    pub use super::model::{Account, Eid, Category, Domain, Part, Parts};
     pub use super::parser::ArnParser;
     pub use super::traits::EidComponent;
     pub use super::errors::EidError;
