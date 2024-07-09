@@ -205,22 +205,22 @@ mod tests {
     #[test]
     fn test_arn_with_root() {
         let eid: Ein<UnixTime> = Ein::with_root("custom_root").unwrap();
-        assert!(arn.root.as_str().starts_with("custom_root"));
-        assert_eq!(arn.domain, Domain::default());
-        assert_eq!(arn.category, Category::default());
-        assert_eq!(arn.account, Account::default());
-        assert_eq!(arn.parts, Parts::default());
+        assert!(eid.root.as_str().starts_with("custom_root"));
+        assert_eq!(eid.domain, Domain::default());
+        assert_eq!(eid.category, Category::default());
+        assert_eq!(eid.account, Account::default());
+        assert_eq!(eid.parts, Parts::default());
     }
 
     #[test]
     fn test_arn_with_new_root() {
         let original_eid: Ein<UnixTime> = Ein::default();
-        let new_eid: Ein<UnixTime> = original_arn.with_new_root("new_root").unwrap();
-        assert!(new_arn.root.as_str().starts_with("new_root"));
-        assert_eq!(new_arn.domain, original_arn.domain);
-        assert_eq!(new_arn.category, original_arn.category);
-        assert_eq!(new_arn.account, original_arn.account);
-        assert_eq!(new_arn.parts, original_arn.parts);
+        let new_eid: Ein<UnixTime> = original_eid.with_new_root("new_root").unwrap();
+        assert!(new_eid.root.as_str().starts_with("new_root"));
+        assert_eq!(new_eid.domain, original_eid.domain);
+        assert_eq!(new_eid.category, original_eid.category);
+        assert_eq!(new_eid.account, original_eid.account);
+        assert_eq!(new_eid.parts, original_eid.parts);
     }
 
     #[test]
