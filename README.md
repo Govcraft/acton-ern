@@ -14,7 +14,7 @@
   
   An Ein is composed of several parts, each representing a specific aspect of the resource:
   
-  `arn:domain:category:account:root_id/path`
+  `eid:domain:category:account:root_id/path`
   
   #### Components
   
@@ -28,13 +28,13 @@
   
   #### Corporate Hierarchy Actor
   
-  `arn:akton-internal:hr:company123:root/departmentA/team1`
+  `eid:akton-internal:hr:company123:root/departmentA/team1`
   
   This Ein identifies an actor representing Team 1, which is part of Department A under the HR service, managed by account `company123`.
   
   #### IoT Device in a Network Topology
   
-  `arn:akton-external:iot:vendor456:root/region1/building5/floor3/device42`
+  `eid:akton-external:iot:vendor456:root/region1/building5/floor3/device42`
   
   This Ein points to Device 42 located on Floor 3 of Building 5 in Region 1, managed by IoT services for the vendor account `vendor456`.
   
