@@ -101,7 +101,7 @@ The `ErnBuilder` provides a fluent interface for constructing ERNs, ensuring tha
 ```rust
 use acton_ern::prelude::*;
 
-fn create_ern() -> Result<Ern<UnixTime>, ErnError> {
+fn create_ern() -> Result<Ern, ErnError> {
     ErnBuilder::new()
         .with::<Domain>("custom-domain")?
         .with::<Category>("iot")?
@@ -120,7 +120,7 @@ Use `ErnParser` to parse ERN strings:
 ```rust
 use acton_ern::prelude::*;
 
-fn parse_ern(ern_str: &str) -> Result<Ern<UnixTime>, ErnError> {
+fn parse_ern(ern_str: &str) -> Result<Ern, ErnError> {
     ErnParser::new(ern_str).parse()
 }
 ```
@@ -132,7 +132,7 @@ ERNs can be manipulated after creation:
 ```rust
 use acton_ern::prelude::*;
 
-fn manipulate_ern(ern: &Ern<UnixTime>) -> Result<Ern<UnixTime>, ErnError> {
+fn manipulate_ern(ern: &Ern) -> Result<Ern, ErnError> {
     // Add a new part
     let new_ern = ern.add_part("new_subsystem")?;
 
@@ -153,7 +153,7 @@ The `acton-ern` crate provides separate types for each ERN component:
 - `Domain`: Represents the domain of the resource
 - `Category`: Specifies the service category
 - `Account`: Identifies the account or owner
-- `Root<T>`: Represents the root of the resource hierarchy
+- `Root`: Represents the root of the resource hierarchy
 - `Part`: Represents a single part in the resource path
 - `Parts`: A collection of `Part`s
 
@@ -166,7 +166,7 @@ fn work_with_components() -> Result<(), ErnError> {
     let domain = Domain::new("custom-domain")?;
     let category = Category::new("finance");
     let account = Account::new("acme_corp");
-    let root: Root<UnixTime> = Root::new("transactions")?;
+    let root = Root::new("transactions")?;
     let part = Part::new("2023")?;
     let parts = Parts::new(vec![part]);
 

@@ -1,22 +1,23 @@
 use std::borrow::Cow;
 use std::fmt;
 
-use derive_more::{AsRef, From, Into};
+use derive_more::{AsRef, Into};
 
 use crate::errors::ErnError;
 
-#[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash, PartialOrd)]
-pub struct Part(pub(crate) Cow<'static, str>);
+#[derive(AsRef, Into, Eq, Debug, PartialEq, Clone, Hash, PartialOrd)]
+pub struct Part(pub(crate) String);
+
 impl Part {
     pub fn as_str(&self) -> &str {
         &self.0
     }
 
     pub fn into_owned(self) -> Part {
-        Part(Cow::Owned(self.0.into_owned()))
+        Part(self.0.to_string())
     }
 
-    pub fn new(value: impl Into<Cow<'static, str>>) -> Result<Part, ErnError> {
+    pub fn new(value: impl Into<String>) -> Result<Part, ErnError> {
         let value = value.into();
         if value.contains(':') || value.contains('/') {
             return Err(ErnError::InvalidPartFormat);
@@ -36,17 +37,19 @@ impl fmt::Display for Part {
         write!(f, "{}", self.0)
     }
 }
+
 impl std::str::FromStr for Part {
     type Err = ErnError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Part::new(Cow::Owned(s.to_owned()))
     }
 }
-impl From<Part> for String {
-    fn from(part: Part) -> Self {
-        part.0.into_owned()
-    }
-}
+
+// impl From<Part> for String {
+//     fn from(part: Part) -> Self {
+//         part.0
+//     }
+// }
 
 #[cfg(test)]
 mod tests {

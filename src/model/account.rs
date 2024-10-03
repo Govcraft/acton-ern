@@ -1,26 +1,26 @@
-use derive_more::{AsRef, From, Into};
-use std::borrow::Cow;
 use std::fmt;
-/// Represents an account identifier in the ERN (Entity Resource Name) system.
 
+use derive_more::{AsRef, From, Into};
+
+/// Represents an account identifier in the ERN (Entity Resource Name) system.
 #[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash, PartialOrd)]
-pub struct Account(pub(crate) Cow<'static, str>);
+pub struct Account(pub(crate) String);
 
 impl Account {
     pub fn as_str(&self) -> &str {
         &self.0
     }
-    pub fn new(value: impl Into<Cow<'static, str>>) -> Self {
+    pub fn new(value: impl Into<String>) -> Self {
         Account(value.into())
     }
     pub fn into_owned(self) -> Account {
-        Account(Cow::Owned(self.0.into_owned()))
+        Account(self.0.to_string())
     }
 }
 
 impl Default for Account {
     fn default() -> Self {
-        Account(Cow::Borrowed("account"))
+        Account("account".to_string())
     }
 }
 
@@ -34,14 +34,16 @@ impl std::str::FromStr for Account {
     type Err = std::convert::Infallible;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Account(Cow::Owned(s.to_owned())))
+        Ok(Account(s.to_string()))
     }
 }
-impl From<Account> for String {
-    fn from(domain: Account) -> Self {
-        domain.0.into_owned()
-    }
-}
+//
+// impl From<Account> for String {
+//     fn from(domain: Account) -> Self {
+//         domain.0
+//     }
+// }
+
 #[cfg(test)]
 mod tests {
     use super::*;

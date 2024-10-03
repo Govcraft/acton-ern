@@ -1,23 +1,21 @@
 [package]
 name = "acton-ern"
-version = "2.1.0-alpha"
+version = "2.1.1-alpha"
 edition = "2021"
 authors = ["Govcraft <acton@govcraft.ai>"]
-description = "A Rust library for handling Acton Entity Resource Names (ERNs), providing tools for generating, parsing, and managing ERNs within Acton-based solutions."
+description = "A Rust library for handling Acton Entity Resource Names (ERNs), providing tools for generating, parsing, and managing ERNs within Acton Reactive-based solutions."
 repository = "https://github.com/govcraft/acton-ern"
 documentation = "https://docs.rs/acton-ern"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 keywords = ["ern", "resource-management", "cloud", "actor"]
 categories = ["api-bindings", "cryptography", "data-structures", "network-programming", "authentication"]
-homepage = "https://govcraft.com/acton-ern"
 
 [dependencies]
-derive-new = "0.6.0"
-derive_more = "0.99.18"
-type-safe-id = { version = "0.3.0", features = ["serde", "arbitrary"] }
+derive-new = "0.7.0"
+derive_more = { version = "1.0.0", features = ["full"]}
 thiserror = "1.0.61"
-uuid = { version = "1.8.0", features = ["fast-rng", "v5", "v6", "v7", "std"] }
+mti = "1.0.7-beta.1"
 
 [dev-dependencies]
 anyhow = "1.0.86"
@@ -25,4 +23,4 @@ tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
 tracing-futures = "0.2.5"
 log = "0.4.21"
-console-subscriber = "0.2.0"
+console-subscriber = "0.4.0"
