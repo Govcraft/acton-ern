@@ -3,7 +3,6 @@ use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::hash::Hash;
 use std::ops::Add;
-use uuid::Uuid;
 
 use crate::{Account, Category, Domain, EntityRoot, ErnComponent, Part, Parts};
 use crate::errors::ErnError;
@@ -73,9 +72,6 @@ impl Ern {
             root,
             parts,
         }
-    }
-    pub fn uuid(&self) -> &Uuid {
-        &self.root.uuid
     }
 
         /// Creates a new ERN (Entity Resource Name) with the given root and default values for other fields

@@ -20,7 +20,7 @@ impl Account {
 
 impl Default for Account {
     fn default() -> Self {
-        Account("account".to_string())
+        Account("component".to_string())
     }
 }
 
@@ -57,7 +57,7 @@ mod tests {
     #[test]
     fn test_account_default() {
         let account = Account::default();
-        assert_eq!(account.as_str(), "account");
+        assert_eq!(account.as_str(), "component");
     }
 
     #[test]

@@ -20,7 +20,7 @@ impl Category {
 
 impl Default for Category {
     fn default() -> Self {
-        Category("system".to_string())
+        Category("reactive".to_string())
     }
 }
 
@@ -57,7 +57,7 @@ mod tests {
     #[test]
     fn test_category_default() {
         let category = Category::default();
-        assert_eq!(category.as_str(), "system");
+        assert_eq!(category.as_str(), "reactive");
     }
 
     #[test]
