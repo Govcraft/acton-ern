@@ -28,6 +28,8 @@ pub enum ErnError {
     // Converted the Infallible implementation to ErnError
     #[error("Infallible error")]
     InfallibleError,
+    #[error("Infallible error")]
+    EntityRootError(#[from] mti::prelude::MagicTypeIdError),
 }
 
 impl From<Infallible> for ErnError {
@@ -35,8 +37,4 @@ impl From<Infallible> for ErnError {
         ErnError::InfallibleError
     }
 }
-impl From<type_safe_id::Error> for ErnError {
-    fn from(e: type_safe_id::Error) -> Self {
-        ErnError::IdGenerationFailure(e.to_string())
-    }
-}
+

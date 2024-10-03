@@ -22,6 +22,12 @@
 
 extern crate core;
 
+// Re-exporting the public API under the root of the crate for direct access
+pub use builder::*;
+pub use model::*;
+pub use parser::*;
+pub use traits::*;
+
 mod builder;
 mod errors;
 mod model;
@@ -34,64 +40,59 @@ pub mod prelude {
     //! This module re-exports essential traits and structures for easy use by downstream consumers.
 
     pub use super::builder::ErnBuilder;
-    pub use super::model::{Account, Ern, Category, Domain, Part, Parts};
+    pub use super::errors::ErnError;
+    pub use super::model::{Account, Category, Domain, Ern, Part, Parts};
     pub use super::parser::ErnParser;
     pub use super::traits::*;
-    pub use super::errors::ErnError;
 }
 
-// Re-exporting the public API under the root of the crate for direct access
-pub use builder::*;
-pub use model::*;
-pub use parser::*;
-pub use traits::*;
-
-#[cfg(test)]
-mod tests {
-    use std::sync::Once;
-    use tracing::Level;
-    use tracing_subscriber::fmt::format::FmtSpan;
-    use tracing_subscriber::{EnvFilter, FmtSubscriber};
-
-    static INIT: Once = Once::new();
-
-    pub fn init_tracing() {
-        INIT.call_once(|| {
-            // Define an environment filter to suppress logs from the specific function
-
-            // let filter = EnvFilter::new("")
-            //     // .add_directive("acton_core::common::context::emit_pool=trace".parse().unwrap())
-            //     // .add_directive("acton_core::common::context::my_func=trace".parse().unwrap())
-            //     .add_directive("acton_core::common::context[my_func]=trace".parse().unwrap())
-            //     .add_directive(Level::INFO.into()); // Set global log level to INFO
-
-            let filter = EnvFilter::new("")
-                .add_directive("acton-ern::parser::tests=trace".parse().unwrap())
-                .add_directive("broker_tests=trace".parse().unwrap())
-                .add_directive("launchpad_tests=trace".parse().unwrap())
-                .add_directive("lifecycle_tests=info".parse().unwrap())
-                .add_directive("actor_tests=info".parse().unwrap())
-                .add_directive("load_balancer_tests=info".parse().unwrap())
-                .add_directive(
-                    "acton::tests::setup::actors::pool_item=info"
-                        .parse()
-                        .unwrap(),
-                )
-                .add_directive("messaging_tests=info".parse().unwrap());
-            // .add_directive(tracing_subscriber::filter::LevelFilter::INFO.into()); // Set global log level to TRACE
-
-            let subscriber = FmtSubscriber::builder()
-                // .with_span_events(FmtSpan::ENTER | FmtSpan::EXIT)
-                .with_span_events(FmtSpan::NONE)
-                .with_max_level(Level::TRACE)
-                .compact()
-                .with_line_number(true)
-                .without_time()
-                .with_env_filter(filter)
-                .finish();
-
-            tracing::subscriber::set_global_default(subscriber)
-                .expect("setting default subscriber failed");
-        });
-    }
-}
+// #[cfg(test)]
+// mod tests {
+//     use std::sync::Once;
+//
+//     use tracing::Level;
+//     use tracing_subscriber::{EnvFilter, FmtSubscriber};
+//     use tracing_subscriber::fmt::format::FmtSpan;
+//
+//     static INIT: Once = Once::new();
+//
+//     pub fn init_tracing() {
+//         INIT.call_once(|| {
+//             // Define an environment filter to suppress logs from the specific function
+//
+//             // let filter = EnvFilter::new("")
+//             //     // .add_directive("acton_core::common::context::emit_pool=trace".parse().unwrap())
+//             //     // .add_directive("acton_core::common::context::my_func=trace".parse().unwrap())
+//             //     .add_directive("acton_core::common::context[my_func]=trace".parse().unwrap())
+//             //     .add_directive(Level::INFO.into()); // Set global log level to INFO
+//
+//             let filter = EnvFilter::new("")
+//                 .add_directive("acton-ern::parser::tests=trace".parse().unwrap())
+//                 .add_directive("broker_tests=trace".parse().unwrap())
+//                 .add_directive("launchpad_tests=trace".parse().unwrap())
+//                 .add_directive("lifecycle_tests=info".parse().unwrap())
+//                 .add_directive("actor_tests=info".parse().unwrap())
+//                 .add_directive("load_balancer_tests=info".parse().unwrap())
+//                 .add_directive(
+//                     "acton::tests::setup::actors::pool_item=info"
+//                         .parse()
+//                         .unwrap(),
+//                 )
+//                 .add_directive("messaging_tests=info".parse().unwrap());
+//             // .add_directive(tracing_subscriber::filter::LevelFilter::INFO.into()); // Set global log level to TRACE
+//
+//             let subscriber = FmtSubscriber::builder()
+//                 // .with_span_events(FmtSpan::ENTER | FmtSpan::EXIT)
+//                 .with_span_events(FmtSpan::NONE)
+//                 .with_max_level(Level::TRACE)
+//                 .compact()
+//                 .with_line_number(true)
+//                 .without_time()
+//                 .with_env_filter(filter)
+//                 .finish();
+//
+//             tracing::subscriber::set_global_default(subscriber)
+//                 .expect("setting default subscriber failed");
+//         });
+//     }
+// }

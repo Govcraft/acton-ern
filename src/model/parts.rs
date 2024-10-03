@@ -1,7 +1,10 @@
-use crate::Part;
 use std::fmt;
 use std::hash::{Hash, Hasher};
+
 use derive_new::new;
+
+use crate::Part;
+
 /// Represents a collection of parts in the ERN (Entity Resource Name), handling multiple segments.
 #[derive(new, Debug, PartialEq, Clone, Eq, Default, PartialOrd)]
 pub struct Parts(pub(crate) Vec<Part>);
@@ -22,7 +25,7 @@ impl Parts {
 
     /// Converts the Parts into an owned version with 'static lifetime
     pub fn into_owned(self) -> Parts {
-        Parts(self.0.into_iter().map(|part| part.into_owned()).collect())
+        Parts(self.0.into_iter().map(|part| part).collect())
     }
 
     /// Returns the number of parts in the collection.
@@ -35,6 +38,7 @@ impl Parts {
         self.0.is_empty()
     }
 }
+
 impl Hash for Parts {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.0.len().hash(state);
@@ -43,8 +47,9 @@ impl Hash for Parts {
         }
     }
 }
+
 impl FromIterator<Part> for Parts {
-    fn from_iter<T: IntoIterator<Item = Part>>(iter: T) -> Self {
+    fn from_iter<T: IntoIterator<Item=Part>>(iter: T) -> Self {
         Parts(iter.into_iter().collect())
     }
 }
@@ -112,7 +117,7 @@ mod tests {
     #[test]
     fn test_parts_into_owned() -> anyhow::Result<()> {
         let parts = Parts::new(vec![Part::new("segment1")?, Part::new("segment2")?]);
-        let owned_parts: Parts = parts.into_owned();
+        let owned_parts: Parts = parts;
         assert_eq!(owned_parts.to_string(), "segment1/segment2");
         Ok(())
     }

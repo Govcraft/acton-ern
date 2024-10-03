@@ -1,26 +1,26 @@
-use derive_more::{AsRef, From, Into};
-use std::borrow::Cow;
 use std::fmt;
-/// Represents a category in the ERN (Entity Resource Name) system, typically indicating the service.
 
-#[derive(AsRef, From, Into, Eq, Debug, PartialEq, Clone, Hash, PartialOrd)]
-pub struct Category(pub(crate) Cow<'static, str>);
+use derive_more::{AsRef, Into};
+
+/// Represents a category in the ERN (Entity Resource Name) system, typically indicating the service.
+#[derive(AsRef, Into, Eq, Debug, PartialEq, Clone, Hash, PartialOrd)]
+pub struct Category(pub(crate) String);
 
 impl Category {
     pub fn as_str(&self) -> &str {
         &self.0
     }
-    pub fn new(value: impl Into<Cow<'static, str>>) -> Self {
+    pub fn new(value: impl Into<String>) -> Self {
         Category(value.into())
     }
     pub fn into_owned(self) -> Category {
-        Category(Cow::Owned(self.0.into_owned()))
+        Category(self.0.to_string())
     }
 }
 
 impl Default for Category {
     fn default() -> Self {
-        Category(Cow::Borrowed("system"))
+        Category("system".to_string())
     }
 }
 
@@ -34,14 +34,16 @@ impl std::str::FromStr for Category {
     type Err = std::convert::Infallible;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Category(Cow::Owned(s.to_owned())))
+        Ok(Category(s.to_string()))
     }
 }
-impl From<Category> for String {
-    fn from(category: Category) -> Self {
-        category.0.into_owned()
-    }
-}
+//
+// impl From<Category> for String {
+//     fn from(category: Category) -> Self {
+//         category.0
+//     }
+// }
+
 #[cfg(test)]
 mod tests {
     use super::*;
