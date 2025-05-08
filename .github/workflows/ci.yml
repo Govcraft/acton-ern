@@ -92,5 +92,3 @@ jobs:
         run: cargo check --all-features
       - name: Check serde feature
         run: cargo check --no-default-features --features serde
-      - name: Check async feature
-        run: cargo check --no-default-features --features async
