@@ -4,35 +4,59 @@ use crate::EntityRoot;
 use crate::errors::ErnError;
 use crate::model::{Account, Category, Domain, Ern, Part, Parts};
 
-/// A parser for decoding ERN (Entity Resource Name) strings into their constituent components.
+/// A parser for converting ERN strings into structured `Ern` objects.
+///
+/// The `ErnParser` takes an ERN string in the format `ern:domain:category:account:root/part1/part2/...`
+/// and parses it into its constituent components, performing validation on each part.
 pub struct ErnParser {
-    /// The ERN (Entity Resource Name) string to be parsed.
+    /// The ERN string to be parsed.
     ern: String,
 }
 
 impl ErnParser {
-    /// Constructs a new `ErnParser` for a given ERN (Entity Resource Name) string.
+    /// Creates a new `ErnParser` for the given ERN string.
     ///
     /// # Arguments
     ///
-    /// * `ern` - A string slice or owned String representing the ERN (Entity Resource Name) to be parsed.
+    /// * `ern` - The ERN string to parse, in the format `ern:domain:category:account:root/part1/part2/...`
     ///
-    /// # Returns
+    /// # Example
     ///
-    /// Returns an `ErnParser` instance initialized with the given ERN (Entity Resource Name) string.
+    /// ```
+    /// # use acton_ern::prelude::*;
+    /// let parser = ErnParser::new("ern:my-app:users:tenant123:profile/settings".to_string());
+    /// ```
     pub fn new(ern: String) -> Self {
         Self {
             ern,
         }
     }
 
-    /// Parses the ERN (Entity Resource Name) into its component parts and returns them as a structured result.
-    /// Verifies correct ERN (Entity Resource Name) format and validates each part.
+    /// Parses the ERN string into a structured `Ern` object.
+    ///
+    /// This method validates the ERN format, extracts each component, and ensures
+    /// all parts meet the validation requirements.
     ///
     /// # Returns
     ///
-    /// Returns an `ERN (Entity Resource Name)` instance containing the parsed components.
-    /// If parsing fails, returns an error message as a `String`.
+    /// * `Ok(Ern)` - A structured Ern object containing all the parsed components
+    /// * `Err(ErnError)` - If the ERN string is invalid or any component fails validation
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use acton_ern::prelude::*;
+    /// # fn example() -> Result<(), ErnError> {
+    /// let parser = ErnParser::new("ern:my-app:users:tenant123:profile/settings".to_string());
+    /// let ern = parser.parse()?;
+    ///
+    /// assert_eq!(ern.domain.as_str(), "my-app");
+    /// assert_eq!(ern.category.as_str(), "users");
+    /// assert_eq!(ern.account.as_str(), "tenant123");
+    /// assert_eq!(ern.parts.to_string(), "settings");
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn parse(&self) -> Result<Ern, ErnError> {
         let parts: Vec<String> = self.ern.splitn(5, ':').map(|s| s.to_string()).collect();
 
@@ -63,47 +87,46 @@ impl ErnParser {
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use crate::UnixTime;
-//     use super::*;
-//
-//     #[test]
-//     fn test_valid_ern_parsing() {
-//         let ern_str = "ern:custom:service:account123:root/resource/subresource".to_string();
-//         let parser: ErnParser = ErnParser::new(ern_str);
-//         let result = parser.parse();
-//
-//         assert!(result.is_ok());
-//         let ern = result.unwrap();
-//         assert_eq!(ern.domain.as_str(), "custom");
-//     }
-//
-//     #[test]
-//     fn test_invalid_ern_format() {
-//         let ern_str = "invalid:ern:format";
-//         let parser: ErnParser = ErnParser::new(ern_str.to_string());
-//         let result = parser.parse();
-//         assert!(result.is_err());
-//         assert_eq!(result.err().unwrap(), ErnError::InvalidFormat);
-//         // assert_eq!(result.unwrap_err().to_string(), "Invalid Ern format");
-//     }
-//
-//     #[test]
-//     fn test_ern_with_invalid_part() -> anyhow::Result<()> {
-//         let ern_str = "ern:domain:category:account:root/invalid:part";
-//         let parser: ErnParser = ErnParser::new(ern_str.to_string());
-//         let result = parser.parse();
-//         assert!(result.is_err());
-//         // assert!(result.unwrap_err().to_string().starts_with("Failed to parse Part"));
-//         Ok(())
-//     }
-//
-//     #[test]
-//     fn test_ern_parsing_with_owned_string() {
-//         let ern_str = String::from("ern:custom:service:account123:root/resource");
-//         let parser: ErnParser = ErnParser::new(ern_str);
-//         let result = parser.parse();
-//         assert!(result.is_ok());
-//     }
-// }
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_valid_ern_parsing() {
+        let ern_str = "ern:custom:service:account123:root/resource/subresource".to_string();
+        let parser: ErnParser = ErnParser::new(ern_str);
+        let result = parser.parse();
+
+        assert!(result.is_ok());
+        let ern = result.unwrap();
+        assert_eq!(ern.domain.as_str(), "custom");
+    }
+
+    #[test]
+    fn test_invalid_ern_format() {
+        let ern_str = "invalid:ern:format";
+        let parser: ErnParser = ErnParser::new(ern_str.to_string());
+        let result = parser.parse();
+        assert!(result.is_err());
+        assert_eq!(result.err().unwrap(), ErnError::InvalidFormat);
+        // assert_eq!(result.unwrap_err().to_string(), "Invalid Ern format");
+    }
+
+    #[test]
+    fn test_ern_with_invalid_part() -> anyhow::Result<()> {
+        let ern_str = "ern:domain:category:account:root/invalid:part";
+        let parser: ErnParser = ErnParser::new(ern_str.to_string());
+        let result = parser.parse();
+        assert!(result.is_err());
+        // assert!(result.unwrap_err().to_string().starts_with("Failed to parse Part"));
+        Ok(())
+    }
+
+    #[test]
+    fn test_ern_parsing_with_owned_string() {
+        let ern_str = String::from("ern:custom:service:account123:root/resource");
+        let parser: ErnParser = ErnParser::new(ern_str);
+        let result = parser.parse();
+        assert!(result.is_ok());
+    }
+}

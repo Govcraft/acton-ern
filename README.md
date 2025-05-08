@@ -1,245 +1,179 @@
 # Acton ERN (Entity Resource Name)
 
-## Overview
+[![Crates.io](https://img.shields.io/crates/v/acton-ern.svg)](https://crates.io/crates/acton-ern)
+[![Documentation](https://docs.rs/acton-ern/badge.svg)](https://docs.rs/acton-ern)
+[![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](README.md#license)
+[![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org/)
 
-The `acton-ern` crate provides a robust, type-safe implementation for handling Entity Resource Names (ERNs). ERNs are structured identifiers used to uniquely identify and manage hierarchical resources across different services and partitions in distributed systems. While ERNs adhere to the Uniform Resource Name (URN) format as defined in [RFC 8141](https://tools.ietf.org/html/rfc8141), they extend beyond standard URNs by offering additional features:
+## Standardized Resource Management in Distributed Systems
 
-1. **K-Sortability**: Unlike standard URNs, ERNs can be k-sortable when using `UnixTime` or `Timestamp` ID types. This allows for efficient ordering and range queries on ERNs, which is particularly valuable in distributed systems and databases.
+Acton ERN provides a standardized approach for uniquely identifying and managing resources across services, partitions, and hierarchies in distributed systems.
 
-2. **Type-Safe Construction**: The builder pattern ensures that ERNs are constructed correctly, with all required components in the right order.
+**Implement a consistent, type-safe resource naming scheme that scales with your system.**
 
-3. **Flexible ID Types**: ERNs support various ID types for the root component, allowing for different use cases such as content-based hashing or time-based ordering.
+## Why Acton ERN?
 
-These features make ERNs particularly suitable for use in distributed systems, providing a standardized, hierarchical, and sortable naming scheme that is both human-readable and machine-parseable.
+### 🔍 Problem: Resource Identification Inconsistency
 
-## Table of Contents
+In distributed systems, resources are scattered across multiple services, databases, and storage systems. Without a consistent naming scheme:
 
-- [Installation](#installation)
-- [ERN Structure](#ern-structure)
-- [Basic Usage](#basic-usage)
-- [Advanced Usage](#advanced-usage)
-  - [Building ERNs](#building-erns)
-  - [Parsing ERNs](#parsing-erNS)
-  - [Manipulating ERNs](#manipulating-erns)
-- [ERN Components](#ern-components)
-- [ID Types](#id-types)
-- [Error Handling](#error-handling)
-- [Best Practices](#best-practices)
-- [Contributing](#contributing)
-- [License](#license)
+- Resources lack consistent location and reference methods
+- Relationships between resources require additional tracking mechanisms
+- Sorting and querying resources efficiently requires custom solutions
+- Type safety is compromised, leading to runtime errors
 
-## Installation
+### ✅ Solution: Structured, Type-Safe Resource Names
 
-Add the following to your `Cargo.toml`:
+Acton ERN addresses these issues by providing:
+
+- **Consistent Structure**: Every resource follows the same naming pattern, making them predictable and systematic
+- **Hierarchical Organization**: Resources can be organized in parent-child relationships, reflecting their logical structure
+- **Time-Ordered Sorting**: When using time-based ID types, resources can be efficiently sorted and queried by creation time
+- **Content-Based Addressing**: When using hash-based ID types, resources with identical content can be deterministically identified
+- **Type Safety**: The builder pattern ensures ERNs are constructed correctly at compile time
+
+## Real-World Benefits
+
+### For Microservice Architectures
+
+- **Service Discovery**: Locate resources across different services using a consistent addressing scheme
+- **Cross-Service References**: Maintain references between resources in different services without ambiguity
+- **Versioning Support**: Track resource versions and changes over time with time-ordered IDs
+
+### For Data-Intensive Applications
+
+- **Efficient Querying**: K-sortable IDs enable range queries and time-based filtering
+- **Data Lineage**: Track relationships between derived data and source data
+- **Deduplication**: Content-addressable IDs help identify duplicate resources
+
+### For Cloud-Native Applications
+
+- **Multi-Tenant Support**: The account component clearly separates resources by tenant
+- **Resource Categorization**: Organize resources by domain and category for structured management
+- **Hierarchical Structure**: Model complex resource relationships with defined patterns
+
+## Quick Start
+
+Add Acton ERN to your project:
 
 ```toml
 [dependencies]
-acton-ern = "2.1.0-alpha"
+acton-ern = "1.0.0"
 ```
 
-## ERN Structure
-
-An ERN follows the URN format and has the following structure:
-
-```
-ern:domain:category:account:root/path/to/resource
-```
-
-This structure can be mapped to the URN format as follows:
-
-- `ern`: NID (Namespace Identifier)
-- `domain:category:account:root`: NSS (Namespace Specific String)
-- `/path/to/resource`: Optional path components
-
-The components of an ERN are:
-
-- `ern`: Prefix indicating an Entity Resource Name (serves as the URN namespace)
-- `domain`: Classifies the resource (e.g., internal, external, custom domains)
-- `category`: Specifies the service or category within the system
-- `account`: Identifies the owner or account responsible for the resource
-- `root`: A unique identifier for the root of the resource hierarchy. When using `UnixTime` or `Timestamp` ID types, this component enables k-sortability.
-- `path`: Optional path-like structure showing the resource's position within the hierarchy
-
-By extending the URN format with k-sortability and type-safe construction, ERNs provide a powerful naming scheme for distributed systems that goes beyond the capabilities of standard URNs.
-
-## Basic Usage
-
-Here's a simple example of creating and using an ERN:
+### Creating an ERN
 
 ```rust
 use acton_ern::prelude::*;
 
-fn main() -> Result<(), ErnError> {
-    // Create an ERN
-    let ern: Ern<UnixTime> = ErnBuilder::new()
-        .with::<Domain>("custom-domain")?
-        .with::<Category>("service")?
-        .with::<Account>("user123")?
-        .with::<Root<UnixTime>>("resource")?
-        .with::<Part>("subresource")?
-        .build()?;
+// Create a time-ordered, sortable ERN
+let ern = ErnBuilder::new()
+    .with::<Domain>("my-app")?
+    .with::<Category>("users")?
+    .with::<Account>("tenant123")?
+    .with::<EntityRoot>("profile")?
+    .with::<Part>("settings")?
+    .build()?;
 
-    // Convert ERN to string
-    println!("ERN: {}", ern);
-
-    // Parse an ERN string
-    let ern_str = "ern:custom-domain:service:user123:resource/subresource";
-    let parsed_ern: Ern<UnixTime> = ErnParser::new(ern_str).parse()?;
-
-    assert_eq!(ern, parsed_ern);
-
-    Ok(())
-}
+// The resulting ERN will look like:
+// ern:my-app:users:tenant123:profile_01h9xz7n2e5p6q8r3t1u2v3w4x/settings
 ```
 
-## Advanced Usage
-
-### Building ERNs
-
-The `ErnBuilder` provides a fluent interface for constructing ERNs, ensuring that required parts are added in the correct order:
+### Parsing an ERN
 
 ```rust
 use acton_ern::prelude::*;
 
-fn create_ern() -> Result<Ern, ErnError> {
-    ErnBuilder::new()
-        .with::<Domain>("custom-domain")?
-        .with::<Category>("iot")?
-        .with::<Account>("device_manufacturer")?
-        .with::<Root<UnixTime>>("sensors")?
-        .with::<Part>("region1")?
-        .with::<Part>("device42")?
-        .build()
-}
+// Parse an ERN from a string
+let ern_str = "ern:my-app:users:tenant123:profile_01h9xz7n2e5p6q8r3t1u2v3w4x/settings";
+let parsed_ern = ErnParser::new(ern_str.to_string()).parse()?;
+
+// Access components
+println!("Domain: {}", parsed_ern.domain);
+println!("Category: {}", parsed_ern.category);
+println!("Account: {}", parsed_ern.account);
+println!("Root: {}", parsed_ern.root);
+println!("Parts: {}", parsed_ern.parts);
 ```
 
-### Parsing ERNs
+## Choose the Right ID Type for Your Needs
 
-Use `ErnParser` to parse ERN strings:
+Acton ERN supports different ID types for different use cases:
+
+- **UnixTime (Default)**: Time-ordered IDs with millisecond precision for chronological sorting
+- **Timestamp**: Time-ordered IDs with microsecond precision for higher resolution timing needs
+- **SHA1Name**: Content-addressable IDs that are deterministic based on input, suitable for content-based resources
 
 ```rust
-use acton_ern::prelude::*;
+// Time-ordered ID (sortable by creation time)
+let time_ern: Ern = ErnBuilder::new()
+    .with::<Domain>("my-app")?
+    .with::<Category>("events")?
+    .with::<Account>("tenant123")?
+    .with::<EntityRoot>("log")?
+    .build()?;
 
-fn parse_ern(ern_str: &str) -> Result<Ern, ErnError> {
-    ErnParser::new(ern_str).parse()
-}
+// Content-addressable ID (same content = same ID)
+let content_ern: Ern = ErnBuilder::new()
+    .with::<Domain>("my-app")?
+    .with::<Category>("documents")?
+    .with::<Account>("tenant123")?
+    .with::<SHA1Name>("report-2023-q4")?
+    .build()?;
 ```
 
-### Manipulating ERNs
+## Optional Features
 
-ERNs can be manipulated after creation:
+Acton ERN includes optional features:
+
+```toml
+[dependencies]
+acton-ern = { version = "1.0.0", features = ["serde", "async"] }
+```
+
+- **serde**: Add serialization/deserialization support for JSON, YAML, and more
+- **async**: Enable async operations support via tokio
+- **std**: Enabled by default, can be disabled for no_std environments
+
+## Working with ERNs
+
+### Hierarchical Relationships
 
 ```rust
-use acton_ern::prelude::*;
+// Check if one ERN is a child of another
+if child_ern.is_child_of(&parent_ern) {
+    println!("Child resource found.");
+}
 
-fn manipulate_ern(ern: &Ern) -> Result<Ern, ErnError> {
-    // Add a new part
-    let new_ern = ern.add_part("new_subsystem")?;
-
-    // Change the root
-    let new_root_ern = ern.with_new_root("new_root")?;
-
-    // Combine ERNs
-    let combined_ern = ern.clone() + new_ern;
-
-    Ok(combined_ern)
+// Get the parent of an ERN
+if let Some(parent) = child_ern.parent() {
+    println!("Parent: {}", parent);
 }
 ```
 
-## ERN Components
-
-The `acton-ern` crate provides separate types for each ERN component:
-
-- `Domain`: Represents the domain of the resource
-- `Category`: Specifies the service category
-- `Account`: Identifies the account or owner
-- `Root`: Represents the root of the resource hierarchy
-- `Part`: Represents a single part in the resource path
-- `Parts`: A collection of `Part`s
-
-Each component is created with validation, returning a `Result`:
+### Combining ERNs
 
 ```rust
-use acton_ern::prelude::*;
-
-fn work_with_components() -> Result<(), ErnError> {
-    let domain = Domain::new("custom-domain")?;
-    let category = Category::new("finance");
-    let account = Account::new("acme_corp");
-    let root = Root::new("transactions")?;
-    let part = Part::new("2023")?;
-    let parts = Parts::new(vec![part]);
-
-    Ok(())
-}
+// Combine two ERNs (appends the parts)
+let combined_ern = base_ern + extension_ern;
 ```
 
-## ID Types
+## Development Status
 
-The `acton-ern` crate supports different ID types for the `Root` component:
+**Acton ERN 1.0.0 Release**
 
-- `SHA1Name`: Uses UUID v5 (SHA1 hash)
-  - Use case: When you need a deterministic, content-based identifier
-- `Timestamp`: Uses UUID v6 (timestamp-based)
-  - Use case: For time-ordered identifiers with microsecond precision
-- `UnixTime`: Uses UUID v7 (Unix timestamp-based)
-  - Use case: For time-ordered identifiers with millisecond precision, following the TypeId specification
-
-Note: `UnixTime` and `Timestamp` implement `Ord` and are K-sortable based on their root value, allowing ERNs of these types to be used as sortable keys.
-
-When using `UnixTime`, the root follows the TypeId specification found at: [typeid/spec](https://github.com/jetify-com/typeid).
-
-Example of creating ERNs with different ID types:
-
-```rust
-use acton_ern::prelude::*;
-
-fn create_erns_with_different_id_types() -> Result<(), ErnError> {
-    let sha1_ern: Ern<SHA1Name> = Ern::with_root("sha1_root")?;
-    let timestamp_ern: Ern<Timestamp> = Ern::with_root("timestamp_root")?;
-    let unix_time_ern: Ern<UnixTime> = Ern::with_root("unix_time_root")?;
-
-    Ok(())
-}
-```
-
-## Error Handling
-
-The crate uses a custom `ErnError` type for error handling. Always check for and handle potential errors when working with ERNs:
-
-```rust
-use acton_ern::prelude::*;
-
-fn handle_ern_errors() {
-    match ErnBuilder::new().with::<Domain>("").build() {
-        Ok(ern) => println!("Created ERN: {}", ern),
-        Err(ErnError::ParseFailure(component, msg)) => {
-            eprintln!("Failed to parse {}: {}", component, msg);
-        }
-        Err(e) => eprintln!("An error occurred: {}", e),
-    }
-}
-```
-
-## Best Practices
-
-1. Use the builder pattern (`ErnBuilder`) for creating new ERNs, ensuring required parts are added in the correct order.
-2. Parse ERN strings using `ErnParser` to ensure validity.
-3. Choose appropriate ID types based on your use case (e.g., `UnixTime` for timestamp-based, sortable IDs).
-4. Handle all potential errors using the `ErnError` type.
-5. Use the provided component types (`Domain`, `Category`, etc.) for type safety.
-6. Leverage the `is_child_of` and `parent` methods for working with hierarchical ERNs.
-7. When using `UnixTime` or `Timestamp` ID types, take advantage of their `Ord` implementation for sorting and ordering ERNs.
-
-## Contributing
-
-Contributions to `acton-ern` are welcome! Please refer to the project's GitHub repository for contribution guidelines.
+The 1.0.0 release includes all core functionality, comprehensive testing, and production-ready features. See the [CHANGELOG.md](CHANGELOG.md) for details on what's included in this release.
 
 ## License
 
-This project is licensed under either of
+This project is licensed under either of:
 
 * Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
 * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
 
 at your option.
+
+## Acknowledgments
+
+- The Acton Framework team for their contributions
+- All contributors who have provided input to this project

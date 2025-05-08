@@ -6,15 +6,45 @@ use crate::errors::ErnError;
 use crate::model::{Account, Category, Domain, Ern, Part, Parts};
 use crate::traits::ErnComponent;
 
-/// A builder for constructing ERN (Entity Resource Name) instances using a state-driven approach with type safety.
+/// A type-safe builder for constructing ERN instances.
+///
+/// `ErnBuilder` uses a state-driven approach to ensure that ERN components are added
+/// in the correct order and with proper validation. The generic `State` parameter
+/// tracks which component should be added next, providing compile-time guarantees
+/// that ERNs are constructed correctly.
+///
+/// # Example
+///
+/// ```
+/// # use acton_ern::prelude::*;
+/// # fn example() -> Result<(), ErnError> {
+/// let ern = ErnBuilder::new()
+///     .with::<Domain>("my-app")?
+///     .with::<Category>("users")?
+///     .with::<Account>("tenant123")?
+///     .with::<EntityRoot>("profile")?
+///     .with::<Part>("settings")?
+///     .build()?;
+/// # Ok(())
+/// # }
+/// ```
 pub struct ErnBuilder<State> {
     builder: PrivateErnBuilder,
     _marker: std::marker::PhantomData<State>,
 }
 
-/// Implementation of `ErnBuilder` for the initial state, starting with `Domain`.
+/// Implementation of `ErnBuilder` for the initial state.
 impl ErnBuilder<()> {
-    /// Creates a new ERN (Entity Resource Name) builder initialized to start building from the `Domain` component.
+    /// Creates a new ERN builder to start the construction process.
+    ///
+    /// This is always the first step when creating an ERN.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use acton_ern::prelude::*;
+    /// let builder = ErnBuilder::new();
+    /// ```
     pub fn new() -> ErnBuilder<Domain> {
         ErnBuilder {
             builder: PrivateErnBuilder::new(),
@@ -23,40 +53,66 @@ impl ErnBuilder<()> {
     }
 }
 
-/// Implementation of `ErnBuilder` for `Part` states, allowing for building the final ERN (Entity Resource Name).
+/// Implementation for the `Part` state, allowing finalization of the ERN.
 impl ErnBuilder<Part> {
-    /// Finalizes the building process and constructs the ERN (Entity Resource Name).
+    /// Finalizes the building process and constructs the ERN.
+    ///
+    /// This method is available after at least one `Part` has been added.
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(Ern)` - The fully constructed ERN
+    /// * `Err(ErnError)` - If any validation fails
     pub fn build(self) -> Result<Ern, ErnError> {
         self.builder.build()
     }
 }
 
-/// Implementation of `ErnBuilder` for handling `Parts` states.
+/// Implementation for the `Parts` state, allowing finalization of the ERN.
 impl ErnBuilder<Parts> {
-    /// Finalizes the building process and constructs the ERN (Entity Resource Name) when in the `Parts` state.
+    /// Finalizes the building process and constructs the ERN.
+    ///
+    /// This method is available after multiple `Part`s have been added.
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(Ern)` - The fully constructed ERN
+    /// * `Err(ErnError)` - If any validation fails
     pub fn build(self) -> Result<Ern, ErnError> {
         self.builder.build()
     }
 }
 
-/// Generic implementation of `ErnBuilder` for all states that can transition to another state.
+/// Generic implementation for all component states.
 impl<Component: ErnComponent + Hash + Clone + PartialEq + Eq> ErnBuilder<Component> {
-    /// Adds a new part to the ERN (Entity Resource Name), transitioning to the next appropriate state.
+    /// Adds the next component to the ERN, transitioning to the appropriate state.
+    ///
+    /// The type parameter `N` determines which component is being added and ensures
+    /// components are added in the correct order.
+    ///
+    /// # Arguments
+    ///
+    /// * `part` - The string value for this component
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(ErnBuilder<NextState>)` - The builder in its next state
+    /// * `Err(ErnError)` - If the component value is invalid
     pub fn with<N>(
         self,
-        part: String,
+        part: impl Into<String>,
     ) -> Result<ErnBuilder<N::NextState>, ErnError>
     where
         N: ErnComponent<NextState=Component::NextState> + Hash,
     {
         Ok(ErnBuilder {
-            builder: self.builder.add_part(N::prefix(), part)?,
+            builder: self.builder.add_part(N::prefix(), part.into())?,
             _marker: std::marker::PhantomData,
         })
     }
 }
 
-/// Represents a private, internal structure for building the ERN (Entity Resource Name).
+/// Internal implementation for building ERNs.
 struct PrivateErnBuilder {
     domain: Option<Domain>,
     category: Option<Category>,
@@ -84,18 +140,18 @@ impl PrivateErnBuilder {
             }
             "" => {
                 if self.domain.is_some() && self.category.is_none() {
-                    self.category = Some(Category::new(part));
+                    self.category = Some(Category::new(part)?);
                 } else if self.category.is_some() && self.account.is_none() {
-                    self.account = Some(Account::new(part));
+                    self.account = Some(Account::new(part)?);
                 } else if self.account.is_some() && self.root.is_none() {
                     self.root = Some(EntityRoot::from_str(part.as_str()).unwrap());
                 } else {
                     // add the first part
-                    self.parts = self.parts.add_part(Part::new(part)?);
+                    self.parts = self.parts.add_part(Part::new(part)?)?;
                 }
             }
             ":" => {
-                self.parts = self.parts.add_part(Part::new(part)?);
+                self.parts = self.parts.add_part(Part::new(part)?)?;
             }
             _ => return Err(ErnError::InvalidPrefix(prefix.to_string())),
         }
