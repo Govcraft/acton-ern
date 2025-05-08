@@ -132,7 +132,6 @@ acton-ern = { version = "1.0.0", features = ["serde", "async"] }
 ```
 
 - **serde**: Add serialization/deserialization support for JSON, YAML, and more
-- **async**: Enable async operations support via tokio
 - **std**: Enabled by default, can be disabled for no_std environments
 
 ## Working with ERNs
