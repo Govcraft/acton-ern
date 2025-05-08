@@ -38,40 +38,46 @@ impl Domain {
     /// * `Err(ErnError)` - If validation fails
     pub fn new(value: impl Into<String>) -> Result<Self, ErnError> {
         let val = value.into();
-        
+
         // Check if empty
         if val.is_empty() {
-            return Err(ErnError::ParseFailure("Domain", "cannot be empty".to_string()));
+            return Err(ErnError::ParseFailure(
+                "Domain",
+                "cannot be empty".to_string(),
+            ));
         }
-        
+
         // Check length
         if val.len() > 63 {
             return Err(ErnError::ParseFailure(
                 "Domain",
-                format!("length exceeds maximum of 63 characters (got {})", val.len())
+                format!(
+                    "length exceeds maximum of 63 characters (got {})",
+                    val.len()
+                ),
             ));
         }
-        
+
         // Check for valid characters
-        let valid_chars = val.chars().all(|c| {
-            c.is_alphanumeric() || c == '-' || c == '.'
-        });
-        
+        let valid_chars = val
+            .chars()
+            .all(|c| c.is_alphanumeric() || c == '-' || c == '.');
+
         if !valid_chars {
             return Err(ErnError::ParseFailure(
                 "Domain",
-                "can only contain alphanumeric characters, hyphens, and dots".to_string()
+                "can only contain alphanumeric characters, hyphens, and dots".to_string(),
             ));
         }
-        
+
         // Check if starts or ends with hyphen
         if val.starts_with('-') || val.ends_with('-') {
             return Err(ErnError::ParseFailure(
                 "Domain",
-                "cannot start or end with a hyphen".to_string()
+                "cannot start or end with a hyphen".to_string(),
             ));
         }
-        
+
         Ok(Domain(val))
     }
 }
@@ -140,7 +146,7 @@ mod tests {
         let string: String = domain.into();
         assert_eq!(string, "test");
     }
-    
+
     #[test]
     fn test_domain_validation_empty() {
         let result = Domain::new("");
@@ -153,7 +159,7 @@ mod tests {
             _ => panic!("Expected ParseFailure error for empty domain"),
         }
     }
-    
+
     #[test]
     fn test_domain_validation_too_long() {
         let long_domain = "a".repeat(64);
@@ -167,7 +173,7 @@ mod tests {
             _ => panic!("Expected ParseFailure error for too long domain"),
         }
     }
-    
+
     #[test]
     fn test_domain_validation_invalid_chars() {
         let result = Domain::new("invalid_domain$");
@@ -180,15 +186,15 @@ mod tests {
             _ => panic!("Expected ParseFailure error for invalid characters"),
         }
     }
-    
+
     #[test]
     fn test_domain_validation_hyphen_start_end() {
         let result1 = Domain::new("-invalid");
         let result2 = Domain::new("invalid-");
-        
+
         assert!(result1.is_err());
         assert!(result2.is_err());
-        
+
         match result1 {
             Err(ErnError::ParseFailure(component, msg)) => {
                 assert_eq!(component, "Domain");
@@ -197,7 +203,7 @@ mod tests {
             _ => panic!("Expected ParseFailure error for domain starting with hyphen"),
         }
     }
-    
+
     #[test]
     fn test_domain_validation_valid_complex() {
         let result = Domain::new("valid-domain.name123");

@@ -49,7 +49,7 @@ impl EntityRoot {
     pub fn name(&self) -> &MagicTypeId {
         &self.name
     }
-    
+
     /// Returns the string representation of this root's identifier.
     ///
     /// # Example
@@ -105,17 +105,23 @@ impl EntityRoot {
     pub fn new(value: String) -> Result<Self, ErnError> {
         // Check if empty
         if value.is_empty() {
-            return Err(ErnError::ParseFailure("EntityRoot", "cannot be empty".to_string()));
+            return Err(ErnError::ParseFailure(
+                "EntityRoot",
+                "cannot be empty".to_string(),
+            ));
         }
-        
+
         // Check length
         if value.len() > 255 {
             return Err(ErnError::ParseFailure(
                 "EntityRoot",
-                format!("length exceeds maximum of 255 characters (got {})", value.len())
+                format!(
+                    "length exceeds maximum of 255 characters (got {})",
+                    value.len()
+                ),
             ));
         }
-        
+
         Ok(EntityRoot {
             name: value.create_type_id::<V7>(),
         })
@@ -132,7 +138,7 @@ impl fmt::Display for EntityRoot {
 /// Implementation of `FromStr` for `EntityRoot` to create an entity root from a string.
 impl std::str::FromStr for EntityRoot {
     type Err = ErnError;
-    
+
     /// Creates an `EntityRoot` from a string.
     ///
     /// This method generates a time-ordered, unique identifier using the UUID v7 algorithm.
@@ -150,17 +156,20 @@ impl std::str::FromStr for EntityRoot {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         // Check if empty
         if s.is_empty() {
-            return Err(ErnError::ParseFailure("EntityRoot", "cannot be empty".to_string()));
+            return Err(ErnError::ParseFailure(
+                "EntityRoot",
+                "cannot be empty".to_string(),
+            ));
         }
-        
+
         // Check length
         if s.len() > 255 {
             return Err(ErnError::ParseFailure(
                 "EntityRoot",
-                format!("length exceeds maximum of 255 characters (got {})", s.len())
+                format!("length exceeds maximum of 255 characters (got {})", s.len()),
             ));
         }
-        
+
         Ok(EntityRoot {
             name: s.create_type_id::<V7>(),
         })
@@ -207,7 +216,7 @@ mod tests {
         // EntityRoot should generate different IDs for the same input (non-deterministic)
         let root1 = EntityRoot::new("same-content".to_string())?;
         let root2 = EntityRoot::new("same-content".to_string())?;
-        
+
         // The string representations should be different
         assert_ne!(root1.to_string(), root2.to_string());
         Ok(())

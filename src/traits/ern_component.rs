@@ -14,7 +14,7 @@ pub trait ErnComponent {
     /// For example, the `Domain` component has the prefix "ern:" to indicate the
     /// start of an ERN string.
     fn prefix() -> &'static str;
-    
+
     /// The type of the next component that should follow this one in the ERN structure.
     ///
     /// This associated type is used by the builder pattern to enforce the correct

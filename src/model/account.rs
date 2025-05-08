@@ -1,7 +1,7 @@
 use std::fmt;
 
-use derive_more::{AsRef, From, Into};
 use crate::errors::ErnError;
+use derive_more::{AsRef, From, Into};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -34,40 +34,46 @@ impl Account {
     /// * `Err(ErnError)` - If validation fails
     pub fn new(value: impl Into<String>) -> Result<Self, ErnError> {
         let val = value.into();
-        
+
         // Check if empty
         if val.is_empty() {
-            return Err(ErnError::ParseFailure("Account", "cannot be empty".to_string()));
+            return Err(ErnError::ParseFailure(
+                "Account",
+                "cannot be empty".to_string(),
+            ));
         }
-        
+
         // Check length
         if val.len() > 63 {
             return Err(ErnError::ParseFailure(
                 "Account",
-                format!("length exceeds maximum of 63 characters (got {})", val.len())
+                format!(
+                    "length exceeds maximum of 63 characters (got {})",
+                    val.len()
+                ),
             ));
         }
-        
+
         // Check for valid characters
-        let valid_chars = val.chars().all(|c| {
-            c.is_alphanumeric() || c == '-' || c == '_'
-        });
-        
+        let valid_chars = val
+            .chars()
+            .all(|c| c.is_alphanumeric() || c == '-' || c == '_');
+
         if !valid_chars {
             return Err(ErnError::ParseFailure(
                 "Account",
-                "can only contain alphanumeric characters, hyphens, and underscores".to_string()
+                "can only contain alphanumeric characters, hyphens, and underscores".to_string(),
             ));
         }
-        
+
         // Check if starts or ends with hyphen or underscore
         if val.starts_with(['-', '_'].as_ref()) || val.ends_with(['-', '_'].as_ref()) {
             return Err(ErnError::ParseFailure(
                 "Account",
-                "cannot start or end with a hyphen or underscore".to_string()
+                "cannot start or end with a hyphen or underscore".to_string(),
             ));
         }
-        
+
         Ok(Account(val))
     }
     pub fn into_owned(self) -> Account {
@@ -148,7 +154,7 @@ mod tests {
         assert_eq!(string, "test123");
         Ok(())
     }
-    
+
     #[test]
     fn test_account_validation_empty() {
         let result = Account::new("");
@@ -161,7 +167,7 @@ mod tests {
             _ => panic!("Expected ParseFailure error for empty account"),
         }
     }
-    
+
     #[test]
     fn test_account_validation_too_long() {
         let long_account = "a".repeat(64);
@@ -175,7 +181,7 @@ mod tests {
             _ => panic!("Expected ParseFailure error for too long account"),
         }
     }
-    
+
     #[test]
     fn test_account_validation_invalid_chars() {
         let result = Account::new("invalid.account$");
@@ -188,19 +194,19 @@ mod tests {
             _ => panic!("Expected ParseFailure error for invalid characters"),
         }
     }
-    
+
     #[test]
     fn test_account_validation_hyphen_underscore_start_end() {
         let result1 = Account::new("-invalid");
         let result2 = Account::new("invalid-");
         let result3 = Account::new("_invalid");
         let result4 = Account::new("invalid_");
-        
+
         assert!(result1.is_err());
         assert!(result2.is_err());
         assert!(result3.is_err());
         assert!(result4.is_err());
-        
+
         match result1 {
             Err(ErnError::ParseFailure(component, msg)) => {
                 assert_eq!(component, "Account");
@@ -209,7 +215,7 @@ mod tests {
             _ => panic!("Expected ParseFailure error for account starting with hyphen"),
         }
     }
-    
+
     #[test]
     fn test_account_validation_valid_complex() -> anyhow::Result<()> {
         let result = Account::new("valid-account_123")?;

@@ -40,12 +40,12 @@ impl Part {
     /// * `Err(ErnError)` - If validation fails
     pub fn new(value: impl Into<String>) -> Result<Part, ErnError> {
         let value = value.into();
-        
+
         // Check for reserved characters
         if value.contains(':') || value.contains('/') {
             return Err(ErnError::InvalidPartFormat);
         }
-        
+
         // Check if empty
         if value.is_empty() {
             return Err(ErnError::ParseFailure(
@@ -53,27 +53,31 @@ impl Part {
                 "cannot be empty".to_string(),
             ));
         }
-        
+
         // Check length
         if value.len() > 63 {
             return Err(ErnError::ParseFailure(
                 "Part",
-                format!("length exceeds maximum of 63 characters (got {})", value.len())
+                format!(
+                    "length exceeds maximum of 63 characters (got {})",
+                    value.len()
+                ),
             ));
         }
-        
+
         // Check for valid characters
-        let valid_chars = value.chars().all(|c| {
-            c.is_alphanumeric() || c == '-' || c == '_' || c == '.'
-        });
-        
+        let valid_chars = value
+            .chars()
+            .all(|c| c.is_alphanumeric() || c == '-' || c == '_' || c == '.');
+
         if !valid_chars {
             return Err(ErnError::ParseFailure(
                 "Part",
-                "can only contain alphanumeric characters, hyphens, underscores, and dots".to_string()
+                "can only contain alphanumeric characters, hyphens, underscores, and dots"
+                    .to_string(),
             ));
         }
-        
+
         Ok(Part(value))
     }
 }
@@ -151,7 +155,7 @@ mod tests {
             _ => panic!("Expected ParseFailure error for too long part"),
         }
     }
-    
+
     #[test]
     fn test_part_validation_invalid_chars() {
         let result = Part::new("invalid*part");
@@ -164,26 +168,26 @@ mod tests {
             _ => panic!("Expected ParseFailure error for invalid characters"),
         }
     }
-    
+
     #[test]
     fn test_part_validation_reserved_chars() {
         let result1 = Part::new("invalid:part");
         let result2 = Part::new("invalid/part");
-        
+
         assert!(result1.is_err());
         assert!(result2.is_err());
-        
+
         match result1 {
-            Err(ErnError::InvalidPartFormat) => {},
+            Err(ErnError::InvalidPartFormat) => {}
             _ => panic!("Expected InvalidPartFormat error for part with ':'"),
         }
-        
+
         match result2 {
-            Err(ErnError::InvalidPartFormat) => {},
+            Err(ErnError::InvalidPartFormat) => {}
             _ => panic!("Expected InvalidPartFormat error for part with '/'"),
         }
     }
-    
+
     #[test]
     fn test_part_validation_valid_complex() -> anyhow::Result<()> {
         let result = Part::new("valid-part_123.test")?;

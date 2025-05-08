@@ -27,9 +27,7 @@ impl ErnParser {
     /// let parser = ErnParser::new("ern:my-app:users:tenant123:profile/settings".to_string());
     /// ```
     pub fn new(ern: String) -> Self {
-        Self {
-            ern,
-        }
+        Self { ern }
     }
 
     /// Parses the ERN string into a structured `Ern` object.

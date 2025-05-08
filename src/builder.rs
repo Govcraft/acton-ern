@@ -98,12 +98,9 @@ impl<Component: ErnComponent + Hash + Clone + PartialEq + Eq> ErnBuilder<Compone
     ///
     /// * `Ok(ErnBuilder<NextState>)` - The builder in its next state
     /// * `Err(ErnError)` - If the component value is invalid
-    pub fn with<N>(
-        self,
-        part: impl Into<String>,
-    ) -> Result<ErnBuilder<N::NextState>, ErnError>
+    pub fn with<N>(self, part: impl Into<String>) -> Result<ErnBuilder<N::NextState>, ErnError>
     where
-        N: ErnComponent<NextState=Component::NextState> + Hash,
+        N: ErnComponent<NextState = Component::NextState> + Hash,
     {
         Ok(ErnBuilder {
             builder: self.builder.add_part(N::prefix(), part.into())?,
@@ -174,4 +171,3 @@ impl PrivateErnBuilder {
         Ok(Ern::new(domain, category, account, root, self.parts))
     }
 }
-

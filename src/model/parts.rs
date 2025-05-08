@@ -44,7 +44,7 @@ impl Parts {
                 "cannot exceed maximum of 10 parts".to_string(),
             ));
         }
-        
+
         self.0.push(part.into());
         Ok(self)
     }
@@ -75,7 +75,7 @@ impl Hash for Parts {
 }
 
 impl FromIterator<Part> for Parts {
-    fn from_iter<T: IntoIterator<Item=Part>>(iter: T) -> Self {
+    fn from_iter<T: IntoIterator<Item = Part>>(iter: T) -> Self {
         Parts(iter.into_iter().collect())
     }
 }
@@ -83,7 +83,15 @@ impl FromIterator<Part> for Parts {
 impl fmt::Display for Parts {
     /// Formats the collection of parts as a string, joining them with '/'.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0.iter().map(|p| p.as_str()).collect::<Vec<_>>().join("/"))
+        write!(
+            f,
+            "{}",
+            self.0
+                .iter()
+                .map(|p| p.as_str())
+                .collect::<Vec<_>>()
+                .join("/")
+        )
     }
 }
 
@@ -121,7 +129,7 @@ mod tests {
         let mut parts = Parts::new(vec![Part::new("segment1")?]);
         parts = parts.add_part(Part::new("segment2")?)?;
         parts = parts.add_part(Part::new("segment3")?)?;
-        
+
         assert_eq!(parts.to_string(), "segment1/segment2/segment3");
         Ok(())
     }
@@ -174,7 +182,10 @@ mod tests {
         for part in parts {
             collected.push(part.as_str().to_string());
         }
-        assert_eq!(collected, vec!["segment1".to_string(), "segment2".to_string()]);
+        assert_eq!(
+            collected,
+            vec!["segment1".to_string(), "segment2".to_string()]
+        );
         Ok(())
     }
     #[test]
@@ -184,11 +195,11 @@ mod tests {
         for i in 0..10 {
             parts = parts.add_part(Part::new(format!("part{}", i))?)?;
         }
-        
+
         // Adding an 11th part should fail
         let result = parts.add_part(Part::new("one_too_many")?);
         assert!(result.is_err());
-        
+
         match result {
             Err(ErnError::ParseFailure(component, msg)) => {
                 assert_eq!(component, "Parts");
@@ -196,7 +207,7 @@ mod tests {
             }
             _ => panic!("Expected ParseFailure error for too many parts"),
         }
-        
+
         Ok(())
     }
 }

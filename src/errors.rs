@@ -9,11 +9,11 @@ pub enum ErnError {
     /// Error when parsing a component fails validation
     #[error("Failed to parse {0}: {1}")]
     ParseFailure(&'static str, String),
-    
+
     /// Error when a part contains invalid characters (starts with ':' or contains '/')
     #[error("Part has invalid format (starts with ':' or contains '/')")]
     IllegalPartFormat,
-    
+
     /// Error when an invalid prefix is used in the builder
     #[error("Builder Error - Invalid prefix: {0}")]
     InvalidPrefix(String),
@@ -41,7 +41,7 @@ pub enum ErnError {
     /// Error that should never occur (from Infallible conversions)
     #[error("Infallible error")]
     InfallibleError,
-    
+
     /// Error from the underlying MagicTypeId library
     #[error("Entity Root Error: {0}")]
     EntityRootError(#[from] mti::prelude::MagicTypeIdError),
@@ -52,4 +52,3 @@ impl From<Infallible> for ErnError {
         ErnError::InfallibleError
     }
 }
-

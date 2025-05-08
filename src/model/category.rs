@@ -1,7 +1,7 @@
 use std::fmt;
 
-use derive_more::{AsRef, Into};
 use crate::errors::ErnError;
+use derive_more::{AsRef, Into};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -34,40 +34,44 @@ impl Category {
     /// * `Err(ErnError)` - If validation fails
     pub fn new(value: impl Into<String>) -> Result<Self, ErnError> {
         let val = value.into();
-        
+
         // Check if empty
         if val.is_empty() {
-            return Err(ErnError::ParseFailure("Category", "cannot be empty".to_string()));
+            return Err(ErnError::ParseFailure(
+                "Category",
+                "cannot be empty".to_string(),
+            ));
         }
-        
+
         // Check length
         if val.len() > 63 {
             return Err(ErnError::ParseFailure(
                 "Category",
-                format!("length exceeds maximum of 63 characters (got {})", val.len())
+                format!(
+                    "length exceeds maximum of 63 characters (got {})",
+                    val.len()
+                ),
             ));
         }
-        
+
         // Check for valid characters
-        let valid_chars = val.chars().all(|c| {
-            c.is_alphanumeric() || c == '-'
-        });
-        
+        let valid_chars = val.chars().all(|c| c.is_alphanumeric() || c == '-');
+
         if !valid_chars {
             return Err(ErnError::ParseFailure(
                 "Category",
-                "can only contain alphanumeric characters and hyphens".to_string()
+                "can only contain alphanumeric characters and hyphens".to_string(),
             ));
         }
-        
+
         // Check if starts or ends with hyphen
         if val.starts_with('-') || val.ends_with('-') {
             return Err(ErnError::ParseFailure(
                 "Category",
-                "cannot start or end with a hyphen".to_string()
+                "cannot start or end with a hyphen".to_string(),
             ));
         }
-        
+
         Ok(Category(val))
     }
     pub fn into_owned(self) -> Category {
@@ -148,7 +152,7 @@ mod tests {
         assert_eq!(string, "test");
         Ok(())
     }
-    
+
     #[test]
     fn test_category_validation_empty() {
         let result = Category::new("");
@@ -161,7 +165,7 @@ mod tests {
             _ => panic!("Expected ParseFailure error for empty category"),
         }
     }
-    
+
     #[test]
     fn test_category_validation_too_long() {
         let long_category = "a".repeat(64);
@@ -175,7 +179,7 @@ mod tests {
             _ => panic!("Expected ParseFailure error for too long category"),
         }
     }
-    
+
     #[test]
     fn test_category_validation_invalid_chars() {
         let result = Category::new("invalid_category$");
@@ -188,15 +192,15 @@ mod tests {
             _ => panic!("Expected ParseFailure error for invalid characters"),
         }
     }
-    
+
     #[test]
     fn test_category_validation_hyphen_start_end() {
         let result1 = Category::new("-invalid");
         let result2 = Category::new("invalid-");
-        
+
         assert!(result1.is_err());
         assert!(result2.is_err());
-        
+
         match result1 {
             Err(ErnError::ParseFailure(component, msg)) => {
                 assert_eq!(component, "Category");
@@ -205,7 +209,7 @@ mod tests {
             _ => panic!("Expected ParseFailure error for category starting with hyphen"),
         }
     }
-    
+
     #[test]
     fn test_category_validation_valid_complex() -> anyhow::Result<()> {
         let result = Category::new("valid-category123")?;

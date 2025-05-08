@@ -103,11 +103,13 @@ mod tests {
     use std::sync::Once;
 
     use tracing::Level;
-    use tracing_subscriber::{EnvFilter, FmtSubscriber};
     use tracing_subscriber::fmt::format::FmtSpan;
+    use tracing_subscriber::{EnvFilter, FmtSubscriber};
 
+    #[allow(dead_code)]
     static INIT: Once = Once::new();
 
+    #[allow(dead_code)]
     pub fn init_tracing() {
         INIT.call_once(|| {
             // Define an environment filter to suppress logs from the specific function

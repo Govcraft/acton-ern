@@ -4,8 +4,8 @@ use std::fmt::{Display, Formatter};
 use std::hash::Hash;
 use std::ops::Add;
 
-use crate::{Account, Category, Domain, EntityRoot, ErnComponent, Part, Parts};
 use crate::errors::ErnError;
+use crate::{Account, Category, Domain, EntityRoot, ErnComponent, Part, Parts};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -121,242 +121,242 @@ impl Ern {
         }
     }
 
-        /// Creates a new ERN with the given root and default values for other components.
-        ///
-        /// This is a convenient way to create an ERN when you only care about the root component.
-        ///
-        /// # Arguments
-        ///
-        /// * `root` - The string value for the root component
-        ///
-        /// # Returns
-        ///
-        /// * `Ok(Ern)` - The created ERN with default values for domain, category, account, and parts
-        /// * `Err(ErnError)` - If the root value is invalid
-        ///
-        /// # Example
-        ///
-        /// ```
-        /// # use acton_ern::prelude::*;
-        /// # fn example() -> Result<(), ErnError> {
-        /// let ern = Ern::with_root("profile")?;
-        /// # Ok(())
-        /// # }
-        /// ```
-        pub fn with_root(root: impl Into<String>) -> Result<Self, ErnError> {
-            let root = EntityRoot::new(root.into())?;
-            Ok(Ern {
-                root,
-                ..Default::default()
-            })
+    /// Creates a new ERN with the given root and default values for other components.
+    ///
+    /// This is a convenient way to create an ERN when you only care about the root component.
+    ///
+    /// # Arguments
+    ///
+    /// * `root` - The string value for the root component
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(Ern)` - The created ERN with default values for domain, category, account, and parts
+    /// * `Err(ErnError)` - If the root value is invalid
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use acton_ern::prelude::*;
+    /// # fn example() -> Result<(), ErnError> {
+    /// let ern = Ern::with_root("profile")?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn with_root(root: impl Into<String>) -> Result<Self, ErnError> {
+        let root = EntityRoot::new(root.into())?;
+        Ok(Ern {
+            root,
+            ..Default::default()
+        })
+    }
+
+    /// Creates a new ERN based on an existing ERN but with a different root.
+    ///
+    /// This method preserves all other components (domain, category, account, parts)
+    /// but replaces the root with a new value.
+    ///
+    /// # Arguments
+    ///
+    /// * `new_root` - The string value for the new root component
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(Ern)` - A new ERN with the updated root
+    /// * `Err(ErnError)` - If the new root value is invalid
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use acton_ern::prelude::*;
+    /// # fn example() -> Result<(), ErnError> {
+    /// let ern1 = Ern::with_root("profile")?;
+    /// let ern2 = ern1.with_new_root("settings")?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn with_new_root(&self, new_root: impl Into<String>) -> Result<Self, ErnError> {
+        let new_root = EntityRoot::new(new_root.into())?;
+        Ok(Ern {
+            domain: self.domain.clone(),
+            category: self.category.clone(),
+            account: self.account.clone(),
+            root: new_root,
+            parts: self.parts.clone(),
+        })
+    }
+
+    pub fn with_domain(domain: impl Into<String>) -> Result<Self, ErnError> {
+        let domain = Domain::new(domain)?;
+        Ok(Ern {
+            domain,
+            category: Category::default(),
+            account: Account::default(),
+            root: EntityRoot::default(),
+            parts: Parts::default(),
+        })
+    }
+
+    pub fn with_category(category: impl Into<String>) -> Result<Self, ErnError> {
+        let category = Category::new(category)?;
+        Ok(Ern {
+            domain: Domain::default(),
+            category,
+            account: Account::default(),
+            root: EntityRoot::default(),
+            parts: Parts::default(),
+        })
+    }
+
+    pub fn with_account(account: impl Into<String>) -> Result<Self, ErnError> {
+        let account = Account::new(account)?;
+        Ok(Ern {
+            domain: Domain::default(),
+            category: Category::default(),
+            account,
+            root: EntityRoot::default(),
+            parts: Parts::default(),
+        })
+    }
+
+    /// Adds a new part to the ERN's path.
+    ///
+    /// This method creates a new ERN with the same domain, category, account, and root,
+    /// but with an additional part appended to the path.
+    ///
+    /// # Arguments
+    ///
+    /// * `part` - The string value for the new part
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(Ern)` - A new ERN with the added part
+    /// * `Err(ErnError)` - If the part value is invalid or adding it would exceed the maximum of 10 parts
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use acton_ern::prelude::*;
+    /// # fn example() -> Result<(), ErnError> {
+    /// let ern1 = Ern::with_root("profile")?;
+    /// let ern2 = ern1.add_part("settings")?;
+    /// let ern3 = ern2.add_part("appearance")?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn add_part(&self, part: impl Into<String>) -> Result<Self, ErnError> {
+        let new_part = Part::new(part)?;
+        let mut new_parts = self.parts.clone();
+
+        // Check if adding another part would exceed the maximum
+        if new_parts.0.len() >= 10 {
+            return Err(ErnError::ParseFailure(
+                "Parts",
+                "cannot exceed maximum of 10 parts".to_string(),
+            ));
         }
 
-        /// Creates a new ERN based on an existing ERN but with a different root.
-        ///
-        /// This method preserves all other components (domain, category, account, parts)
-        /// but replaces the root with a new value.
-        ///
-        /// # Arguments
-        ///
-        /// * `new_root` - The string value for the new root component
-        ///
-        /// # Returns
-        ///
-        /// * `Ok(Ern)` - A new ERN with the updated root
-        /// * `Err(ErnError)` - If the new root value is invalid
-        ///
-        /// # Example
-        ///
-        /// ```
-        /// # use acton_ern::prelude::*;
-        /// # fn example() -> Result<(), ErnError> {
-        /// let ern1 = Ern::with_root("profile")?;
-        /// let ern2 = ern1.with_new_root("settings")?;
-        /// # Ok(())
-        /// # }
-        /// ```
-        pub fn with_new_root(&self, new_root: impl Into<String>) -> Result<Self, ErnError> {
-            let new_root = EntityRoot::new(new_root.into())?;
-            Ok(Ern {
-                domain: self.domain.clone(),
-                category: self.category.clone(),
-                account: self.account.clone(),
-                root: new_root,
-                parts: self.parts.clone(),
-            })
-        }
+        new_parts.0.push(new_part);
+        Ok(Ern {
+            domain: self.domain.clone(),
+            category: self.category.clone(),
+            account: self.account.clone(),
+            root: self.root.clone(),
+            parts: new_parts,
+        })
+    }
 
-        pub fn with_domain(domain: impl Into<String>) -> Result<Self, ErnError> {
-            let domain = Domain::new(domain)?;
-            Ok(Ern {
-                domain,
-                category: Category::default(),
-                account: Account::default(),
-                root: EntityRoot::default(),
-                parts: Parts::default(),
-            })
-        }
+    pub fn with_parts(
+        &self,
+        parts: impl IntoIterator<Item = impl Into<String>>,
+    ) -> Result<Self, ErnError> {
+        let new_parts: Result<Vec<Part>, _> = parts.into_iter().map(Part::new).collect();
+        Ok(Ern {
+            domain: self.domain.clone(),
+            category: self.category.clone(),
+            account: self.account.clone(),
+            root: self.root.clone(),
+            parts: Parts(new_parts?),
+        })
+    }
 
-        pub fn with_category(category: impl Into<String>) -> Result<Self, ErnError> {
-            let category = Category::new(category)?;
-            Ok(Ern {
-                domain: Domain::default(),
-                category,
-                account: Account::default(),
-                root: EntityRoot::default(),
-                parts: Parts::default(),
-            })
-        }
+    /// Checks if this ERN is a child of another ERN.
+    ///
+    /// An ERN is considered a child of another ERN if:
+    /// 1. They have the same domain, category, account, and root
+    /// 2. The child's parts start with all of the parent's parts
+    /// 3. The child has more parts than the parent
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - The potential parent ERN
+    ///
+    /// # Returns
+    ///
+    /// * `true` - If this ERN is a child of the other ERN
+    /// * `false` - Otherwise
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use acton_ern::prelude::*;
+    /// # fn example() -> Result<(), ErnError> {
+    /// let parent = Ern::with_root("profile")?.add_part("settings")?;
+    /// let child = parent.add_part("appearance")?;
+    ///
+    /// assert!(child.is_child_of(&parent));
+    /// assert!(!parent.is_child_of(&child));
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn is_child_of(&self, other: &Ern) -> bool {
+        self.domain == other.domain
+            && self.category == other.category
+            && self.account == other.account
+            && self.root == other.root
+            && other.parts.0.len() < self.parts.0.len()
+            && self.parts.0.starts_with(&other.parts.0)
+    }
 
-        pub fn with_account(account: impl Into<String>) -> Result<Self, ErnError> {
-            let account = Account::new(account)?;
-            Ok(Ern {
-                domain: Domain::default(),
-                category: Category::default(),
-                account,
-                root: EntityRoot::default(),
-                parts: Parts::default(),
-            })
-        }
-
-        /// Adds a new part to the ERN's path.
-        ///
-        /// This method creates a new ERN with the same domain, category, account, and root,
-        /// but with an additional part appended to the path.
-        ///
-        /// # Arguments
-        ///
-        /// * `part` - The string value for the new part
-        ///
-        /// # Returns
-        ///
-        /// * `Ok(Ern)` - A new ERN with the added part
-        /// * `Err(ErnError)` - If the part value is invalid or adding it would exceed the maximum of 10 parts
-        ///
-        /// # Example
-        ///
-        /// ```
-        /// # use acton_ern::prelude::*;
-        /// # fn example() -> Result<(), ErnError> {
-        /// let ern1 = Ern::with_root("profile")?;
-        /// let ern2 = ern1.add_part("settings")?;
-        /// let ern3 = ern2.add_part("appearance")?;
-        /// # Ok(())
-        /// # }
-        /// ```
-        pub fn add_part(&self, part: impl Into<String>) -> Result<Self, ErnError> {
-            let new_part = Part::new(part)?;
-            let mut new_parts = self.parts.clone();
-            
-            // Check if adding another part would exceed the maximum
-            if new_parts.0.len() >= 10 {
-                return Err(ErnError::ParseFailure(
-                    "Parts",
-                    "cannot exceed maximum of 10 parts".to_string(),
-                ));
-            }
-            
-            new_parts.0.push(new_part);
-            Ok(Ern {
+    /// Returns the parent ERN of this ERN, if it exists.
+    ///
+    /// The parent ERN has the same domain, category, account, and root,
+    /// but with one fewer part in the path. If this ERN has no parts,
+    /// it has no parent and this method returns `None`.
+    ///
+    /// # Returns
+    ///
+    /// * `Some(Ern)` - The parent ERN
+    /// * `None` - If this ERN has no parts (and thus no parent)
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use acton_ern::prelude::*;
+    /// # fn example() -> Result<(), ErnError> {
+    /// let ern1 = Ern::with_root("profile")?;
+    /// let ern2 = ern1.add_part("settings")?;
+    /// let ern3 = ern2.add_part("appearance")?;
+    ///
+    /// assert_eq!(ern3.parent().unwrap().to_string(), ern2.to_string());
+    /// assert_eq!(ern2.parent().unwrap().to_string(), ern1.to_string());
+    /// assert!(ern1.parent().is_none());
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn parent(&self) -> Option<Self> {
+        if self.parts.0.is_empty() {
+            None
+        } else {
+            Some(Ern {
                 domain: self.domain.clone(),
                 category: self.category.clone(),
                 account: self.account.clone(),
                 root: self.root.clone(),
-                parts: new_parts,
+                parts: Parts(self.parts.0[..self.parts.0.len() - 1].to_vec()),
             })
         }
-
-        pub fn with_parts(
-            &self,
-            parts: impl IntoIterator<Item = impl Into<String>>,
-        ) -> Result<Self, ErnError> {
-            let new_parts: Result<Vec<Part>, _> = parts.into_iter().map(Part::new).collect();
-            Ok(Ern {
-                domain: self.domain.clone(),
-                category: self.category.clone(),
-                account: self.account.clone(),
-                root: self.root.clone(),
-                parts: Parts(new_parts?),
-            })
-        }
-
-        /// Checks if this ERN is a child of another ERN.
-        ///
-        /// An ERN is considered a child of another ERN if:
-        /// 1. They have the same domain, category, account, and root
-        /// 2. The child's parts start with all of the parent's parts
-        /// 3. The child has more parts than the parent
-        ///
-        /// # Arguments
-        ///
-        /// * `other` - The potential parent ERN
-        ///
-        /// # Returns
-        ///
-        /// * `true` - If this ERN is a child of the other ERN
-        /// * `false` - Otherwise
-        ///
-        /// # Example
-        ///
-        /// ```
-        /// # use acton_ern::prelude::*;
-        /// # fn example() -> Result<(), ErnError> {
-        /// let parent = Ern::with_root("profile")?.add_part("settings")?;
-        /// let child = parent.add_part("appearance")?;
-        ///
-        /// assert!(child.is_child_of(&parent));
-        /// assert!(!parent.is_child_of(&child));
-        /// # Ok(())
-        /// # }
-        /// ```
-        pub fn is_child_of(&self, other: &Ern) -> bool {
-            self.domain == other.domain
-                && self.category == other.category
-                && self.account == other.account
-                && self.root == other.root
-                && other.parts.0.len() < self.parts.0.len()
-                && self.parts.0.starts_with(&other.parts.0)
-        }
-
-        /// Returns the parent ERN of this ERN, if it exists.
-        ///
-        /// The parent ERN has the same domain, category, account, and root,
-        /// but with one fewer part in the path. If this ERN has no parts,
-        /// it has no parent and this method returns `None`.
-        ///
-        /// # Returns
-        ///
-        /// * `Some(Ern)` - The parent ERN
-        /// * `None` - If this ERN has no parts (and thus no parent)
-        ///
-        /// # Example
-        ///
-        /// ```
-        /// # use acton_ern::prelude::*;
-        /// # fn example() -> Result<(), ErnError> {
-        /// let ern1 = Ern::with_root("profile")?;
-        /// let ern2 = ern1.add_part("settings")?;
-        /// let ern3 = ern2.add_part("appearance")?;
-        ///
-        /// assert_eq!(ern3.parent().unwrap().to_string(), ern2.to_string());
-        /// assert_eq!(ern2.parent().unwrap().to_string(), ern1.to_string());
-        /// assert!(ern1.parent().is_none());
-        /// # Ok(())
-        /// # }
-        /// ```
-        pub fn parent(&self) -> Option<Self> {
-            if self.parts.0.is_empty() {
-                None
-            } else {
-                Some(Ern {
-                    domain: self.domain.clone(),
-                    category: self.category.clone(),
-                    account: self.account.clone(),
-                    root: self.root.clone(),
-                    parts: Parts(self.parts.0[..self.parts.0.len() - 1].to_vec()),
-                })
-            }
-        }
+    }
 }
 
 impl Default for Ern {
@@ -586,9 +586,11 @@ mod tests {
 
         let combined = parent + child;
 
-        assert!(combined
-            .to_string()
-            .starts_with("ern:acton-internal:hr:company123:rootp"));
+        assert!(
+            combined
+                .to_string()
+                .starts_with("ern:acton-internal:hr:company123:rootp")
+        );
     }
     #[test]
     fn test_ern_custom() -> anyhow::Result<()> {
@@ -599,9 +601,10 @@ mod tests {
             EntityRoot::new("root".to_string())?,
             Parts::new(vec![Part::new("resource")?]),
         );
-        assert!(ern
-            .to_string()
-            .starts_with("ern:custom:service:account123:root"));
+        assert!(
+            ern.to_string()
+                .starts_with("ern:custom:service:account123:root")
+        );
         Ok(())
     }
 

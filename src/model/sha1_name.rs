@@ -49,7 +49,7 @@ impl SHA1Name {
     pub fn name(&self) -> &MagicTypeId {
         &self.name
     }
-    
+
     /// Returns the string representation of this identifier.
     ///
     /// # Example
@@ -106,17 +106,23 @@ impl SHA1Name {
     pub fn new(value: String) -> Result<Self, ErnError> {
         // Check if empty
         if value.is_empty() {
-            return Err(ErnError::ParseFailure("SHA1Name", "cannot be empty".to_string()));
+            return Err(ErnError::ParseFailure(
+                "SHA1Name",
+                "cannot be empty".to_string(),
+            ));
         }
-        
+
         // Check length
         if value.len() > 1024 {
             return Err(ErnError::ParseFailure(
                 "SHA1Name",
-                format!("length exceeds maximum of 1024 characters (got {})", value.len())
+                format!(
+                    "length exceeds maximum of 1024 characters (got {})",
+                    value.len()
+                ),
             ));
         }
-        
+
         Ok(SHA1Name {
             name: value.create_type_id::<V5>(),
         })
@@ -133,7 +139,7 @@ impl fmt::Display for SHA1Name {
 /// Implementation of `FromStr` for `SHA1Name` to create an entity from a string.
 impl std::str::FromStr for SHA1Name {
     type Err = ErnError;
-    
+
     /// Creates a `SHA1Name` from a string.
     ///
     /// This method generates a deterministic, content-addressable identifier using
@@ -166,17 +172,23 @@ impl std::str::FromStr for SHA1Name {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         // Check if empty
         if s.is_empty() {
-            return Err(ErnError::ParseFailure("SHA1Name", "cannot be empty".to_string()));
+            return Err(ErnError::ParseFailure(
+                "SHA1Name",
+                "cannot be empty".to_string(),
+            ));
         }
-        
+
         // Check length
         if s.len() > 1024 {
             return Err(ErnError::ParseFailure(
                 "SHA1Name",
-                format!("length exceeds maximum of 1024 characters (got {})", s.len())
+                format!(
+                    "length exceeds maximum of 1024 characters (got {})",
+                    s.len()
+                ),
             ));
         }
-        
+
         Ok(SHA1Name {
             name: s.create_type_id::<V5>(),
         })
@@ -206,8 +218,8 @@ impl<'de> Deserialize<'de> for SHA1Name {
     }
 }
 
-use crate::traits::ErnComponent;
 use crate::Part;
+use crate::traits::ErnComponent;
 
 impl ErnComponent for SHA1Name {
     fn prefix() -> &'static str {
@@ -226,7 +238,7 @@ mod tests {
         // Same input should produce the same SHA1Name
         let name1 = SHA1Name::new("test_content".to_string()).unwrap();
         let name2 = SHA1Name::new("test_content".to_string()).unwrap();
-        
+
         assert_eq!(name1, name2);
         assert_eq!(name1.to_string(), name2.to_string());
     }
@@ -236,7 +248,7 @@ mod tests {
         // Different inputs with more distinct content should produce different SHA1Names
         let name1 = SHA1Name::new("completely_different_content_1".to_string()).unwrap();
         let name2 = SHA1Name::new("entirely_unique_content_2".to_string()).unwrap();
-        
+
         assert_ne!(name1, name2);
         assert_ne!(name1.to_string(), name2.to_string());
     }
@@ -246,7 +258,7 @@ mod tests {
         // FromStr should produce the same result as new()
         let name1 = SHA1Name::new("test_content".to_string()).unwrap();
         let name2 = SHA1Name::from_str("test_content").unwrap();
-        
+
         assert_eq!(name1, name2);
         assert_eq!(name1.to_string(), name2.to_string());
     }
@@ -254,7 +266,7 @@ mod tests {
     #[test]
     fn test_sha1name_display() {
         let name = SHA1Name::new("test_content".to_string()).unwrap();
-        
+
         // The string representation should contain the input value
         let display = name.to_string();
         assert!(!display.is_empty());
@@ -271,7 +283,7 @@ mod tests {
             _ => panic!("Expected ParseFailure error for empty SHA1Name"),
         }
     }
-    
+
     #[test]
     fn test_sha1name_validation_too_long() {
         let long_value = "a".repeat(1025);
@@ -285,7 +297,7 @@ mod tests {
             _ => panic!("Expected ParseFailure error for too long SHA1Name"),
         }
     }
-    
+
     #[test]
     fn test_sha1name_from_str_validation() {
         let result = SHA1Name::from_str("");
