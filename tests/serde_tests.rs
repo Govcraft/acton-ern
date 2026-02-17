@@ -219,10 +219,10 @@ mod serde_tests {
 
         // We can't compare the original and deserialized ERNs directly due to MagicTypeId,
         // but we can verify that the domain, category, account, and parts are preserved
-        assert_eq!(original_ern.domain, deserialized.domain);
-        assert_eq!(original_ern.category, deserialized.category);
-        assert_eq!(original_ern.account, deserialized.account);
-        assert_eq!(original_ern.parts, deserialized.parts);
+        assert_eq!(original_ern.domain(), deserialized.domain());
+        assert_eq!(original_ern.category(), deserialized.category());
+        assert_eq!(original_ern.account(), deserialized.account());
+        assert_eq!(original_ern.parts(), deserialized.parts());
     }
 
     #[test]
@@ -246,10 +246,10 @@ mod serde_tests {
 
         // We can't compare the original and deserialized ERNs directly due to MagicTypeId,
         // but we can verify that the domain, category, account, and parts are preserved
-        assert_eq!(original_ern.domain, deserialized.domain);
-        assert_eq!(original_ern.category, deserialized.category);
-        assert_eq!(original_ern.account, deserialized.account);
-        assert_eq!(original_ern.parts, deserialized.parts);
+        assert_eq!(original_ern.domain(), deserialized.domain());
+        assert_eq!(original_ern.category(), deserialized.category());
+        assert_eq!(original_ern.account(), deserialized.account());
+        assert_eq!(original_ern.parts(), deserialized.parts());
     }
 
     #[test]

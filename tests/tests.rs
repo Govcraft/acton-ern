@@ -21,11 +21,11 @@ fn test() -> anyhow::Result<()> {
         "ern:acton-internal:hr:company123:root/departmentA/team1"
     );
     let ern = ern?;
-    assert_eq!(ern.domain.to_string(), "acton-internal");
-    assert_eq!(ern.category.to_string(), "hr");
-    assert_eq!(ern.account.to_string(), "company123");
-    assert_eq!(ern.parts.to_string(), "departmentA/team1");
-    assert!(ern.root.to_string().starts_with("root_"));
+    assert_eq!(ern.domain().to_string(), "acton-internal");
+    assert_eq!(ern.category().to_string(), "hr");
+    assert_eq!(ern.account().to_string(), "company123");
+    assert_eq!(ern.parts().to_string(), "departmentA/team1");
+    assert!(ern.root().to_string().starts_with("root_"));
     Ok(())
 }
 //
@@ -84,10 +84,10 @@ fn test_v5() -> anyhow::Result<()> {
     // Compare individual components instead of the full string
     let left = ern_left?;
     let right = ern_right?;
-    assert_eq!(left.domain, right.domain);
-    assert_eq!(left.category, right.category);
-    assert_eq!(left.account, right.account);
-    assert_eq!(left.parts, right.parts);
+    assert_eq!(left.domain(), right.domain());
+    assert_eq!(left.category(), right.category());
+    assert_eq!(left.account(), right.account());
+    assert_eq!(left.parts(), right.parts());
     // Don't compare roots as they'll have different IDs
     Ok(())
 }
@@ -113,18 +113,18 @@ fn test_parser() -> anyhow::Result<()> {
 
     // Verify each component matches the expected value
     assert_eq!(
-        ern.domain.to_string(),
+        ern.domain().to_string(),
         "acton-internal",
         "Domain should be 'acton-internal'"
     );
-    assert_eq!(ern.category.to_string(), "hr", "Category should be 'hr'");
+    assert_eq!(ern.category().to_string(), "hr", "Category should be 'hr'");
     assert_eq!(
-        ern.account.to_string(),
+        ern.account().to_string(),
         "company123",
         "Account should be 'company123'"
     );
     assert_eq!(
-        ern.parts.to_string(),
+        ern.parts().to_string(),
         "departmentA/team1",
         "Parts should match expected values"
     );

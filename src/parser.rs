@@ -48,10 +48,10 @@ impl ErnParser {
     /// let parser = ErnParser::new("ern:my-app:users:tenant123:profile/settings".to_string());
     /// let ern = parser.parse()?;
     ///
-    /// assert_eq!(ern.domain.as_str(), "my-app");
-    /// assert_eq!(ern.category.as_str(), "users");
-    /// assert_eq!(ern.account.as_str(), "tenant123");
-    /// assert_eq!(ern.parts.to_string(), "settings");
+    /// assert_eq!(ern.domain().as_str(), "my-app");
+    /// assert_eq!(ern.category().as_str(), "users");
+    /// assert_eq!(ern.account().as_str(), "tenant123");
+    /// assert_eq!(ern.parts().to_string(), "settings");
     /// # Ok(())
     /// # }
     /// ```
@@ -97,7 +97,7 @@ mod tests {
 
         assert!(result.is_ok());
         let ern = result.unwrap();
-        assert_eq!(ern.domain.as_str(), "custom");
+        assert_eq!(ern.domain().as_str(), "custom");
     }
 
     #[test]

@@ -1,14 +1,21 @@
 use std::cmp::Ordering;
 use std::fmt;
 use std::fmt::{Display, Formatter};
-use std::hash::Hash;
+use std::hash::{Hash, Hasher};
 use std::ops::Add;
+use std::sync::Arc;
 
 use crate::errors::ErnError;
 use crate::{Account, Category, Domain, EntityRoot, ErnComponent, Part, Parts};
 
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
+#[derive(Debug, PartialEq, Eq, Hash)]
+struct ErnInner {
+    domain: Domain,
+    category: Category,
+    account: Account,
+    root: EntityRoot,
+    parts: Parts,
+}
 
 /// Represents an Entity Resource Name (ERN), which uniquely identifies resources in distributed systems.
 ///
@@ -24,59 +31,12 @@ use serde::{Deserialize, Serialize};
 ///
 /// ERNs can be k-sortable when using `UnixTime` or `Timestamp` ID types, enabling
 /// efficient ordering and range queries.
-#[derive(Debug, PartialEq, Clone, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+///
+/// Internally wraps its fields in an `Arc`, making `clone()` a cheap atomic
+/// reference-count increment instead of a deep copy.
+#[derive(Debug, Clone)]
 pub struct Ern {
-    pub domain: Domain,
-    pub category: Category,
-    pub account: Account,
-    pub root: EntityRoot,
-    pub parts: Parts,
-}
-
-impl Ord for Ern {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.root.name().cmp(other.root.name())
-    }
-}
-
-impl PartialOrd for Ern {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Display for Ern {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        let mut display = format!(
-            "{}{}:{}:{}:{}",
-            Domain::prefix(),
-            self.domain,
-            self.category,
-            self.account,
-            self.root
-        );
-        if !self.parts.0.is_empty() {
-            display = format!("{}/{}", display, self.parts);
-        }
-        write!(f, "{}", display)
-    }
-}
-
-impl Add for Ern {
-    type Output = Ern;
-
-    fn add(self, rhs: Self) -> Self::Output {
-        let mut new_parts = self.parts.0;
-        new_parts.extend(rhs.parts.0);
-        Ern {
-            domain: self.domain,
-            category: self.category,
-            account: self.account,
-            root: self.root,
-            parts: Parts(new_parts),
-        }
-    }
+    inner: Arc<ErnInner>,
 }
 
 impl Ern {
@@ -113,12 +73,45 @@ impl Ern {
         parts: Parts,
     ) -> Self {
         Ern {
-            domain,
-            category,
-            account,
-            root,
-            parts,
+            inner: Arc::new(ErnInner {
+                domain,
+                category,
+                account,
+                root,
+                parts,
+            }),
         }
+    }
+
+    fn from_inner(inner: ErnInner) -> Self {
+        Ern {
+            inner: Arc::new(inner),
+        }
+    }
+
+    /// Returns a reference to the domain component.
+    pub fn domain(&self) -> &Domain {
+        &self.inner.domain
+    }
+
+    /// Returns a reference to the category component.
+    pub fn category(&self) -> &Category {
+        &self.inner.category
+    }
+
+    /// Returns a reference to the account component.
+    pub fn account(&self) -> &Account {
+        &self.inner.account
+    }
+
+    /// Returns a reference to the root component.
+    pub fn root(&self) -> &EntityRoot {
+        &self.inner.root
+    }
+
+    /// Returns a reference to the parts component.
+    pub fn parts(&self) -> &Parts {
+        &self.inner.parts
     }
 
     /// Creates a new ERN with the given root and default values for other components.
@@ -145,10 +138,13 @@ impl Ern {
     /// ```
     pub fn with_root(root: impl Into<String>) -> Result<Self, ErnError> {
         let root = EntityRoot::new(root.into())?;
-        Ok(Ern {
+        Ok(Ern::from_inner(ErnInner {
             root,
-            ..Default::default()
-        })
+            domain: Domain::default(),
+            category: Category::default(),
+            account: Account::default(),
+            parts: Parts::new(Vec::default()),
+        }))
     }
 
     /// Creates a new ERN based on an existing ERN but with a different root.
@@ -177,46 +173,46 @@ impl Ern {
     /// ```
     pub fn with_new_root(&self, new_root: impl Into<String>) -> Result<Self, ErnError> {
         let new_root = EntityRoot::new(new_root.into())?;
-        Ok(Ern {
-            domain: self.domain.clone(),
-            category: self.category.clone(),
-            account: self.account.clone(),
+        Ok(Ern::from_inner(ErnInner {
+            domain: self.inner.domain.clone(),
+            category: self.inner.category.clone(),
+            account: self.inner.account.clone(),
             root: new_root,
-            parts: self.parts.clone(),
-        })
+            parts: self.inner.parts.clone(),
+        }))
     }
 
     pub fn with_domain(domain: impl Into<String>) -> Result<Self, ErnError> {
         let domain = Domain::new(domain)?;
-        Ok(Ern {
+        Ok(Ern::from_inner(ErnInner {
             domain,
             category: Category::default(),
             account: Account::default(),
             root: EntityRoot::default(),
             parts: Parts::default(),
-        })
+        }))
     }
 
     pub fn with_category(category: impl Into<String>) -> Result<Self, ErnError> {
         let category = Category::new(category)?;
-        Ok(Ern {
+        Ok(Ern::from_inner(ErnInner {
             domain: Domain::default(),
             category,
             account: Account::default(),
             root: EntityRoot::default(),
             parts: Parts::default(),
-        })
+        }))
     }
 
     pub fn with_account(account: impl Into<String>) -> Result<Self, ErnError> {
         let account = Account::new(account)?;
-        Ok(Ern {
+        Ok(Ern::from_inner(ErnInner {
             domain: Domain::default(),
             category: Category::default(),
             account,
             root: EntityRoot::default(),
             parts: Parts::default(),
-        })
+        }))
     }
 
     /// Adds a new part to the ERN's path.
@@ -246,7 +242,7 @@ impl Ern {
     /// ```
     pub fn add_part(&self, part: impl Into<String>) -> Result<Self, ErnError> {
         let new_part = Part::new(part)?;
-        let mut new_parts = self.parts.clone();
+        let mut new_parts = self.inner.parts.clone();
 
         // Check if adding another part would exceed the maximum
         if new_parts.0.len() >= 10 {
@@ -257,13 +253,13 @@ impl Ern {
         }
 
         new_parts.0.push(new_part);
-        Ok(Ern {
-            domain: self.domain.clone(),
-            category: self.category.clone(),
-            account: self.account.clone(),
-            root: self.root.clone(),
+        Ok(Ern::from_inner(ErnInner {
+            domain: self.inner.domain.clone(),
+            category: self.inner.category.clone(),
+            account: self.inner.account.clone(),
+            root: self.inner.root.clone(),
             parts: new_parts,
-        })
+        }))
     }
 
     pub fn with_parts(
@@ -271,13 +267,13 @@ impl Ern {
         parts: impl IntoIterator<Item = impl Into<String>>,
     ) -> Result<Self, ErnError> {
         let new_parts: Result<Vec<Part>, _> = parts.into_iter().map(Part::new).collect();
-        Ok(Ern {
-            domain: self.domain.clone(),
-            category: self.category.clone(),
-            account: self.account.clone(),
-            root: self.root.clone(),
+        Ok(Ern::from_inner(ErnInner {
+            domain: self.inner.domain.clone(),
+            category: self.inner.category.clone(),
+            account: self.inner.account.clone(),
+            root: self.inner.root.clone(),
             parts: Parts(new_parts?),
-        })
+        }))
     }
 
     /// Checks if this ERN is a child of another ERN.
@@ -310,12 +306,12 @@ impl Ern {
     /// # }
     /// ```
     pub fn is_child_of(&self, other: &Ern) -> bool {
-        self.domain == other.domain
-            && self.category == other.category
-            && self.account == other.account
-            && self.root == other.root
-            && other.parts.0.len() < self.parts.0.len()
-            && self.parts.0.starts_with(&other.parts.0)
+        self.inner.domain == other.inner.domain
+            && self.inner.category == other.inner.category
+            && self.inner.account == other.inner.account
+            && self.inner.root == other.inner.root
+            && other.inner.parts.0.len() < self.inner.parts.0.len()
+            && self.inner.parts.0.starts_with(&other.inner.parts.0)
     }
 
     /// Returns the parent ERN of this ERN, if it exists.
@@ -345,17 +341,76 @@ impl Ern {
     /// # }
     /// ```
     pub fn parent(&self) -> Option<Self> {
-        if self.parts.0.is_empty() {
+        if self.inner.parts.0.is_empty() {
             None
         } else {
-            Some(Ern {
-                domain: self.domain.clone(),
-                category: self.category.clone(),
-                account: self.account.clone(),
-                root: self.root.clone(),
-                parts: Parts(self.parts.0[..self.parts.0.len() - 1].to_vec()),
-            })
+            Some(Ern::from_inner(ErnInner {
+                domain: self.inner.domain.clone(),
+                category: self.inner.category.clone(),
+                account: self.inner.account.clone(),
+                root: self.inner.root.clone(),
+                parts: Parts(self.inner.parts.0[..self.inner.parts.0.len() - 1].to_vec()),
+            }))
         }
+    }
+}
+
+impl PartialEq for Ern {
+    fn eq(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.inner, &other.inner) || self.inner == other.inner
+    }
+}
+
+impl Eq for Ern {}
+
+impl Hash for Ern {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.inner.hash(state);
+    }
+}
+
+impl Ord for Ern {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.inner.root.name().cmp(other.inner.root.name())
+    }
+}
+
+impl PartialOrd for Ern {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Display for Ern {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        let mut display = format!(
+            "{}{}:{}:{}:{}",
+            Domain::prefix(),
+            self.inner.domain,
+            self.inner.category,
+            self.inner.account,
+            self.inner.root
+        );
+        if !self.inner.parts.0.is_empty() {
+            display = format!("{}/{}", display, self.inner.parts);
+        }
+        write!(f, "{}", display)
+    }
+}
+
+impl Add for Ern {
+    type Output = Ern;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        let mut new_parts = self.inner.parts.0.clone();
+        new_parts.extend(rhs.inner.parts.0.iter().cloned());
+        Ern::from_inner(ErnInner {
+            domain: self.inner.domain.clone(),
+            category: self.inner.category.clone(),
+            account: self.inner.account.clone(),
+            root: self.inner.root.clone(),
+            parts: Parts(new_parts),
+        })
     }
 }
 
@@ -365,13 +420,49 @@ impl Default for Ern {
     /// This is primarily used internally and for testing. For creating ERNs in
     /// application code, prefer using `ErnBuilder` or the `with_root` method.
     fn default() -> Self {
-        Ern {
-            domain: Domain::default(),
-            category: Category::default(),
-            account: Account::default(),
-            root: EntityRoot::default(),
-            parts: Parts::new(Vec::default()),
+        Ern::new(
+            Domain::default(),
+            Category::default(),
+            Account::default(),
+            EntityRoot::default(),
+            Parts::new(Vec::default()),
+        )
+    }
+}
+
+#[cfg(feature = "serde")]
+impl serde::Serialize for Ern {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        use serde::ser::SerializeStruct;
+        let mut state = serializer.serialize_struct("Ern", 5)?;
+        state.serialize_field("domain", &self.inner.domain)?;
+        state.serialize_field("category", &self.inner.category)?;
+        state.serialize_field("account", &self.inner.account)?;
+        state.serialize_field("root", &self.inner.root)?;
+        state.serialize_field("parts", &self.inner.parts)?;
+        state.end()
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for Ern {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        #[derive(serde::Deserialize)]
+        struct ErnFields {
+            domain: Domain,
+            category: Category,
+            account: Account,
+            root: EntityRoot,
+            parts: Parts,
         }
+        let fields = ErnFields::deserialize(deserializer)?;
+        Ok(Ern::new(
+            fields.domain,
+            fields.category,
+            fields.account,
+            fields.root,
+            fields.parts,
+        ))
     }
 }
 
@@ -460,22 +551,22 @@ mod tests {
     #[test]
     fn test_ern_with_root() {
         let ern: Ern = Ern::with_root("custom_root").unwrap();
-        assert!(ern.root.as_str().starts_with("custom_root"));
-        assert_eq!(ern.domain, Domain::default());
-        assert_eq!(ern.category, Category::default());
-        assert_eq!(ern.account, Account::default());
-        assert_eq!(ern.parts, Parts::default());
+        assert!(ern.root().as_str().starts_with("custom_root"));
+        assert_eq!(*ern.domain(), Domain::default());
+        assert_eq!(*ern.category(), Category::default());
+        assert_eq!(*ern.account(), Account::default());
+        assert_eq!(*ern.parts(), Parts::default());
     }
 
     #[test]
     fn test_ern_with_new_root() {
         let original_ern: Ern = Ern::default();
         let new_ern: Ern = original_ern.with_new_root("new_root").unwrap();
-        assert!(new_ern.root.as_str().starts_with("new_root"));
-        assert_eq!(new_ern.domain, original_ern.domain);
-        assert_eq!(new_ern.category, original_ern.category);
-        assert_eq!(new_ern.account, original_ern.account);
-        assert_eq!(new_ern.parts, original_ern.parts);
+        assert!(new_ern.root().as_str().starts_with("new_root"));
+        assert_eq!(new_ern.domain(), original_ern.domain());
+        assert_eq!(new_ern.category(), original_ern.category());
+        assert_eq!(new_ern.account(), original_ern.account());
+        assert_eq!(new_ern.parts(), original_ern.parts());
     }
 
     #[test]
@@ -502,12 +593,12 @@ mod tests {
 
         let combined: Ern = parent + child;
 
-        assert_eq!(combined.domain, Domain::from_str("acton-internal").unwrap());
-        assert_eq!(combined.category, Category::from_str("hr").unwrap());
-        assert_eq!(combined.account, Account::from_str("company123").unwrap());
-        assert_eq!(combined.root, parent_root);
+        assert_eq!(*combined.domain(), Domain::from_str("acton-internal").unwrap());
+        assert_eq!(*combined.category(), Category::from_str("hr").unwrap());
+        assert_eq!(*combined.account(), Account::from_str("company123").unwrap());
+        assert_eq!(*combined.root(), parent_root);
         assert_eq!(
-            combined.parts,
+            *combined.parts(),
             Parts(vec![
                 Part::from_str("department_a").unwrap(),
                 Part::from_str("team1").unwrap(),
@@ -538,7 +629,7 @@ mod tests {
         let combined = parent + child;
 
         assert_eq!(
-            combined.parts,
+            *combined.parts(),
             Parts(vec![Part::from_str("department_a").unwrap()])
         );
     }
@@ -561,7 +652,7 @@ mod tests {
         );
         let combined = parent + child;
         assert_eq!(
-            combined.parts,
+            *combined.parts(),
             Parts(vec![Part::from_str("role_x").unwrap()])
         );
     }

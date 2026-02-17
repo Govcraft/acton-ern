@@ -19,13 +19,13 @@ fn test_sha1name_in_ern() -> anyhow::Result<()> {
     );
 
     let ern = ern?;
-    assert_eq!(ern.domain.to_string(), "acton-internal");
-    assert_eq!(ern.category.to_string(), "hr");
-    assert_eq!(ern.account.to_string(), "company123");
-    assert_eq!(ern.parts.to_string(), "departmentA/team1");
+    assert_eq!(ern.domain().to_string(), "acton-internal");
+    assert_eq!(ern.category().to_string(), "hr");
+    assert_eq!(ern.account().to_string(), "company123");
+    assert_eq!(ern.parts().to_string(), "departmentA/team1");
 
     // The root should not be empty
-    assert!(!ern.root.to_string().is_empty());
+    assert!(!ern.root().to_string().is_empty());
 
     Ok(())
 }
